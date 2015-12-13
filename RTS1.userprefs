@@ -1,16 +1,15 @@
 ﻿<Properties StartupItem="Assembly-CSharp.csproj">
   <MonoDevelop.Ide.Workspace ActiveConfiguration="Debug" PreferredExecutionTarget="Unity.Instance.Unity Editor" />
-  <MonoDevelop.Ide.Workbench ActiveDocument="Assets/enemyMove.cs">
+  <MonoDevelop.Ide.Workbench ActiveDocument="Assets/PlayerMove.cs">
     <Files>
-      <File FileName="Assets/PlayerMove.cs" Line="64" Column="3" />
-      <File FileName="Assets/enemyMove.cs" Line="117" Column="28" />
+      <File FileName="Assets/PlayerMove.cs" Line="45" Column="17" />
+      <File FileName="Assets/enemyMove.cs" Line="17" Column="1" />
       <File FileName="Assets/summonsServant.cs" Line="44" Column="3" />
+      <File FileName="Assets/Measure.cs" Line="84" Column="43" />
     </Files>
   </MonoDevelop.Ide.Workbench>
   <MonoDevelop.Ide.DebuggingService.Breakpoints>
-    <BreakpointStore>
-      <RunToCursorBreakpoint file="/Users/Vantan/RTS1/Assets/enemyMove.cs" line="98" column="3" />
-    </BreakpointStore>
+    <BreakpointStore />
   </MonoDevelop.Ide.DebuggingService.Breakpoints>
   <MonoDevelop.Ide.DebuggingService.PinnedWatches />
 </Properties>

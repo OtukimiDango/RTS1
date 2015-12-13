@@ -14,12 +14,9 @@ public class enemyMove : MonoBehaviour
 	private static byte speed = 15;
 	public string state = "move";
 
-	//private bool measureSpace = true;//gamemanagerを作りstaticにする
 	public GameObject frontAlly = null;
-	//public static List<GameObject> red = new List<GameObject> ();
 	public static List<GameObject> allys = new List<GameObject> ();
 	public List<GameObject> atEnemys = new List<GameObject> ();
-	//private static float frontdis = 7;
 	private GameObject saveFrontAlly;
 
 	private bool right = true;
@@ -53,14 +50,8 @@ public class enemyMove : MonoBehaviour
 				myPos.x = myPos.x - (tgtDis.x * Time.deltaTime) / (speed * (myPos.z / tgtDis.z));
 			}
 			transform.position = myPos;
-//			if (measureSpace) {
-//				StartCoroutine (measure ());
-//			}
 			break;
 		case "detour":
-//			if (measureSpace) {
-//				StartCoroutine (measure ());
-//			}
 			detour ();
 			break;
 		case "fight":
@@ -102,39 +93,12 @@ public class enemyMove : MonoBehaviour
 			break;
 		case "summonRed":
 			state = "fight";
-			//this.tag = "PlayerStop";
+			gameObject.tag = "PlayerStop";
 			break;
 		default :
 			break;
 		}
 	}
-
-//	private IEnumerator measure ()
-//	{
-//		measureSpace = false;
-//		//allys.Clear();
-//		//allys.AddRange (GameObject.FindGameObjectsWithTag ("StopEnemy"));
-////		allys.Remove (gameObject);
-////		foreach (Transform child in transform) {
-////			allys.Remove (child.gameObject);
-////		}
-//		foreach (GameObject posObj in allys) {
-//			Vector3 allyDis = distance (posObj.transform.position, myPos);
-//			float myScaleX = gameObject.transform.localScale.x;
-//			float myScaleZ = gameObject.transform.localScale.z;
-//			float allyScaleZ = posObj.transform.localScale.z;
-//			if (allyDis.x <= myScaleX / 2
-//			    && allyDis.x >= -myScaleX / 2
-//				&& allyDis.z - ((myScaleZ + allyScaleZ) / 2) >= -frontdis
-//			    && allyDis.z <= 0) {
-//				frontdis = allyDis.z;
-//				frontAlly = posObj;
-//				detourReady ();
-//			}
-//		}
-//		yield return new WaitForSeconds (0.2f);
-//		measureSpace = true;
-//	}
 
 	public void detourReady ()
 	{
@@ -156,6 +120,7 @@ public class enemyMove : MonoBehaviour
 		if (detourDis > 0) {
 			if (myPos.x >= savePos.x + detourDis) {
 				state = "move";
+				saveFrontAlly = null;
 				tgtDis.x = myPos.x;
 			} else {
 				myPos.x += (detourDis * (Time.deltaTime * 3));
@@ -163,6 +128,7 @@ public class enemyMove : MonoBehaviour
 			}
 		} else {
 			if (myPos.x <= savePos.x + detourDis) {
+				saveFrontAlly = null;
 				state = "move";
 				tgtDis.x = myPos.x;
 			} else {
@@ -217,7 +183,7 @@ public class enemyMove : MonoBehaviour
 			enemy.tag = "Player";
 		}
 		summonsServant.sp += 10;
-		Destroy (this.gameObject);
+		Destroy (gameObject);
 
 	}
 }
