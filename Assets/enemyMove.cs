@@ -4,26 +4,37 @@ using System.Collections.Generic;
 
 public class enemyMove : MonoBehaviour
 {
-	public int HP = 200;
 	private GameObject tgt;
+	private Vector3 tgtDis;
+
+	public short HP = 200;
 	private Vector3 myPos;
 	private Vector3 savePos;
 	private float detourDis;
-	private Vector3 tgtDis;
-	private int speed = 10;
+	private static byte speed = 15;
 	public string state = "move";
-	private bool measureSpace = true;
-	private GameObject frontAlly = null;
-	private List<GameObject> allys = new List<GameObject> ();
+
+	//private bool measureSpace = true;//gamemanagerを作りstaticにする
+	public GameObject frontAlly = null;
+	//public static List<GameObject> red = new List<GameObject> ();
+	public static List<GameObject> allys = new List<GameObject> ();
 	public List<GameObject> atEnemys = new List<GameObject> ();
-	private float frontdis = 7.0f;
+	//private static float frontdis = 7;
 	private GameObject saveFrontAlly;
+
 	private bool right = true;
+
 	public PlayerMove script;
+
 	private bool attackSpace = true;
+
+	public static byte count = 0;
 
 	void Start ()
 	{
+		//red.Add (gameObject);
+		count++;
+		gameObject.name = "BlueSoldier" + count;
 		right = Random.value > 0.5f ? true : false;
 		tgt = GameObject.Find ("summonRed");
 		myPos = transform.position;
@@ -33,6 +44,7 @@ public class enemyMove : MonoBehaviour
 	// Update is called once per frame
 	void Update ()
 	{
+		//Debug.Log (gameObject+" == "+state);
 		switch (state) {
 		case "move":
 			myPos.z = myPos.z + (tgtDis.z * Time.deltaTime) / speed;
@@ -41,14 +53,14 @@ public class enemyMove : MonoBehaviour
 				myPos.x = myPos.x - (tgtDis.x * Time.deltaTime) / (speed * (myPos.z / tgtDis.z));
 			}
 			transform.position = myPos;
-			if (measureSpace) {
-				StartCoroutine (measure ());
-			}
+//			if (measureSpace) {
+//				StartCoroutine (measure ());
+//			}
 			break;
 		case "detour":
-			if (measureSpace) {
-				StartCoroutine (measure ());
-			}
+//			if (measureSpace) {
+//				StartCoroutine (measure ());
+//			}
 			detour ();
 			break;
 		case "fight":
@@ -74,17 +86,17 @@ public class enemyMove : MonoBehaviour
 				if (script.atEnemys.Count < 3) {
 					script.atEnemys.Add (gameObject);
 					state = "fight";
-					//this.tag = "PlayerStop";
+					gameObject.tag = "StopEnemy";
 				}
 			}
 			break;
-		case "PlayerStop":
+		case "StopPlayer":
 			if (gameObject.CompareTag ("Enemy") && state != "fight") {
 				script = col.gameObject.GetComponent<PlayerMove> ();
 				if (script.atEnemys.Count < 3) {
 					script.atEnemys.Add (gameObject);
 					state = "fight";
-					//this.tag = "PlayerStop";
+					gameObject.tag = "StopEnemy";
 				}
 			}
 			break;
@@ -97,34 +109,34 @@ public class enemyMove : MonoBehaviour
 		}
 	}
 
-	private IEnumerator measure ()
-	{
-		measureSpace = false;
-		allys.AddRange (GameObject.FindGameObjectsWithTag ("Enemy"));
-		allys.Remove (gameObject);
-		foreach (Transform child in transform) {
-			allys.Remove (child.gameObject);
-		}
-		foreach (GameObject posObj in allys) {
-			Vector3 allyDis = distance (posObj.transform.position, myPos);
-			float myScaleX = gameObject.transform.localScale.x;
-			float myScaleZ = gameObject.transform.localScale.z;
-			float allyScaleZ = posObj.transform.localScale.z;
-			Debug.Log( allyDis.z - (myScaleZ + allyScaleZ / 2));
-			if (allyDis.x <= myScaleX / 2
-			    && allyDis.x >= -myScaleX / 2
-			    && allyDis.z - (myScaleZ + allyScaleZ / 2) >= -frontdis
-			    && allyDis.z >= 0) {
-				frontdis = allyDis.z;
-				frontAlly = posObj;
-				detourReady ();
-			}
-		}
-		yield return new WaitForSeconds (0.2f);
-		measureSpace = true;
-	}
+//	private IEnumerator measure ()
+//	{
+//		measureSpace = false;
+//		//allys.Clear();
+//		//allys.AddRange (GameObject.FindGameObjectsWithTag ("StopEnemy"));
+////		allys.Remove (gameObject);
+////		foreach (Transform child in transform) {
+////			allys.Remove (child.gameObject);
+////		}
+//		foreach (GameObject posObj in allys) {
+//			Vector3 allyDis = distance (posObj.transform.position, myPos);
+//			float myScaleX = gameObject.transform.localScale.x;
+//			float myScaleZ = gameObject.transform.localScale.z;
+//			float allyScaleZ = posObj.transform.localScale.z;
+//			if (allyDis.x <= myScaleX / 2
+//			    && allyDis.x >= -myScaleX / 2
+//				&& allyDis.z - ((myScaleZ + allyScaleZ) / 2) >= -frontdis
+//			    && allyDis.z <= 0) {
+//				frontdis = allyDis.z;
+//				frontAlly = posObj;
+//				detourReady ();
+//			}
+//		}
+//		yield return new WaitForSeconds (0.2f);
+//		measureSpace = true;
+//	}
 
-	private void detourReady ()
+	public void detourReady ()
 	{
 		if (saveFrontAlly != frontAlly) { 
 			saveFrontAlly = frontAlly;
@@ -183,7 +195,7 @@ public class enemyMove : MonoBehaviour
 	//	}
 	//	}
 
-	private Vector3 distance (Vector3 target, Vector3 me)
+	public  static Vector3 distance (Vector3 target, Vector3 me)
 	{
 		Vector3 dis = target - me;
 		return dis;
@@ -202,8 +214,8 @@ public class enemyMove : MonoBehaviour
 		foreach (GameObject enemy in atEnemys) {
 			script = enemy.GetComponent<PlayerMove> ();
 			script.state = "move";
+			enemy.tag = "Player";
 		}
-		//tgt.SendMessage ("victorySpUp", 2);
 		summonsServant.sp += 10;
 		Destroy (this.gameObject);
 

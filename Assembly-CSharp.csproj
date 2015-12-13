@@ -45,6 +45,7 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+     <Compile Include="Assets\Measure.cs" />
      <Compile Include="Assets\PlayerMove.cs" />
      <Compile Include="Assets\detour.cs" />
      <Compile Include="Assets\enemyMove.cs" />

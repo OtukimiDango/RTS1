@@ -4,26 +4,30 @@ using System.Collections.Generic;
 
 public class PlayerMove : MonoBehaviour
 {
-	public int HP = 200;
 	private GameObject tgt;
+	private Vector3 tgtDis;
+
+	public int HP = 200;
 	private Vector3 myPos;
 	private Vector3 savePos;
 	private float detourDis;
-	private Vector3 tgtDis;
-	private int speed = 10;
+	private static int speed = 10;
 	public string state = "move";
 	private bool measureSpace = true;
 	private GameObject frontAlly = null;
-	private List<GameObject> allys = new List<GameObject> ();
+	private static List<GameObject> allys = new List<GameObject> ();
 	public List<GameObject> atEnemys = new List<GameObject> ();
 	private float frontdis = 7.0f;
 	private GameObject saveFrontAlly;
 	private bool right = true;
 	public enemyMove script;
 	private bool attackSpace = true;
+	private static int count = 0;
 
 	void Start ()
 	{
+		count++;
+		gameObject.name = "RedSoldier" + count;
 		right = Random.value > 0.5f ? true : false;
 		tgt = GameObject.Find ("summonBlue");
 		myPos = transform.position;
@@ -73,13 +77,23 @@ public class PlayerMove : MonoBehaviour
 				if (script.atEnemys.Count < 3) {
 					script.atEnemys.Add (gameObject);
 					state = "fight";
-					this.tag = "PlayerStop";
+					gameObject.tag = "StopPlayer";
+				}
+			}
+			break;
+		case "StopEnemy":
+			if (gameObject.CompareTag ("Player") && state != "fight") {
+				script = col.gameObject.GetComponent<enemyMove> ();
+				if (script.atEnemys.Count < 3) {
+					script.atEnemys.Add (gameObject);
+					state = "fight";
+					gameObject.tag = "StopEnemy";
 				}
 			}
 			break;
 		case "summonBlue":
 			state = "fight";
-			this.tag = "PlayerStop";
+			this.tag = "StopPlayer";
 			break;
 		default :
 			break;
@@ -89,11 +103,12 @@ public class PlayerMove : MonoBehaviour
 	private IEnumerator measure ()
 	{
 		measureSpace = false;
-		allys.AddRange (GameObject.FindGameObjectsWithTag ("PlayerStop"));
-		allys.Remove (gameObject);
-		foreach (Transform child in transform) {
-			allys.Remove (child.gameObject);
-		}
+		allys.Clear();
+		allys.AddRange (GameObject.FindGameObjectsWithTag ("StopPlayer"));
+		//allys.Remove (gameObject);
+//		foreach (Transform child in transform) {
+//			allys.Remove (child.gameObject);
+//		}
 		foreach (GameObject posObj in allys) {
 			Vector3 allyDis = distance (posObj.transform.position, myPos);
 			float myScaleX = gameObject.transform.localScale.x;
@@ -172,7 +187,7 @@ public class PlayerMove : MonoBehaviour
 	//	}
 	//	}
 
-	private Vector3 distance (Vector3 target, Vector3 me)
+	private static Vector3 distance (Vector3 target, Vector3 me)
 	{
 		Vector3 dis = target - me;
 		return dis;
@@ -190,7 +205,9 @@ public class PlayerMove : MonoBehaviour
 	{
 		foreach (GameObject enemy in atEnemys) {
 			script = enemy.GetComponent<enemyMove> ();
+			script.atEnemys.Remove (gameObject);
 			script.state = "move";
+			enemy.tag = "Enemy";
 		}
 		//tgt.SendMessage ("victorySpUp", 2);
 		summonsServant.sp += 10;
