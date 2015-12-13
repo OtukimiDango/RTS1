@@ -91,6 +91,16 @@ public class PlayerMove : MonoBehaviour
 		}
 	}
 
+	public void detourReady ()
+	{
+		if (saveFrontAlly != frontAlly) { 
+			saveFrontAlly = frontAlly;
+			detourDis = right ? frontAlly.transform.localScale.x : -frontAlly.transform.localScale.x;
+			state = "detour";
+			savePos = myPos;
+		}
+	}
+
 	public static Vector3 distance (Vector3 target, Vector3 me)
 	{
 		Vector3 dis = target - me;
