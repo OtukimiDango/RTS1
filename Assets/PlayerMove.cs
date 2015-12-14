@@ -151,7 +151,7 @@ public class PlayerMove : MonoBehaviour
 	{
 		foreach (GameObject enemy in atEnemys) {
 			script = enemy.GetComponent<enemyMove> ();
-			script.atEnemys.Remove (GameObject);
+			script.atEnemys.Remove (gameObject);
 			script.state = "move";
 			enemy.tag = "Enemy";
 		}
