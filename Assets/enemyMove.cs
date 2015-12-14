@@ -7,12 +7,12 @@ public class enemyMove : MonoBehaviour
 	private GameObject tgt;
 	private Vector3 tgtDis;
 
-	public short HP = 200;
+	public int HP;
 	private Vector3 myPos;
 	private Vector3 savePos;
 	private float detourDis;
 	private static byte speed = 15;
-	public string state = "move";
+	public string state;
 
 	public GameObject frontAlly = null;
 	public static List<GameObject> allys = new List<GameObject> ();
@@ -36,6 +36,8 @@ public class enemyMove : MonoBehaviour
 		tgt = GameObject.Find ("summonRed");
 		myPos = transform.position;
 		tgtDis = distance (tgt.transform.position, myPos);
+		HP = 200;
+		state = "move";
 	}
 
 	// Update is called once per frame
@@ -171,7 +173,7 @@ public class enemyMove : MonoBehaviour
 	{
 		script.HP -= 30;
 		attackSpace = false;
-		yield return new WaitForSeconds (3);
+		yield return new WaitForSeconds (2.5f);
 		attackSpace = true;
 	}
 
