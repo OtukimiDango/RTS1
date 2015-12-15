@@ -1,3 +1,7 @@
+/Users/Vantan/RTS1/Temp/bin/Debug/Assembly-CSharp.dll.mdb
+/Users/Vantan/RTS1/Temp/bin/Debug/Assembly-CSharp.dll
+/Users/Vantan/RTS1/obj/Debug/Assembly-CSharp.dll
+/Users/Vantan/RTS1/obj/Debug/Assembly-CSharp.dll.mdb
 /Users/Vantan/RTS1/Temp/bin/Debug/UnityEngine.dll
 /Users/Vantan/RTS1/Temp/bin/Debug/UnityEditor.dll
 /Users/Vantan/RTS1/Temp/bin/Debug/UnityEngine.UI.dll
@@ -11,7 +15,3 @@
 /Users/Vantan/RTS1/Temp/bin/Debug/Unity.CecilTools.dll
 /Users/Vantan/RTS1/Temp/bin/Debug/Mono.Cecil.Pdb.dll
 /Users/Vantan/RTS1/Temp/bin/Debug/Mono.Cecil.Mdb.dll
-/Users/Vantan/RTS1/Temp/bin/Debug/Assembly-CSharp.dll.mdb
-/Users/Vantan/RTS1/Temp/bin/Debug/Assembly-CSharp.dll
-/Users/Vantan/RTS1/obj/Debug/Assembly-CSharp.dll
-/Users/Vantan/RTS1/obj/Debug/Assembly-CSharp.dll.mdb

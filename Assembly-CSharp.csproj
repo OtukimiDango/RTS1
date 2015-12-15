@@ -45,10 +45,11 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+     <Compile Include="Assets\Blue.cs" />
      <Compile Include="Assets\Measure.cs" />
-     <Compile Include="Assets\PlayerMove.cs" />
+     <Compile Include="Assets\Player.cs" />
+     <Compile Include="Assets\Red.cs" />
      <Compile Include="Assets\detour.cs" />
-     <Compile Include="Assets\enemyMove.cs" />
      <Compile Include="Assets\summonsServant.cs" />
  <Reference Include="UnityEngine.UI">
  <HintPath>/Applications/Unity/Unity.app/Contents/UnityExtensions/Unity/GUISystem/UnityEngine.UI.dll</HintPath>

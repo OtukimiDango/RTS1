@@ -1,6 +1,7 @@
 ﻿using UnityEngine;
 using System.Collections;
 using System.Collections.Generic;
+using System.Threading;
 
 public class Measure : MonoBehaviour
 {
@@ -21,21 +22,21 @@ public class Measure : MonoBehaviour
 	{
 	}
 
-	private IEnumerator measure ()
+	private static  IEnumerator measure ()
 	{
 		while (true) {
 			reds.Clear ();
 			reds.AddRange (GameObject.FindGameObjectsWithTag ("Enemy"));
-			enemyMove.allys.Clear ();//?
-			enemyMove.allys.AddRange (GameObject.FindGameObjectsWithTag ("StopEnemy"));//?
+			Blue.allys.Clear ();//?
+			Blue.allys.AddRange (GameObject.FindGameObjectsWithTag ("StopEnemy"));//?
 			//		allys.Remove (gameObject);
 			//		foreach (Transform child in transform) {
 			//			allys.Remove (child.gameObject);
 			//		}
 			foreach (GameObject red in reds) {
-				enemyMove em = red.GetComponent<enemyMove> ();
-				foreach (GameObject posObj in enemyMove.allys) {
-					Vector3 allyDis = enemyMove.distance (posObj.transform.position, red.transform.position);
+				Blue em = red.GetComponent<Blue> ();
+				foreach (GameObject posObj in Blue.allys) {
+					Vector3 allyDis = Blue.distance (posObj.transform.position, red.transform.position);
 					float myScaleX = red.transform.lossyScale.x;
 					float myScaleZ = red.transform.lossyScale.z;
 					float allyScaleZ = posObj.transform.localScale.z;
@@ -44,8 +45,8 @@ public class Measure : MonoBehaviour
 					    && allyDis.z - ((myScaleZ + allyScaleZ) / 2) >= -frontdis
 					    && allyDis.z <= 0) {
 						frontdis = allyDis.z;
-						red.GetComponent<enemyMove>().frontAlly = posObj;
-						red.GetComponent<enemyMove>().detourReady ();
+						red.GetComponent<Blue>().frontAlly = posObj;
+						red.GetComponent<Blue>().detourReady ();
 
 					}
 
@@ -54,19 +55,19 @@ public class Measure : MonoBehaviour
 
 			}
 			yield return new WaitForSeconds (0.1f);
-
+			while (true) {
 			blues.Clear ();
 			blues.AddRange (GameObject.FindGameObjectsWithTag ("Player"));
-			PlayerMove.allys.Clear ();
-			PlayerMove.allys.AddRange (GameObject.FindGameObjectsWithTag ("StopPlayer"));
+			Red.allys.Clear ();
+			Red.allys.AddRange (GameObject.FindGameObjectsWithTag ("StopPlayer"));
 			//allys.Remove (gameObject);
 			//		foreach (Transform child in transform) {
 			//			allys.Remove (child.gameObject);
 			//		}
 			foreach (GameObject blue in blues) {
-				PlayerMove pm = blue.GetComponent<PlayerMove> ();
-				foreach (GameObject posObj in PlayerMove.allys) {
-					Vector3 allyDis = PlayerMove.distance (posObj.transform.position, blue.transform.position);
+					Red pm = blue.GetComponent<Red> ();
+					foreach (GameObject posObj in Red.allys) {
+						Vector3 allyDis = Red.distance (posObj.transform.position, blue.transform.position);
 					float myScaleX = blue.transform.lossyScale.x;
 					float myScaleZ = blue.transform.lossyScale.z;
 					float allyScaleZ = posObj.transform.localScale.z;
@@ -83,6 +84,7 @@ public class Measure : MonoBehaviour
 			}
 			yield return new WaitForSeconds (0.1f);
 
+		}
 		}
 	}
 }
