@@ -1,19 +1,14 @@
 ﻿<Properties StartupItem="Assembly-CSharp.csproj">
   <MonoDevelop.Ide.Workspace ActiveConfiguration="Debug" PreferredExecutionTarget="Unity.Instance.Unity Editor" />
-  <MonoDevelop.Ide.Workbench ActiveDocument="Assets/Measure.cs">
+  <MonoDevelop.Ide.Workbench ActiveDocument="Assets/nextStage.cs">
     <Files>
-<<<<<<< HEAD
-      <File FileName="Assets/Measure.cs" Line="79" Column="1" />
-      <File FileName="Assets/Red.cs" Line="40" Column="23" />
-      <File FileName="Assets/Blue.cs" Line="4" Column="20" />
-      <File FileName="Assets/summonsServant.cs" Line="36" Column="50" />
-      <File FileName="Assets/Player.cs" Line="11" Column="36" />
-=======
-      <File FileName="Assets/Measure.cs" Line="79" Column="25" />
-      <File FileName="Assets/PlayerMove.cs" Line="97" Column="20" />
-      <File FileName="Assets/enemyMove.cs" Line="103" Column="2" />
-      <File FileName="Assets/summonsServant.cs" Line="1" Column="1" />
->>>>>>> parent of 5d15ef6... Witch追加。召喚完了。
+      <File FileName="Assets/Blue.cs" Line="96" Column="35" />
+      <File FileName="Assets/Red.cs" Line="167" Column="24" />
+      <File FileName="Assets/Measure.cs" Line="88" Column="2" />
+      <File FileName="Assets/Player.cs" Line="19" Column="27" />
+      <File FileName="Assets/summonsServant.cs" Line="30" Column="61" />
+      <File FileName="Assets/EyeCol.cs" Line="20" Column="53" />
+      <File FileName="Assets/nextStage.cs" Line="19" Column="1" />
     </Files>
   </MonoDevelop.Ide.Workbench>
   <MonoDevelop.Ide.DebuggingService.Breakpoints>
