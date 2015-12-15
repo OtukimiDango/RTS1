@@ -11,7 +11,7 @@ public class Measure : MonoBehaviour
 	// Use this for initialization
 	void Start ()
 	{
-		StartCoroutine (measure ());
+		//StartCoroutine (measure ());
 		blues.AddRange (GameObject.FindGameObjectsWithTag ("Enemy"));
 		reds.AddRange (GameObject.FindGameObjectsWithTag ("Player"));
 	}

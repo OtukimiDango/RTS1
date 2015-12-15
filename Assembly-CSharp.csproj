@@ -46,6 +46,7 @@
   </ItemGroup>
   <ItemGroup>
      <Compile Include="Assets\Blue.cs" />
+     <Compile Include="Assets\EyeCol.cs" />
      <Compile Include="Assets\Measure.cs" />
      <Compile Include="Assets\Player.cs" />
      <Compile Include="Assets\Red.cs" />

@@ -21,6 +21,7 @@ public class Red : MonoBehaviour
 	public Blue script;
 	private bool attackSpace = true;
 	private static int count = 0;
+	public GameObject attackEnemy;
 
 	void Start ()
 	{
@@ -37,12 +38,12 @@ public class Red : MonoBehaviour
 	// Update is called once per frame
 	void Update ()
 	{
-		Debug.Log (HP);
+		//Debug.Log (HP);
 		switch (state) {
 		case "move":
 			myPos.z = myPos.z + (tgtDis.z * Time.deltaTime) / speed;
 			if (myPos.x >= 1 || myPos.x <= -1) {
-				myPos.x = myPos.x - (tgtDis.x * Time.deltaTime) / (speed * (myPos.z / tgtDis.z));
+				myPos.x = myPos.x - (tgtDis.x * (Time.deltaTime / (speed * (myPos.z / tgtDis.z))));
 			}
 			transform.position = myPos;
 			break;
@@ -71,6 +72,7 @@ public class Red : MonoBehaviour
 				script = col.gameObject.GetComponent<Blue> ();
 				if (script.atEnemys.Count < 3) {
 					script.atEnemys.Add (gameObject);
+					attackEnemy = col.gameObject;
 					state = "fight";
 					gameObject.tag = "StopPlayer";
 				}
@@ -81,6 +83,7 @@ public class Red : MonoBehaviour
 				script = col.gameObject.GetComponent<Blue> ();
 				if (script.atEnemys.Count < 3) {
 					script.atEnemys.Add (gameObject);
+					attackEnemy = col.gameObject;
 					state = "fight";
 					gameObject.tag = "StopPlayer";
 				}
@@ -89,6 +92,7 @@ public class Red : MonoBehaviour
 		case "summonBlue":
 			state = "fight";
 			gameObject.tag = "StopPlayer";
+			Debug.Log ("yes");
 			break;
 		default :
 			break;
@@ -99,7 +103,7 @@ public class Red : MonoBehaviour
 	{
 		if (saveFrontAlly != frontAlly) { 
 			saveFrontAlly = frontAlly;
-			detourDis = right ? frontAlly.transform.localScale.x : -frontAlly.transform.localScale.x;
+			detourDis = right ? saveFrontAlly.transform.localScale.x+3 : -(saveFrontAlly.transform.localScale.x+3);
 			state = "detour";
 			savePos = myPos;
 		}
@@ -113,18 +117,19 @@ public class Red : MonoBehaviour
 		//		myPos.z += Mathf.Sin(0.21f)*(1 + ((detourTarget.transform.localScale.z/10)*1.5f));
 		//		transform.position = myPos;
 		if (detourDis > 0) {
-			if (myPos.x >= savePos.x + detourDis) {
+			if (myPos.x >= savePos.x + detourDis +1) {
 				state = "move";
-				saveFrontAlly = null;
+				gameObject.tag="Player";
 				tgtDis.x = myPos.x;
+
 			} else {
 				myPos.x += (detourDis * (Time.deltaTime * 3));
 				transform.position = myPos;
 			}
 		} else {
-			if (myPos.x <= savePos.x + detourDis) {
-				saveFrontAlly = null;
+			if (myPos.x <= savePos.x + detourDis+1) {
 				state = "move";
+				gameObject.tag="Player";
 				tgtDis.x = myPos.x;
 			} else {
 				myPos.x += (detourDis * (Time.deltaTime * 3));
@@ -141,7 +146,7 @@ public class Red : MonoBehaviour
 
 	private IEnumerator attack ()
 	{
-		script.HP -= 30;
+		attackEnemy.GetComponent<Blue>().HP -= 30;
 		attackSpace = false;
 		yield return new WaitForSeconds (3);
 		attackSpace = true;
@@ -149,10 +154,16 @@ public class Red : MonoBehaviour
 
 	private void death ()
 	{
+		Debug.Log (gameObject+""+ attackEnemy);
+		if (attackEnemy != null) {
+			attackEnemy.GetComponent<Blue> ().atEnemys.Remove (gameObject);
+		}
+
 		foreach (GameObject enemy in atEnemys) {
 			script = enemy.GetComponent<Blue> ();
 			script.atEnemys.Remove (gameObject);
 			script.state = "move";
+			script.attackEnemy = null;
 			enemy.tag = "Enemy";
 		}
 		summonsServant.sp += 10;

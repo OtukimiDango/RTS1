@@ -27,6 +27,8 @@ public class Blue : MonoBehaviour
 
 	public static byte count = 0;
 
+	public GameObject attackEnemy;
+
 	void Start ()
 	{
 		//red.Add (gameObject);
@@ -79,6 +81,7 @@ public class Blue : MonoBehaviour
 				if (script.atEnemys.Count < 3) {
 					script.atEnemys.Add (gameObject);
 					state = "fight";
+					attackEnemy = col.gameObject;
 					gameObject.tag = "StopEnemy";
 				}
 			}
@@ -89,6 +92,7 @@ public class Blue : MonoBehaviour
 				if (script.atEnemys.Count < 3) {
 					script.atEnemys.Add (gameObject);
 					state = "fight";
+					attackEnemy = col.gameObject;
 					gameObject.tag = "StopEnemy";
 				}
 			}
@@ -122,7 +126,6 @@ public class Blue : MonoBehaviour
 		if (detourDis > 0) {
 			if (myPos.x >= savePos.x + detourDis) {
 				state = "move";
-				saveFrontAlly = null;
 				tgtDis.x = myPos.x;
 			} else {
 				myPos.x += (detourDis * (Time.deltaTime * 3));
@@ -130,7 +133,6 @@ public class Blue : MonoBehaviour
 			}
 		} else {
 			if (myPos.x <= savePos.x + detourDis) {
-				saveFrontAlly = null;
 				state = "move";
 				tgtDis.x = myPos.x;
 			} else {
@@ -171,7 +173,7 @@ public class Blue : MonoBehaviour
 
 	private IEnumerator attack ()
 	{
-		script.HP -= 30;
+		attackEnemy.GetComponent<Red>().HP -= 30;
 		attackSpace = false;
 		yield return new WaitForSeconds (2.5f);
 		attackSpace = true;
@@ -179,10 +181,12 @@ public class Blue : MonoBehaviour
 
 	private void death ()
 	{
+		attackEnemy.GetComponent<Red> ().atEnemys.Remove (gameObject);
 		foreach (GameObject enemy in atEnemys) {
 			script = enemy.GetComponent<Red> ();
 			script.state = "move";
 			enemy.tag = "Player";
+			script.attackEnemy = null;
 		}
 		summonsServant.sp += 10;
 		Destroy (gameObject);
