@@ -17,7 +17,7 @@ public class summonsServant : MonoBehaviour {
 		StartCoroutine (spUp ());
 		spawnPoint = GameObject.Find("spawnPoint");
 	}
-	
+
 	// Update is called once per frame
 	void Update () {
 		if(Input.GetKey(KeyCode.Alpha1) && summonSpace && sp > 9){

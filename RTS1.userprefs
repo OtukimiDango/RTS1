@@ -2,11 +2,18 @@
   <MonoDevelop.Ide.Workspace ActiveConfiguration="Debug" PreferredExecutionTarget="Unity.Instance.Unity Editor" />
   <MonoDevelop.Ide.Workbench ActiveDocument="Assets/Measure.cs">
     <Files>
+<<<<<<< HEAD
       <File FileName="Assets/Measure.cs" Line="79" Column="1" />
       <File FileName="Assets/Red.cs" Line="40" Column="23" />
       <File FileName="Assets/Blue.cs" Line="4" Column="20" />
       <File FileName="Assets/summonsServant.cs" Line="36" Column="50" />
       <File FileName="Assets/Player.cs" Line="11" Column="36" />
+=======
+      <File FileName="Assets/Measure.cs" Line="79" Column="25" />
+      <File FileName="Assets/PlayerMove.cs" Line="97" Column="20" />
+      <File FileName="Assets/enemyMove.cs" Line="103" Column="2" />
+      <File FileName="Assets/summonsServant.cs" Line="1" Column="1" />
+>>>>>>> parent of 5d15ef6... Witch追加。召喚完了。
     </Files>
   </MonoDevelop.Ide.Workbench>
   <MonoDevelop.Ide.DebuggingService.Breakpoints>

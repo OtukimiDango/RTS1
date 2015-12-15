@@ -1,58 +1,46 @@
 ﻿using UnityEngine;
 using System.Collections;
 using System.Collections.Generic;
-using System.Threading;
 
 public class Red : MonoBehaviour
 {
 	private GameObject tgt;
-	private Vector3 tgtDis;
+	public Vector3 tgtDis;
 
 	public int HP;
 	private Vector3 myPos;
 	private Vector3 savePos;
 	private float detourDis;
-	private static byte speed = 15;
+	private static int speed = 10;
 	public string state;
-
 	public GameObject frontAlly = null;
 	public static List<GameObject> allys = new List<GameObject> ();
 	public List<GameObject> atEnemys = new List<GameObject> ();
 	private GameObject saveFrontAlly;
-
-	private bool right = true;
-
+	private bool right;
 	public Blue script;
-
 	private bool attackSpace = true;
-
-	public static byte count = 0;
-
+	private static int count = 0;
 
 	void Start ()
 	{
-		//red.Add (gameObject);
-		count++;
-		gameObject.name = "BlueSoldier" + count;
-		right = Random.value > 0.5f ? true : false;
-		tgt = GameObject.Find ("summonRed");
+		tgt = GameObject.Find ("summonBlue");
 		myPos = transform.position;
+		count++;
+		gameObject.name = "RedSoldier" + count;
 		tgtDis = distance (tgt.transform.position, myPos);
-		HP = 200;
 		state = "move";
-//		Thread threadA = new Thread(new ThreadStart(measure));
-//		threadA.IsBackground = true;
-//		threadA.Start ();
+		HP = 200;
+		right = Random.value > 0.5f ? true : false;
 	}
 
 	// Update is called once per frame
 	void Update ()
 	{
-		//Debug.Log (gameObject+" == "+state);
+		Debug.Log (HP);
 		switch (state) {
 		case "move":
 			myPos.z = myPos.z + (tgtDis.z * Time.deltaTime) / speed;
-
 			if (myPos.x >= 1 || myPos.x <= -1) {
 				myPos.x = myPos.x - (tgtDis.x * Time.deltaTime) / (speed * (myPos.z / tgtDis.z));
 			}
@@ -69,7 +57,7 @@ public class Red : MonoBehaviour
 		default :
 			break;
 		}
-		if (HP <= 0) {
+		if (HP < 0) {
 			death ();
 		}
 
@@ -78,29 +66,29 @@ public class Red : MonoBehaviour
 	void OnCollisionEnter (Collision col)
 	{
 		switch (col.gameObject.tag) {
-		case "Player":
-			if (gameObject.CompareTag ("Enemy") && state != "fight") {
+		case "Enemy":
+			if (gameObject.CompareTag ("Player") && state != "fight") {
 				script = col.gameObject.GetComponent<Blue> ();
 				if (script.atEnemys.Count < 3) {
 					script.atEnemys.Add (gameObject);
 					state = "fight";
-					gameObject.tag = "StopEnemy";
+					gameObject.tag = "StopPlayer";
 				}
 			}
 			break;
-		case "StopPlayer":
-			if (gameObject.CompareTag ("Enemy") && state != "fight") {
+		case "StopEnemy":
+			if (gameObject.CompareTag ("Player") && state != "fight") {
 				script = col.gameObject.GetComponent<Blue> ();
 				if (script.atEnemys.Count < 3) {
 					script.atEnemys.Add (gameObject);
 					state = "fight";
-					gameObject.tag = "StopEnemy";
+					gameObject.tag = "StopPlayer";
 				}
 			}
 			break;
-		case "summonRed":
+		case "summonBlue":
 			state = "fight";
-			gameObject.tag = "PlayerStop";
+			gameObject.tag = "StopPlayer";
 			break;
 		default :
 			break;
@@ -144,31 +132,8 @@ public class Red : MonoBehaviour
 			}
 		}
 	}
-	//		switch((int)detourDis){
-	//		case (int)frontAlly.transform.localScale.x:
-	//			if (myPos.x >= savePos.x + detourDis) {
-	//				state = "move";
-	//				tgtDis.x = myPos.x;
-	//			} else {
-	//				myPos.x += (detourDis * (Time.deltaTime * 3));
-	//				transform.position = myPos;
-	//			}
-	//			break;
-	//		case (int)-frontAlly.transform.localScale.x:
-	//			if (myPos.x <= savePos.x + detourDis) {
-	//				state = "move";
-	//				tgtDis.x = myPos.x;
-	//			} else {
-	//				myPos.x += (detourDis * (Time.deltaTime * 3));
-	//				transform.position = myPos;
-	//			}
-	//			break;
-	//		default:
-	//			break;
-	//	}
-	//	}
 
-	public  static Vector3 distance (Vector3 target, Vector3 me)
+	public static Vector3 distance (Vector3 target, Vector3 me)
 	{
 		Vector3 dis = target - me;
 		return dis;
@@ -178,7 +143,7 @@ public class Red : MonoBehaviour
 	{
 		script.HP -= 30;
 		attackSpace = false;
-		yield return new WaitForSeconds (2.5f);
+		yield return new WaitForSeconds (3);
 		attackSpace = true;
 	}
 
@@ -186,9 +151,9 @@ public class Red : MonoBehaviour
 	{
 		foreach (GameObject enemy in atEnemys) {
 			script = enemy.GetComponent<Blue> ();
-			script.state = "move";
 			script.atEnemys.Remove (gameObject);
-			enemy.tag = "Player";
+			script.state = "move";
+			enemy.tag = "Enemy";
 		}
 		summonsServant.sp += 10;
 		Destroy (gameObject);
