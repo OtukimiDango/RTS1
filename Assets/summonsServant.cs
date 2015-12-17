@@ -48,7 +48,9 @@ public class summonsServant : MonoBehaviour {
 	private IEnumerator summonServent(GameObject s, int stuff){
 		sp -= stuff;
 		summonSpace = false;
-		Object.Instantiate(s,spawnPoint.transform.position,spawnPoint.transform.rotation);
+		Vector3 summonPosition = spawnPoint.transform.position;
+		summonPosition.y = summonPosition.y + s.transform.position.y;
+		Object.Instantiate(s,summonPosition,spawnPoint.transform.rotation);
 		servantCount++;
 		yield return new WaitForSeconds(1f);
 		summonSpace = true;

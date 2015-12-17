@@ -22,9 +22,11 @@ public class Red : MonoBehaviour
 	private bool attackSpace = true;
 	private static int count = 0;
 	public GameObject attackEnemy;
+	public LineRenderer renderer;
 
 	void Start ()
 	{
+		renderer = GetComponent<LineRenderer> ();
 		tgt = GameObject.Find ("summonBlue");
 		myPos = transform.position;
 		count++;
@@ -38,7 +40,8 @@ public class Red : MonoBehaviour
 	// Update is called once per frame
 	void Update ()
 	{
-		//Debug.Log (HP);
+		renderer.SetPosition(0, transform.position);
+		renderer.SetPosition(1, tgt.transform.position);
 		switch (state) {
 		case "move":
 			myPos.z = myPos.z + (tgtDis.z * Time.deltaTime) / speed;
@@ -154,7 +157,6 @@ public class Red : MonoBehaviour
 
 	private void death ()
 	{
-		Debug.Log (gameObject+""+ attackEnemy);
 		if (attackEnemy != null) {
 			attackEnemy.GetComponent<Blue> ().atEnemys.Remove (gameObject);
 		}

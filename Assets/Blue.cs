@@ -29,9 +29,12 @@ public class Blue : MonoBehaviour
 
 	public GameObject attackEnemy;
 
+	public LineRenderer renderer;
+
+
 	void Start ()
 	{
-		//red.Add (gameObject);
+		renderer = GetComponent<LineRenderer> ();
 		count++;
 		gameObject.name = "BlueSoldier" + count;
 		right = Random.value > 0.5f ? true : false;
@@ -45,7 +48,8 @@ public class Blue : MonoBehaviour
 	// Update is called once per frame
 	void Update ()
 	{
-		//Debug.Log (gameObject+" == "+state);
+		renderer.SetPosition(0, transform.position);
+		renderer.SetPosition(1, tgt.transform.position);
 		switch (state) {
 		case "move":
 			myPos.z = myPos.z + (tgtDis.z * Time.deltaTime) / speed;
@@ -181,7 +185,9 @@ public class Blue : MonoBehaviour
 
 	private void death ()
 	{
-		attackEnemy.GetComponent<Red> ().atEnemys.Remove (gameObject);
+		if (attackEnemy != null) {
+			attackEnemy.GetComponent<Red> ().atEnemys.Remove (gameObject);
+		}
 		foreach (GameObject enemy in atEnemys) {
 			script = enemy.GetComponent<Red> ();
 			script.state = "move";
