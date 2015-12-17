@@ -15,6 +15,9 @@ public class summonsServant : MonoBehaviour {
 
 	private static float GameTime = 0;
 
+	private static int soldierCount = 0;
+	private static int witchCount = 0;
+
 	private GameObject spawnPoint;
 	// Use this for initialization
 	void Start () {
@@ -27,11 +30,13 @@ public class summonsServant : MonoBehaviour {
 	// Update is called once per frame
 	void Update () {
 		GameTime += Time.deltaTime;
-		if(Input.GetKey(KeyCode.Alpha1) && summonSpace && sp > 9){
+		if(Input.GetKey(KeyCode.Alpha1) && summonSpace && sp > 9 && soldierCount < 1){
 			StartCoroutine(summonServent(Soldier,10));
+			soldierCount++;
 		}
-		if(Input.GetKey(KeyCode.Alpha2) && summonSpace && sp > 19){
+		if(Input.GetKey(KeyCode.Alpha2) && summonSpace && sp > 19 && witchCount < 1){
 			StartCoroutine(summonServent(Witch,20));
+			witchCount++;
 		}
 	}
 	private IEnumerator spUp(){
@@ -45,7 +50,7 @@ public class summonsServant : MonoBehaviour {
 		summonSpace = false;
 		Object.Instantiate(s,spawnPoint.transform.position,spawnPoint.transform.rotation);
 		servantCount++;
-		yield return new WaitForSeconds(0.5f);
+		yield return new WaitForSeconds(1f);
 		summonSpace = true;
 
 	}
