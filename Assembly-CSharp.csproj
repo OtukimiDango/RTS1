@@ -45,14 +45,14 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-     <Compile Include="Assets\Blue.cs" />
-     <Compile Include="Assets\EyeCol.cs" />
-     <Compile Include="Assets\Measure.cs" />
-     <Compile Include="Assets\Player.cs" />
-     <Compile Include="Assets\Red.cs" />
-     <Compile Include="Assets\nextStage.cs" />
-     <Compile Include="Assets\selectCharacter.cs" />
-     <Compile Include="Assets\summonsServant.cs" />
+     <Compile Include="Assets\Scripts\Blue.cs" />
+     <Compile Include="Assets\Scripts\EyeCol.cs" />
+     <Compile Include="Assets\Scripts\Measure.cs" />
+     <Compile Include="Assets\Scripts\Player.cs" />
+     <Compile Include="Assets\Scripts\Red.cs" />
+     <Compile Include="Assets\Scripts\nextStage.cs" />
+     <Compile Include="Assets\Scripts\selectCharacter.cs" />
+     <Compile Include="Assets\Scripts\summonsServant.cs" />
  <Reference Include="UnityEngine.UI">
  <HintPath>/Applications/Unity/Unity.app/Contents/UnityExtensions/Unity/GUISystem/UnityEngine.UI.dll</HintPath>
  </Reference>
