@@ -30,11 +30,11 @@ public class summonsServant : MonoBehaviour {
 	// Update is called once per frame
 	void Update () {
 		GameTime += Time.deltaTime;
-		if(Input.GetKey(KeyCode.Alpha1) && summonSpace && sp > 9 && soldierCount < 1){
+		if(Input.GetKey(KeyCode.Alpha1) && summonSpace && sp > 9 && soldierCount < 10){
 			StartCoroutine(summonServent(Soldier,10));
 			soldierCount++;
 		}
-		if(Input.GetKey(KeyCode.Alpha2) && summonSpace && sp > 19 && witchCount < 1){
+		if(Input.GetKey(KeyCode.Alpha2) && summonSpace && sp > 19 && witchCount < 10){
 			StartCoroutine(summonServent(Witch,20));
 			witchCount++;
 		}

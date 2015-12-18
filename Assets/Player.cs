@@ -5,10 +5,12 @@ public class Player : MonoBehaviour {
 	private static GameObject Playercamera;
 	private static Vector3 cameraPos;
 	public static string mouseState;
-	private static GameObject saveChara ;
+	public static GameObject saveChara;
+	public LayerMask mask;
 	// Use this for initialization
 	void Start () {
 		saveChara = GameObject.Find("BlueSoldier1");
+		Debug.Log (saveChara.name);
 		mouseState = "normal";
 		Playercamera = GameObject.Find ("Camera");
 		cameraPos = Playercamera.transform.position;
@@ -19,8 +21,7 @@ public class Player : MonoBehaviour {
 		if (Input.GetMouseButtonDown(0) && mouseState == "normal") {
 			Ray ray = Camera.main.ScreenPointToRay (Input.mousePosition);
 			RaycastHit hit;
-			if(Physics.Raycast(ray, out hit,Mathf.Infinity)){
-				//Debug.Log(hit.collider.gameObject.name);
+			if(Physics.Raycast(ray, out hit,Mathf.Infinity,mask.value)){
 				clickCharacter (hit.collider.gameObject);
 			}
 		}
@@ -51,22 +52,14 @@ public class Player : MonoBehaviour {
 //		this.transform.position = mousePointInWorld;
 //	}
 	private static void clickCharacter(GameObject clickChara){
-		if (clickChara.gameObject.tag == "Enemy" || clickChara.gameObject.tag == "StopEnemy") {
-			
-			bool lineFlag = clickChara.GetComponent<LineRenderer> ().enabled;
+		if (clickChara.gameObject.tag == "Enemy" || clickChara.gameObject.tag == "StopEnemy" || clickChara.gameObject.tag == "Player" || clickChara.gameObject.tag == "StopPlayer") {
+			Debug.Log (clickChara.transform.parent.gameObject);
+			bool lineFlag = clickChara.transform.parent.gameObject.GetComponent<LineRenderer> ().enabled;
 			saveChara.GetComponent<LineRenderer> ().enabled = false;
 			saveChara.GetComponent<Light> ().enabled = false;
-			clickChara.GetComponent<LineRenderer> ().enabled = !lineFlag;
-			clickChara.GetComponent<Light> ().enabled = !lineFlag;
-			saveChara = clickChara;
-		}else if (clickChara.gameObject.tag == "Player" || clickChara.gameObject.tag == "StopPlayer") {
-
-			bool lineFlag = clickChara.GetComponent<LineRenderer> ().enabled;
-			saveChara.GetComponent<LineRenderer> ().enabled = false;
-			saveChara.GetComponent<Light> ().enabled = false;
-			clickChara.GetComponent<LineRenderer> ().enabled = !lineFlag;
-			clickChara.GetComponent<Light> ().enabled = !lineFlag;
-			saveChara = clickChara;
+			clickChara.transform.parent.gameObject.GetComponent<LineRenderer> ().enabled = !lineFlag;
+			clickChara.transform.parent.gameObject.GetComponent<Light> ().enabled = !lineFlag;
+			saveChara = clickChara.transform.parent.gameObject;
 		}
 	}
 

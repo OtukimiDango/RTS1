@@ -12,7 +12,7 @@ public class EyeCol : MonoBehaviour {
 	void Update () {
 	
 	}
-	void OnCollisionEnter (Collision col)
+	void OnTriggerEnter (Collider col)
 	{
 		if (col.gameObject.tag == ("StopPlayer") && gameObject.transform.parent.tag == "Player") {
 			gameObject.transform.parent.GetComponent<Red> ().frontAlly = col.gameObject;

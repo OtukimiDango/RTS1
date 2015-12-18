@@ -52,6 +52,7 @@ public class Blue : MonoBehaviour
 		renderer.SetPosition(1, tgt.transform.position);
 		switch (state) {
 		case "move":
+			transform.LookAt (tgt.transform);
 			myPos.z = myPos.z + (tgtDis.z * Time.deltaTime) / speed;
 
 			if (myPos.x >= 1 || myPos.x <= -1) {
@@ -63,6 +64,7 @@ public class Blue : MonoBehaviour
 			detour ();
 			break;
 		case "fight":
+			transform.LookAt (attackEnemy.transform);
 			if (attackSpace) {
 				StartCoroutine (attack ()); 
 			}
@@ -76,7 +78,7 @@ public class Blue : MonoBehaviour
 
 	}
 
-	void OnCollisionEnter (Collision col)
+	void OnTriggerEnter (Collider col)
 	{
 		switch (col.gameObject.tag) {
 		case "Player":
@@ -122,11 +124,6 @@ public class Blue : MonoBehaviour
 
 	private void detour ()
 	{
-		//		myPos.x -= Mathf.Cos (detourTime * 3) *(detourTarget.transform.localScale.x * 3 / 10);
-		//		myPos.z += Mathf.Sin(detourTime*1.1f)*(1 + ((detourTarget.transform.localScale.z/10)*1.5f));
-		//		myPos.x -= Mathf.Cos (detourTime*2) *(detourTarget.transform.localScale.x/10);
-		//		myPos.z += Mathf.Sin(0.21f)*(1 + ((detourTarget.transform.localScale.z/10)*1.5f));
-		//		transform.position = myPos;
 		if (detourDis > 0) {
 			if (myPos.x >= savePos.x + detourDis) {
 				state = "move";
@@ -187,6 +184,9 @@ public class Blue : MonoBehaviour
 	{
 		if (attackEnemy != null) {
 			attackEnemy.GetComponent<Red> ().atEnemys.Remove (gameObject);
+			if(attackEnemy.GetComponent<Red>().atEnemys.Count != 0){
+				attackEnemy.GetComponent<Red> ().attackEnemy = attackEnemy.GetComponent<Red> ().atEnemys [0];
+		}
 		}
 		foreach (GameObject enemy in atEnemys) {
 			script = enemy.GetComponent<Red> ();

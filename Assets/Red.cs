@@ -7,34 +7,34 @@ public class Red : MonoBehaviour
 	private GameObject tgt;
 	public Vector3 tgtDis;
 
-	public int HP;
-	private Vector3 myPos;
-	private Vector3 savePos;
-	private float detourDis;
-	private static int speed = 10;
-	public string state;
-	public GameObject frontAlly = null;
-	public static List<GameObject> allys = new List<GameObject> ();
-	public List<GameObject> atEnemys = new List<GameObject> ();
-	private GameObject saveFrontAlly;
-	private bool right;
-	public Blue script;
-	private bool attackSpace = true;
-	private static int count = 0;
-	public GameObject attackEnemy;
+	public int HP;//自分のHP
+	private Vector3 myPos;//自分の座標
+	private Vector3 savePos;//自分の座標を一時的に保存する変数
+	private float detourDis;//迂回する距離
+	private static int speed = 10;//移動速度
+	public string state;//自分の状態
+	public GameObject frontAlly = null;//前方の味方
+	public static List<GameObject> allys = new List<GameObject> ();//味方のリスト
+	public List<GameObject> atEnemys = new List<GameObject> ();//自分に攻撃してる敵のリスト
+	private GameObject saveFrontAlly;//前方の味方を判定するときにブッキングを回避するための保存用変数
+	private bool right;//迂回時の方向
+	public Blue script;//敵スクリプト
+	private bool attackSpace = true;//攻撃のクールタイムが終了しているか
+	private static int count = 0;//生成されるオブジェクトの名前に付随する変数
+	public GameObject attackEnemy;//攻撃している敵
 	public LineRenderer renderer;
 
 	void Start ()
 	{
-		renderer = GetComponent<LineRenderer> ();
-		tgt = GameObject.Find ("summonBlue");
-		myPos = transform.position;
-		count++;
-		gameObject.name = "RedSoldier" + count;
-		tgtDis = distance (tgt.transform.position, myPos);
-		state = "move";
-		HP = 200;
-		right = Random.value > 0.5f ? true : false;
+		renderer = GetComponent<LineRenderer> ();//LineRendererコンポーネントを変数に
+		tgt = GameObject.Find ("summonBlue");//移動先!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+		myPos = transform.position;//自分のポジションを入れる
+		count++;//各キャラクターを区別するための変数を生成時にプラス
+		gameObject.name = "RedSoldier" + count;//名前に上記の変数を付随させる
+		tgtDis = distance (tgt.transform.position, myPos);//移動先の座標と自分の座標の差分を図り、変数にいれる
+		state = "move";//初期状態を移動にする
+		HP = 200;//初期体力は200
+		right = Random.value > 0.5f ? true : false;//迂回時の左右方向を50%で分けてる
 	}
 
 	// Update is called once per frame
@@ -42,32 +42,34 @@ public class Red : MonoBehaviour
 	{
 		renderer.SetPosition(0, transform.position);
 		renderer.SetPosition(1, tgt.transform.position);
-		switch (state) {
-		case "move":
-			myPos.z = myPos.z + (tgtDis.z * Time.deltaTime) / speed;
+		switch (state) {//自分の状態を要素としswitch文
+		case "move"://移動中であれば
+			transform.LookAt (tgt.transform);//移動先に注目
+			myPos.z = myPos.z + (tgtDis.z * Time.deltaTime) / speed;//移動先へ移動
 			if (myPos.x >= 1 || myPos.x <= -1) {
-				myPos.x = myPos.x - (tgtDis.x * (Time.deltaTime / (speed * (myPos.z / tgtDis.z))));
+				myPos.x = myPos.x - (tgtDis.x * (Time.deltaTime / (speed * (myPos.z / tgtDis.z))));//縦軸一定範囲まで移動
 			}
-			transform.position = myPos;
+			transform.position = myPos;//変更された変数を自分のポジションへ代入
 			break;
-		case "detour":
-			detour ();
+		case "detour"://迂回であれば
+			detour ();//迂回を開始する
 			break;
-		case "fight":
-			if (attackSpace) {
-				StartCoroutine (attack ()); 
+		case "fight"://戦闘中であれば
+			transform.LookAt (attackEnemy.transform);//敵に注目
+			if (attackSpace) {//攻撃のクールタイムが終わっていれば
+				StartCoroutine (attack ()); //攻撃
 			}
 			break;
 		default :
 			break;
 		}
 		if (HP < 0) {
-			death ();
+			death ();//HPがゼロになっていたら死亡メソッドをまわす
 		}
 
 	}
 
-	void OnCollisionEnter (Collision col)
+	void OnTriggerEnter (Collider col)
 	{
 		switch (col.gameObject.tag) {
 		case "Enemy":
@@ -159,6 +161,10 @@ public class Red : MonoBehaviour
 	{
 		if (attackEnemy != null) {
 			attackEnemy.GetComponent<Blue> ().atEnemys.Remove (gameObject);
+			if(attackEnemy.GetComponent<Blue>().atEnemys.Count != 0){
+				Debug.Log ("aaaa");
+			attackEnemy.GetComponent<Blue> ().attackEnemy = attackEnemy.GetComponent<Blue> ().atEnemys[0];
+			}
 		}
 
 		foreach (GameObject enemy in atEnemys) {
