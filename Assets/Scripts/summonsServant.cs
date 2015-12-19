@@ -2,9 +2,6 @@
 using System.Collections;
 
 public class summonsServant : MonoBehaviour {
-	public GameObject Soldier;
-	public GameObject Witch;
-
 	private int servantCount  = 0;
 
 	private bool summonSpace = true;
@@ -31,11 +28,11 @@ public class summonsServant : MonoBehaviour {
 	void Update () {
 		GameTime += Time.deltaTime;
 		if(Input.GetKey(KeyCode.Alpha1) && summonSpace && sp > 9 && soldierCount < 10){
-			StartCoroutine(summonServent(Soldier,10));
+			StartCoroutine(summonServent("BlueSoldier",10));
 			soldierCount++;
 		}
 		if(Input.GetKey(KeyCode.Alpha2) && summonSpace && sp > 19 && witchCount < 10){
-			StartCoroutine(summonServent(Witch,20));
+			StartCoroutine(summonServent("BlueWitch",20));
 			witchCount++;
 		}
 	}
@@ -45,12 +42,13 @@ public class summonsServant : MonoBehaviour {
 			sp += UpSp;
 		}
 	}
-	private IEnumerator summonServent(GameObject s, int stuff){
+	private IEnumerator summonServent(string s, int stuff){
 		sp -= stuff;
 		summonSpace = false;
+		GameObject servent = (GameObject)Resources.Load ("Servents/" + s);
 		Vector3 summonPosition = spawnPoint.transform.position;
-		summonPosition.y = summonPosition.y + s.transform.position.y;
-		Object.Instantiate(s,summonPosition,spawnPoint.transform.rotation);
+		summonPosition.y = summonPosition.y + servent.transform.position.y;
+		Object.Instantiate(servent,summonPosition,spawnPoint.transform.rotation);
 		servantCount++;
 		yield return new WaitForSeconds(2f);
 		summonSpace = true;
@@ -59,7 +57,7 @@ public class summonsServant : MonoBehaviour {
 	void OnGUI() {
 		GUI.Label (new Rect (0, 0, 100, 30), "sp : "+sp);
 		GUI.Label (new Rect (100, 0, 100, 30), "Servants : " + servantCount);
-		GUI.Label(new Rect(200,0,100,30),"Time : "+(int)GameTime);
+		GUI.Label(new Rect(200,0,100,30),"Time : "+(int)Time.time);
 	}
 	private static IEnumerator gameTime(){
 		yield return new WaitForSeconds (30);
