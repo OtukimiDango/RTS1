@@ -55,7 +55,7 @@ public class Red : MonoBehaviour
 		case "move":
 			transform.LookAt (tgt.transform);
 			myPos.z = myPos.z + (tgtDis.z * speed * Time.deltaTime);
-			if (tgtDis.x-myPos.x <= 10 || tgtDis.x-myPos.x <= -10) {
+			if (tgtDis.x-myPos.x >= 10 || tgtDis.x-myPos.x <= -10) {
 				myPos.x = myPos.x + (tgtDis.x * speed * Time.deltaTime);
 			}
 			transform.position = myPos;
@@ -116,7 +116,7 @@ public class Red : MonoBehaviour
 	{
 		if (saveFrontAlly != frontAlly) { 
 			saveFrontAlly = frontAlly;
-			detourDis = right ? frontAlly.transform.localScale.x : -frontAlly.transform.localScale.x;
+			detourDis = right ? saveFrontAlly.transform.localScale.x+3 : -(saveFrontAlly.transform.localScale.x+3);
 			state = "detour";
 			savePos = myPos;
 		}
@@ -127,6 +127,7 @@ public class Red : MonoBehaviour
 		if (detourDis > 0) {
 			if (myPos.x >= savePos.x + detourDis) {
 				state = "move";
+				gameObject.tag= ("Enemy");
 				tgtDis.x = myPos.x;
 			} else {
 				myPos.x += (detourDis * (Time.deltaTime * 3));
@@ -135,6 +136,7 @@ public class Red : MonoBehaviour
 		} else {
 			if (myPos.x <= savePos.x + detourDis) {
 				state = "move";
+				gameObject.tag = ("Enemy");
 				tgtDis.x = myPos.x;
 			} else {
 				myPos.x += (detourDis * (Time.deltaTime * 3));
@@ -194,6 +196,10 @@ public class Red : MonoBehaviour
 			enemy.tag = "Player";
 			script.attackEnemy = null;
 		}
+		UIHP.targets.Remove (gameObject.transform);
+		GameObject a = GameObject.Find (gameObject.name + "hp(Clone)");
+		Destroy(a);
+		UIHP.HPs.Remove (a.transform);
 		summonsServant.sp += 10;
 		Destroy (gameObject);
 

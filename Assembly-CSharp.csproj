@@ -45,7 +45,6 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-     <Compile Include="Assets\GUIHP.cs" />
      <Compile Include="Assets\Scripts\Blue.cs" />
      <Compile Include="Assets\Scripts\EyeCol.cs" />
      <Compile Include="Assets\Scripts\Measure.cs" />
@@ -55,6 +54,7 @@
      <Compile Include="Assets\Scripts\selectCharacter.cs" />
      <Compile Include="Assets\Scripts\sin.cs" />
      <Compile Include="Assets\Scripts\summonsServant.cs" />
+     <Compile Include="Assets\UIHP.cs" />
  <Reference Include="UnityEngine.UI">
  <HintPath>/Applications/Unity/Unity.app/Contents/UnityExtensions/Unity/GUISystem/UnityEngine.UI.dll</HintPath>
  </Reference>

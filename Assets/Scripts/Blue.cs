@@ -47,7 +47,7 @@ public class Blue : MonoBehaviour
 		case "move"://移動中であれば
 			transform.LookAt (tgt.transform);//移動先に注目
 			myPos.z = myPos.z + (tgtDis.z * speed * Time.deltaTime);//移動先へ移動
-			if (myPos.x >= 1 || myPos.x <= -1) {
+			if (myPos.x >= 10 || myPos.x <= -10) {
 				myPos.x = myPos.x - (tgtDis.x * (Time.deltaTime / (speed * (myPos.z / tgtDis.z))));//縦軸一定範囲まで移動
 			}
 			transform.position = myPos;//変更された変数を自分のポジションへ代入
@@ -158,7 +158,6 @@ public class Blue : MonoBehaviour
 		if (attackEnemy != null) {
 			attackEnemy.GetComponent<Red> ().atEnemys.Remove (gameObject);
 			if(attackEnemy.GetComponent<Red>().atEnemys.Count != 0){
-				Debug.Log ("aaaa");
 			attackEnemy.GetComponent<Red> ().attackEnemy = attackEnemy.GetComponent<Red> ().atEnemys[0];
 			}
 		}
@@ -170,6 +169,10 @@ public class Blue : MonoBehaviour
 			script.attackEnemy = null;
 			enemy.tag = "Enemy";
 		}
+		UIHP.targets.Remove (gameObject.transform);
+		GameObject a = GameObject.Find (gameObject.name + "hp(Clone)");
+		Destroy(a);
+		UIHP.HPs.Remove (a.transform);
 		summonsServant.sp += 10;
 		Destroy (gameObject);
 
