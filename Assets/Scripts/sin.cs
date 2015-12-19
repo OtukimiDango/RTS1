@@ -27,5 +27,19 @@ public class sin : MonoBehaviour {
 			transform.Rotate (0, 0.1f, 0);
 			break;
 	}
+		switch (transform.tag) {
+		case("SubCrystal"):
+			mypos.z -= Mathf.Sin (Time.time/1.6f)/3;
+			mypos.x -= Mathf.Cos (Time.time/1.6f)/3;
+			transform.Rotate (0, 0.3f, 0);
+			transform.position = mypos;
+			break;
+		case("SubCrystal2"):
+			mypos.z += Mathf.Sin (Time.time / 1.6f) / 3;
+			mypos.x += Mathf.Cos (Time.time / 1.6f)/3;
+			transform.Rotate (0, 0.3f, 0);
+			transform.position = mypos;
+			break;
+		}
 }
 }

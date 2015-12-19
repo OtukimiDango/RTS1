@@ -52,7 +52,7 @@ public class summonsServant : MonoBehaviour {
 		summonPosition.y = summonPosition.y + s.transform.position.y;
 		Object.Instantiate(s,summonPosition,spawnPoint.transform.rotation);
 		servantCount++;
-		yield return new WaitForSeconds(1f);
+		yield return new WaitForSeconds(2f);
 		summonSpace = true;
 
 	}

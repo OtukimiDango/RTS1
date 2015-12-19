@@ -11,7 +11,7 @@ public class Red : MonoBehaviour
 	private Vector3 myPos;
 	private Vector3 savePos;
 	private float detourDis;
-	private static byte speed = 15;
+	private static byte speed = 10;
 	public string state;
 
 	public GameObject frontAlly = null;
@@ -41,6 +41,7 @@ public class Red : MonoBehaviour
 		tgt = GameObject.Find ("summonBlue");
 		myPos = transform.position;
 		tgtDis = distance (tgt.transform.position, myPos);
+		tgtDis = tgtDis.normalized;
 		HP = 200;
 		state = "move";
 	}
@@ -53,10 +54,9 @@ public class Red : MonoBehaviour
 		switch (state) {
 		case "move":
 			transform.LookAt (tgt.transform);
-			myPos.z = myPos.z + (tgtDis.z * Time.deltaTime) / speed;
-
-			if (myPos.x >= 1 || myPos.x <= -1) {
-				myPos.x = myPos.x - (tgtDis.x * Time.deltaTime) / (speed * (myPos.z / tgtDis.z));
+			myPos.z = myPos.z + (tgtDis.z * speed * Time.deltaTime);
+			if (tgtDis.x-myPos.x <= 10 || tgtDis.x-myPos.x <= -10) {
+				myPos.x = myPos.x + (tgtDis.x * speed * Time.deltaTime);
 			}
 			transform.position = myPos;
 			break;

@@ -30,8 +30,9 @@ public class Blue : MonoBehaviour
 		tgt = GameObject.Find ("summonRed");//移動先!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 		myPos = transform.position;//自分のポジションを入れる
 		count++;//各キャラクターを区別するための変数を生成時にプラス
-		gameObject.name = "RedSoldier" + count;//名前に上記の変数を付随させる
+		gameObject.name = "BlueSoldier" + count;//名前に上記の変数を付随させる
 		tgtDis = distance (tgt.transform.position, myPos);//移動先の座標と自分の座標の差分を図り、変数にいれる
+		tgtDis = tgtDis.normalized;
 		state = "move";//初期状態を移動にする
 		HP = 200;//初期体力は200
 		right = Random.value > 0.5f ? true : false;//迂回時の左右方向を50%で分けてる
@@ -45,7 +46,7 @@ public class Blue : MonoBehaviour
 		switch (state) {//自分の状態を要素としswitch文
 		case "move"://移動中であれば
 			transform.LookAt (tgt.transform);//移動先に注目
-			myPos.z = myPos.z + (tgtDis.z * Time.deltaTime) / speed;//移動先へ移動
+			myPos.z = myPos.z + (tgtDis.z * speed * Time.deltaTime);//移動先へ移動
 			if (myPos.x >= 1 || myPos.x <= -1) {
 				myPos.x = myPos.x - (tgtDis.x * (Time.deltaTime / (speed * (myPos.z / tgtDis.z))));//縦軸一定範囲まで移動
 			}
@@ -116,11 +117,6 @@ public class Blue : MonoBehaviour
 
 	private void detour ()
 	{
-		//		myPos.x -= Mathf.Cos (detourTime * 3) *(detourTarget.transform.localScale.x * 3 / 10);
-		//		myPos.z += Mathf.Sin(detourTime*1.1f)*(1 + ((detourTarget.transform.localScale.z/10)*1.5f));
-		//		myPos.x -= Mathf.Cos (detourTime*2) *(detourTarget.transform.localScale.x/10);
-		//		myPos.z += Mathf.Sin(0.21f)*(1 + ((detourTarget.transform.localScale.z/10)*1.5f));
-		//		transform.position = myPos;
 		if (detourDis > 0) {
 			if (myPos.x >= savePos.x + detourDis +1) {
 				state = "move";

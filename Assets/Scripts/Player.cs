@@ -9,7 +9,7 @@ public class Player : MonoBehaviour {
 	public LayerMask mask;
 	// Use this for initialization
 	void Start () {
-		saveChara = GameObject.Find("BlueSoldier1");
+		saveChara = GameObject.Find("RedSoldier1");
 		//Debug.Log (saveChara.name);
 		mouseState = "normal";
 		Playercamera = GameObject.Find ("Camera");
@@ -52,14 +52,14 @@ public class Player : MonoBehaviour {
 //		this.transform.position = mousePointInWorld;
 //	}
 	private static void clickCharacter(GameObject clickChara){
-		if (clickChara.gameObject.tag == "Enemy" || clickChara.gameObject.tag == "StopEnemy" || clickChara.gameObject.tag == "Player" || clickChara.gameObject.tag == "StopPlayer") {
-			Debug.Log (clickChara.transform.parent.gameObject);
-			bool lineFlag = clickChara.transform.parent.gameObject.GetComponent<LineRenderer> ().enabled;
+		GameObject parent = clickChara.transform.parent.gameObject;
+		if (parent.tag == "Enemy" || parent.tag == "StopEnemy" || parent.tag == "Player" || parent.tag == "StopPlayer") {
+			bool lineFlag = parent.GetComponent<LineRenderer> ().enabled;
 			saveChara.GetComponent<LineRenderer> ().enabled = false;
 			saveChara.GetComponent<Light> ().enabled = false;
-			clickChara.transform.parent.gameObject.GetComponent<LineRenderer> ().enabled = !lineFlag;
-			clickChara.transform.parent.gameObject.GetComponent<Light> ().enabled = !lineFlag;
-			saveChara = clickChara.transform.parent.gameObject;
+			parent.GetComponent<LineRenderer> ().enabled = !lineFlag;
+			parent.GetComponent<Light> ().enabled = !lineFlag;
+			saveChara = parent;
 		}
 	}
 
