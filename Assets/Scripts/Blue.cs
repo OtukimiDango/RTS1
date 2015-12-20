@@ -155,8 +155,8 @@ public class Blue : MonoBehaviour
 	private IEnumerator attack ()
 	{
 		attackEnemy.GetComponent<Red>().HP -= 30;
-//		GameObject myHPBar = GameObject.Find (gameObject.name + ("hp(Clone)"));
-//		myHPBar.transform.localScale.x -= 30 / myHPBar.transform.localScale.x;
+		//		GameObject myHPBar = GameObject.Find (gameObject.name + ("hp(Clone)"));
+		//		myHPBar.transform.localScale.x -= 30 / myHPBar.transform.localScale.x;
 		attackSpace = false;
 		yield return new WaitForSeconds (3);
 		attackSpace = true;

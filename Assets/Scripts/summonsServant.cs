@@ -80,8 +80,9 @@ public class summonsServant : MonoBehaviour {
 		UpSp++;//SPをプラス
 		//最終ステージまで210秒
 	}
-		public IEnumerator spawnPoints(){
+	public IEnumerator spawnPoints(){
 		spawnPoint = GameObject.Find("spawnPointA").transform;
+		Debug.Log (spawnPoint.name);
 		yield return null;
 		spawnPoint = GameObject.Find("spawnPointB").transform;
 		yield return null;
