@@ -64,6 +64,10 @@ public class Red : MonoBehaviour
 			detour ();
 			break;
 		case "fight":
+			if (attackEnemy == null) {
+				state = "move";
+				break;
+			}
 			transform.LookAt (attackEnemy.transform);
 			if (attackSpace) {
 				StartCoroutine (attack ()); 
@@ -177,6 +181,8 @@ public class Red : MonoBehaviour
 	private IEnumerator attack ()
 	{
 		attackEnemy.GetComponent<Blue>().HP -= 30;
+		GameObject myHPBar = GameObject.Find (attackEnemy.name + ("hp(Clone)"));
+		myHPBar.transform.localScale -= new Vector3(0.15f,0,0);
 		attackSpace = false;
 		yield return new WaitForSeconds (2.5f);
 		attackSpace = true;
@@ -185,21 +191,22 @@ public class Red : MonoBehaviour
 	private void death ()
 	{
 		if (attackEnemy != null) {
-			attackEnemy.GetComponent<Blue> ().atEnemys.Remove (gameObject);
-			if(attackEnemy.GetComponent<Blue>().atEnemys.Count != 0){
-				attackEnemy.GetComponent<Blue> ().attackEnemy = attackEnemy.GetComponent<Blue> ().atEnemys [0];
-		}
+			attackEnemy.GetComponent<Blue> ().atEnemys.Remove(gameObject);
 		}
 		foreach (GameObject enemy in atEnemys) {
 			script = enemy.GetComponent<Blue> ();
-			script.state = "move";
-			enemy.tag = "Player";
-			script.attackEnemy = null;
+			if (script.atEnemys.Count != 0) {
+				Debug.Log (script.atEnemys.Count);
+				script.attackEnemy = script.atEnemys [0];
+			} else {
+				script.state = "move";
+				enemy.tag = "Player";
+				script.attackEnemy = null;
+			}
 		}
 		UIHP.targets.Remove (gameObject.transform);
-		GameObject a = GameObject.Find (gameObject.name + "hp(Clone)");
-		Destroy(a);
-		UIHP.HPs.Remove (a.transform);
+		Destroy(GameObject.Find (gameObject.name + "hp(Clone)"));
+		//UIHP.HPs.Remove (GameObject.Find (gameObject.name + "hp(Clone)").transform);
 		summonsServant.sp += 10;
 		Destroy (gameObject);
 

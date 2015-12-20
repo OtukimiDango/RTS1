@@ -20,7 +20,6 @@ public class Blue : MonoBehaviour
 	private bool right;//迂回時の方向
 	public Red script;//敵スクリプト
 	private bool attackSpace = true;//攻撃のクールタイムが終了しているか
-	private static int count = 0;//生成されるオブジェクトの名前に付随する変数
 	public GameObject attackEnemy;//攻撃している敵
 	public LineRenderer renderer;
 
@@ -29,13 +28,18 @@ public class Blue : MonoBehaviour
 		renderer = GetComponent<LineRenderer> ();//LineRendererコンポーネントを変数に
 		tgt = GameObject.Find ("summonRed");//移動先!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 		myPos = transform.position;//自分のポジションを入れる
-		count++;//各キャラクターを区別するための変数を生成時にプラス
-		gameObject.name = "BlueSoldier" + count;//名前に上記の変数を付随させる
+		if (transform.localScale == new Vector3 (6, 6, 6)) {
+			gameObject.name = ("BlueSoldier" + summonsServant.servantCount); //名前に味方召喚数の変数を付随させる
+		} else if (transform.localScale == new Vector3 (10, 10, 10)) {
+			gameObject.name = ("BlueWitch" + summonsServant.servantCount); //名前に味方召喚数の変数を付随させる
+		}
 		tgtDis = distance (tgt.transform.position, myPos);//移動先の座標と自分の座標の差分を図り、変数にいれる
 		tgtDis = tgtDis.normalized;
 		state = "move";//初期状態を移動にする
 		HP = 200;//初期体力は200
 		right = Random.value > 0.5f ? true : false;//迂回時の左右方向を50%で分けてる
+		UIHP.targets.Add (gameObject.transform);//召喚したオブジェクトをHP表示するオブジェクトのリストに入れる
+
 	}
 
 	// Update is called once per frame
@@ -56,6 +60,10 @@ public class Blue : MonoBehaviour
 			detour ();//迂回を開始する
 			break;
 		case "fight"://戦闘中であれば
+			if (attackEnemy == null) {
+				state = "move";
+				break;
+			}
 			transform.LookAt (attackEnemy.transform);//敵に注目
 			if (attackSpace) {//攻撃のクールタイムが終わっていれば
 				StartCoroutine (attack ()); //攻撃
@@ -98,7 +106,6 @@ public class Blue : MonoBehaviour
 		case "summonBlue":
 			state = "fight";
 			gameObject.tag = "StopPlayer";
-			Debug.Log ("yes");
 			break;
 		default :
 			break;
@@ -148,6 +155,8 @@ public class Blue : MonoBehaviour
 	private IEnumerator attack ()
 	{
 		attackEnemy.GetComponent<Red>().HP -= 30;
+//		GameObject myHPBar = GameObject.Find (gameObject.name + ("hp(Clone)"));
+//		myHPBar.transform.localScale.x -= 30 / myHPBar.transform.localScale.x;
 		attackSpace = false;
 		yield return new WaitForSeconds (3);
 		attackSpace = true;
@@ -157,24 +166,29 @@ public class Blue : MonoBehaviour
 	{
 		if (attackEnemy != null) {
 			attackEnemy.GetComponent<Red> ().atEnemys.Remove (gameObject);
-			if(attackEnemy.GetComponent<Red>().atEnemys.Count != 0){
-			attackEnemy.GetComponent<Red> ().attackEnemy = attackEnemy.GetComponent<Red> ().atEnemys[0];
-			}
 		}
 
 		foreach (GameObject enemy in atEnemys) {
 			script = enemy.GetComponent<Red> ();
-			script.atEnemys.Remove (gameObject);
-			script.state = "move";
-			script.attackEnemy = null;
-			enemy.tag = "Enemy";
+			if (script.atEnemys.Count != 0) {
+				Debug.Log (script.atEnemys.Count);
+				script.attackEnemy = script.atEnemys [0];
+			} else {
+				script.state = "move";
+				script.attackEnemy = null;
+				enemy.tag = "Enemy";
+			}
 		}
 		UIHP.targets.Remove (gameObject.transform);
-		GameObject a = GameObject.Find (gameObject.name + "hp(Clone)");
-		Destroy(a);
-		UIHP.HPs.Remove (a.transform);
+		Destroy(GameObject.Find (gameObject.name + "hp(Clone)"));
+		//UIHP.HPs.Remove (GameObject.Find (gameObject.name + "hp(Clone)").transform);
 		summonsServant.sp += 10;
 		Destroy (gameObject);
 
+	}
+	private void changeAttak(){
+		if (attackEnemy == null || atEnemys != null) {
+			attackEnemy = atEnemys [0];
+		}
 	}
 }
