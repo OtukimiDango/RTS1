@@ -4,8 +4,8 @@ using System.Collections.Generic;
 
 public class Blue : MonoBehaviour
 {
-	private GameObject tgt;
-	public Vector3 tgtDis;
+	public GameObject tgt;//攻撃先
+	public Vector3 tgtDis;//攻撃先までの距離
 
 	public int HP;//自分のHP
 	private Vector3 myPos;//自分の座標
@@ -20,8 +20,8 @@ public class Blue : MonoBehaviour
 	private bool right;//迂回時の方向
 	public Red script;//敵スクリプト
 	private bool attackSpace = true;//攻撃のクールタイムが終了しているか
-	public GameObject attackEnemy;//攻撃している敵
-	public LineRenderer renderer;
+	public LineRenderer renderer;//ラインレンダラー
+	public bool lightup = false;
 
 	void Start ()
 	{
@@ -45,8 +45,6 @@ public class Blue : MonoBehaviour
 	// Update is called once per frame
 	void Update ()
 	{
-		renderer.SetPosition(0, transform.position);
-		renderer.SetPosition(1, tgt.transform.position);
 		switch (state) {//自分の状態を要素としswitch文
 		case "move"://移動中であれば
 			transform.LookAt (tgt.transform);//移動先に注目
@@ -60,11 +58,11 @@ public class Blue : MonoBehaviour
 			detour ();//迂回を開始する
 			break;
 		case "fight"://戦闘中であれば
-			if (attackEnemy == null) {
+			if (tgt == null) {
 				state = "move";
 				break;
 			}
-			transform.LookAt (attackEnemy.transform);//敵に注目
+			transform.LookAt (tgt.transform);//敵に注目
 			if (attackSpace) {//攻撃のクールタイムが終わっていれば
 				StartCoroutine (attack ()); //攻撃
 			}
@@ -73,9 +71,29 @@ public class Blue : MonoBehaviour
 			break;
 		}
 		if (HP < 0) {
-			death ();//HPがゼロになっていたら死亡メソッドをまわす
+			Death ();//HPがゼロになっていたら死亡
 		}
+		if (lightup) {
+			renderer.SetPosition(0, transform.position);
+			renderer.SetPosition (1, tgt.transform.position);
 
+			for (int i = 0; i < atEnemys.Count; i++) {
+				if (atEnemys [i].GetComponent<Light> ().enabled == false) {
+					atEnemys [i].GetComponent<Light> ().enabled=true;
+				    atEnemys [i].GetComponent<Light> ().color = Color.red;
+					Debug.Log (atEnemys [i].name + "+" + tgt.name);
+				if (atEnemys[i].name == tgt.name) {
+						Debug.Log (atEnemys [i].GetComponent<Light> ().color);
+						atEnemys [i].GetComponent<Light> ().color = Color.blue;
+					}
+				}
+				//Debug.Log (atEnemys [i].GetComponent<Light> ().color);
+
+				renderer.SetVertexCount (2+((i+1)*2));
+				renderer.SetPosition (2+((i+1)*2-2), transform.position);
+				renderer.SetPosition (2+((i+1)*2-1), atEnemys[i].transform.position);
+			}
+		}
 	}
 
 	void OnTriggerEnter (Collider col)
@@ -86,7 +104,7 @@ public class Blue : MonoBehaviour
 				script = col.gameObject.GetComponent<Red> ();
 				if (script.atEnemys.Count < 3) {
 					script.atEnemys.Add (gameObject);
-					attackEnemy = col.gameObject;
+					tgt = col.gameObject;
 					state = "fight";
 					gameObject.tag = "StopPlayer";
 				}
@@ -97,7 +115,7 @@ public class Blue : MonoBehaviour
 				script = col.gameObject.GetComponent<Red> ();
 				if (script.atEnemys.Count < 3) {
 					script.atEnemys.Add (gameObject);
-					attackEnemy = col.gameObject;
+					tgt = col.gameObject;
 					state = "fight";
 					gameObject.tag = "StopPlayer";
 				}
@@ -129,7 +147,6 @@ public class Blue : MonoBehaviour
 				state = "move";
 				gameObject.tag="Player";
 				tgtDis.x = myPos.x;
-
 			} else {
 				myPos.x += (detourDis * (Time.deltaTime * 3));
 				transform.position = myPos;
@@ -154,41 +171,40 @@ public class Blue : MonoBehaviour
 
 	private IEnumerator attack ()
 	{
-		attackEnemy.GetComponent<Red>().HP -= 30;
+		tgt.GetComponent<Red>().HP -= 30;
 		//		GameObject myHPBar = GameObject.Find (gameObject.name + ("hp(Clone)"));
 		//		myHPBar.transform.localScale.x -= 30 / myHPBar.transform.localScale.x;
 		attackSpace = false;
 		yield return new WaitForSeconds (3);
 		attackSpace = true;
 	}
-
-	private void death ()
-	{
-		if (attackEnemy != null) {
-			attackEnemy.GetComponent<Red> ().atEnemys.Remove (gameObject);
+	private void changeAttak(){
+		if (tgt == null || atEnemys != null) {
+			tgt = atEnemys [0];
 		}
-
+	}
+	private void Death(){
+		if (tgt != null) {
+			tgt.GetComponent<Red> ().atEnemys.Remove (gameObject);
+		}
+		Player.charaDestroy (gameObject);
 		foreach (GameObject enemy in atEnemys) {
 			script = enemy.GetComponent<Red> ();
 			if (script.atEnemys.Count != 0) {
 				Debug.Log (script.atEnemys.Count);
-				script.attackEnemy = script.atEnemys [0];
+				script.tgt = script.atEnemys [0];
 			} else {
 				script.state = "move";
-				script.attackEnemy = null;
+				script.tgt = GameObject.Find("summonBlue");
 				enemy.tag = "Enemy";
 			}
 		}
+		if (Player.saveChara == gameObject)
+			Player.saveChara = null;
 		UIHP.targets.Remove (gameObject.transform);
 		Destroy(GameObject.Find (gameObject.name + "hp(Clone)"));
-		//UIHP.HPs.Remove (GameObject.Find (gameObject.name + "hp(Clone)").transform);
 		summonsServant.sp += 10;
 		Destroy (gameObject);
 
-	}
-	private void changeAttak(){
-		if (attackEnemy == null || atEnemys != null) {
-			attackEnemy = atEnemys [0];
-		}
 	}
 }

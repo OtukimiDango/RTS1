@@ -3,7 +3,7 @@ using System.Collections;
 using UnityEngine.UI;
 
 public class summonsServant : MonoBehaviour {
-	public Camera camera;
+	public Camera maincamera;
 	public static int servantCount  = 0;
 
 	private bool summonSpace = true;
@@ -58,7 +58,7 @@ public class summonsServant : MonoBehaviour {
 		hp.transform.localScale = new Vector3(hpPlus,0.15f,0.1f);//HP量に合わせてバーの長さを変更
 		GameObject hpbar = (GameObject)Instantiate (hp,Vector3.zero,Quaternion.identity);//HPバーをHierarchyに
 		hpbar.transform.SetParent(GameObject.Find ("Canvas").transform,false);//HPバーの親オブジェクトをCanvasにしてUI表示する
-		hpbar.transform.position = camera.WorldToScreenPoint(summonPosition);
+		hpbar.transform.position = maincamera.WorldToScreenPoint(summonPosition);
 
 		yield return new WaitForSeconds(1);//2秒待つ
 		summonSpace = true;//召喚可能にする

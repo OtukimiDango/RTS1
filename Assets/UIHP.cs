@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Collections;
 
 public class UIHP : MonoBehaviour {
-	public Camera camera;
+	public Camera m;
 	public static List<Transform> targets = new List<Transform>();
 	void start(){
 	}
@@ -17,9 +17,8 @@ public class UIHP : MonoBehaviour {
 		}
 		foreach (Transform tgt in targets) {
 			GameObject hp = GameObject.Find (tgt.name +"hp(Clone)");
-			Debug.Log (hp);
 			Vector3 setPos = new Vector3 (tgt.position.x, tgt.position.y + tgt.localScale.y, tgt.position.z);
-			hp.transform.position = camera.WorldToScreenPoint (setPos);
+			hp.transform.position = m.WorldToScreenPoint (setPos);
 		}
 	}
 }

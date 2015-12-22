@@ -4,7 +4,7 @@ using System.Collections.Generic;
 
 public class Red : MonoBehaviour
 {
-	private GameObject tgt;
+	public GameObject tgt;
 	private Vector3 tgtDis;
 
 	public int HP;
@@ -27,7 +27,7 @@ public class Red : MonoBehaviour
 
 	public static byte count = 0;
 
-	public GameObject attackEnemy;
+	public bool lightup = false;
 
 	public LineRenderer renderer;
 
@@ -49,13 +49,11 @@ public class Red : MonoBehaviour
 	// Update is called once per frame
 	void Update ()
 	{
-		renderer.SetPosition(0, transform.position);
-		renderer.SetPosition(1, tgt.transform.position);
 		switch (state) {
 		case "move":
 			transform.LookAt (tgt.transform);
 			myPos.z = myPos.z + (tgtDis.z * speed * Time.deltaTime);
-			if (tgtDis.x-myPos.x >= 10 || tgtDis.x-myPos.x <= -10) {
+			if (tgtDis.x - myPos.x >= 10 || tgtDis.x - myPos.x <= -10) {
 				myPos.x = myPos.x + (tgtDis.x * speed * Time.deltaTime);
 			}
 			transform.position = myPos;
@@ -64,11 +62,11 @@ public class Red : MonoBehaviour
 			detour ();
 			break;
 		case "fight":
-			if (attackEnemy == null) {
+			if (tgt == null) {
 				state = "move";
 				break;
 			}
-			transform.LookAt (attackEnemy.transform);
+			transform.LookAt (tgt.transform);
 			if (attackSpace) {
 				StartCoroutine (attack ()); 
 			}
@@ -76,8 +74,29 @@ public class Red : MonoBehaviour
 		default :
 			break;
 		}
+		if (lightup) {
+			renderer.SetPosition (0, transform.position);
+			renderer.SetPosition (1, tgt.transform.position);
+			if (0 == atEnemys.Count) {
+				renderer.SetVertexCount (2);
+				return;
+			}
+			for (int i = 0; i < atEnemys.Count; i++) {
+
+				if (atEnemys [i].GetComponent<Light> ().enabled == false) {
+					atEnemys [i].GetComponent<Light> ().enabled=true;
+					atEnemys [i].GetComponent<Light> ().color = Color.blue;
+				if (atEnemys[i].name == tgt.name) {
+						atEnemys [i].GetComponent<Light> ().color = Color.red;
+				}
+			}
+				renderer.SetVertexCount (2 + ((i + 1) * 2));
+				renderer.SetPosition (2 + ((i + 1) * 2 - 2), transform.position);
+				renderer.SetPosition (2 + ((i + 1) * 2 - 1), atEnemys [i].transform.position);
+			}
+		}
 		if (HP <= 0) {
-			death ();
+			Death ();
 		}
 
 	}
@@ -91,7 +110,7 @@ public class Red : MonoBehaviour
 				if (script.atEnemys.Count < 3) {
 					script.atEnemys.Add (gameObject);
 					state = "fight";
-					attackEnemy = col.gameObject;
+					tgt = col.gameObject;
 					gameObject.tag = "StopEnemy";
 				}
 			}
@@ -102,7 +121,7 @@ public class Red : MonoBehaviour
 				if (script.atEnemys.Count < 3) {
 					script.atEnemys.Add (gameObject);
 					state = "fight";
-					attackEnemy = col.gameObject;
+					tgt = col.gameObject;
 					gameObject.tag = "StopEnemy";
 				}
 			}
@@ -120,7 +139,7 @@ public class Red : MonoBehaviour
 	{
 		if (saveFrontAlly != frontAlly) { 
 			saveFrontAlly = frontAlly;
-			detourDis = right ? saveFrontAlly.transform.localScale.x+3 : -(saveFrontAlly.transform.localScale.x+3);
+			detourDis = right ? saveFrontAlly.transform.localScale.x + 3 : -(saveFrontAlly.transform.localScale.x + 3);
 			state = "detour";
 			savePos = myPos;
 		}
@@ -131,7 +150,7 @@ public class Red : MonoBehaviour
 		if (detourDis > 0) {
 			if (myPos.x >= savePos.x + detourDis) {
 				state = "move";
-				gameObject.tag= ("Enemy");
+				gameObject.tag = ("Enemy");
 				tgtDis.x = myPos.x;
 			} else {
 				myPos.x += (detourDis * (Time.deltaTime * 3));
@@ -171,6 +190,12 @@ public class Red : MonoBehaviour
 	//			break;
 	//	}
 	//	}
+	private void changeAttak ()
+	{
+		if (tgt == null || atEnemys != null) {
+			tgt = atEnemys [0];
+		}
+	}
 
 	public  static Vector3 distance (Vector3 target, Vector3 me)
 	{
@@ -180,33 +205,35 @@ public class Red : MonoBehaviour
 
 	private IEnumerator attack ()
 	{
-		attackEnemy.GetComponent<Blue>().HP -= 30;
-		GameObject myHPBar = GameObject.Find (attackEnemy.name + ("hp(Clone)"));
-		myHPBar.transform.localScale -= new Vector3(0.15f,0,0);
+		tgt.GetComponent<Blue> ().HP -= 30;
+		GameObject myHPBar = GameObject.Find (tgt.name + ("hp(Clone)"));
+		myHPBar.transform.localScale -= new Vector3 (0.15f, 0, 0);
 		attackSpace = false;
 		yield return new WaitForSeconds (2.5f);
 		attackSpace = true;
 	}
 
-	private void death ()
+	private void Death ()
 	{
-		if (attackEnemy != null) {
-			attackEnemy.GetComponent<Blue> ().atEnemys.Remove(gameObject);
+		if (tgt != null) {
+			tgt.GetComponent<Blue> ().atEnemys.Remove (gameObject);
 		}
+		Player.charaDestroy (gameObject);
+
 		foreach (GameObject enemy in atEnemys) {
 			script = enemy.GetComponent<Blue> ();
 			if (script.atEnemys.Count != 0) {
-				Debug.Log (script.atEnemys.Count);
-				script.attackEnemy = script.atEnemys [0];
+				script.tgt = script.atEnemys [0];
 			} else {
 				script.state = "move";
 				enemy.tag = "Player";
-				script.attackEnemy = null;
+				script.tgt = GameObject.Find ("summonBlue");
 			}
 		}
+		if (Player.saveChara == gameObject)
+			Player.saveChara = null;
 		UIHP.targets.Remove (gameObject.transform);
-		Destroy(GameObject.Find (gameObject.name + "hp(Clone)"));
-		//UIHP.HPs.Remove (GameObject.Find (gameObject.name + "hp(Clone)").transform);
+		Destroy (GameObject.Find (gameObject.name + "hp(Clone)"));
 		summonsServant.sp += 10;
 		Destroy (gameObject);
 
