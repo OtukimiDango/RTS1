@@ -40,10 +40,20 @@ public class Player : MonoBehaviour
 			if (Physics.Raycast (ray, out hit, Mathf.Infinity, mask.value)) {
 				if (hit.collider.gameObject.transform.parent.gameObject == saveChara) {
 					clickCharacter (saveChara.transform.FindChild ("TouchCol").gameObject);
-				} else {
+				} else if(hit.collider.gameObject.transform.parent.gameObject.layer==9&&saveChara.layer==10
+					||hit.collider.gameObject.transform.parent.gameObject.layer==10&&saveChara.layer==9) {
+					if (saveChara.layer==10) {
+						foreach (GameObject obj in saveChara.GetComponent<Blue>().atEnemys) {
+							obj.GetComponent<Light> ().color = Color.red;
+						}
+					}else if (saveChara.layer==9) {
+						foreach (GameObject obj in saveChara.GetComponent<Red>().atEnemys) {
+							obj.GetComponent<Light> ().color = Color.blue;
+						}
+					}
 					saveChara.SendMessage ("changeAttack", hit.collider.gameObject.transform.parent.gameObject);
+					hit.collider.gameObject.transform.parent.gameObject.GetComponent<Light> ().color = Color.yellow;
 					playerc.GetComponent<LineRenderer> ().enabled = false;
-					rayobj.GetComponent<Light> ().enabled = false;
 					rayMouse = false;
 				}
 			}
@@ -69,10 +79,8 @@ public class Player : MonoBehaviour
 				playerc.GetComponent<LineRenderer> ().SetPosition (1,hit.point);
 		}
 			if (Physics.Raycast (ray, out hit, Mathf.Infinity, mask.value)) {
-				if(saveChara.tag == "Player"&& hit.collider.gameObject.transform.parent.tag == "Enemy"
-					||saveChara.tag == "Player"&& hit.collider.gameObject.transform.parent.tag =="StopEnemy"
-					||saveChara.tag == "StopPlayer" && hit.collider.gameObject.transform.parent.tag == "Enemy"
-					||saveChara.tag == "StopPlayer" &&hit.collider.gameObject.transform.parent.tag =="StopEnemy"){
+				if(saveChara.layer==10&& hit.collider.gameObject.transform.parent.gameObject.layer==9
+					||saveChara.layer==9&& hit.collider.gameObject.transform.parent.gameObject.layer==10){
 
 					hit.collider.gameObject.transform.parent.gameObject.GetComponent<Light> ().enabled = true;
 					hit.collider.gameObject.transform.parent.gameObject.GetComponent<Light> ().color = Color.yellow;
@@ -90,19 +98,20 @@ public class Player : MonoBehaviour
 	{
 		
 		GameObject parent = clickChara.transform.parent.gameObject;
-		if (parent.tag == "Player" || parent.tag == "StopPlayer" || parent.tag == "Enemy" || parent.tag == "StopEnemy") { 
+		if (parent.gameObject.layer==10 ||parent.gameObject.layer==9) { 
 			bool lineFlag = parent.GetComponent<LineRenderer> ().enabled;//クリックしたオブジェクトのラインのbool
 			playerc.GetComponent<LineRenderer>().enabled = !lineFlag;
 			rayMouse = !lineFlag;
 			if (saveChara != null) {//前回クリックしたキャラがいれば
 				saveChara.GetComponent<LineRenderer> ().enabled = false;//前回のキャラのラインを消す
 				saveChara.GetComponent<Light> ().enabled = false;//前回のキャラのライトを消す
-				if (saveChara.tag == "Enemy" || saveChara.tag == "StopEnemy") {//前回のキャラがエネミーであれば
+				if (saveChara.layer==9) {//前回のキャラがエネミーであれば
 					saveChara.GetComponent<Red> ().lightup = false;//ライトを消して
+					//saveChara.GetComponent<Red>().tgt.GetComponent<Light>().enabled =
 					foreach (GameObject saveatEnemys in saveChara.GetComponent<Red>().atEnemys) {//エネミーに注目する敵(自分)
 						saveatEnemys.GetComponent<Light> ().enabled = false;//ライトを消す
 					}
-				} else if(saveChara.tag == "Player"||saveChara.tag=="StopPlayer"){
+				} else if(saveChara.layer==10){
 					saveChara.GetComponent<Blue> ().lightup = false;
 					foreach (GameObject saveatEnemys in saveChara.GetComponent<Blue>().atEnemys) {
 						saveatEnemys.GetComponent<Light> ().enabled = false;
@@ -113,12 +122,12 @@ public class Player : MonoBehaviour
 			parent.GetComponent<LineRenderer> ().enabled = !lineFlag;
 			parent.GetComponent<Light> ().enabled = !lineFlag;
 
-			if (parent.tag == "Player" || parent.tag == "StopPlayer") {
+			if (parent.layer==10) {
 				parent.GetComponent<Blue> ().lightup = !lineFlag;
 				parent.GetComponent<Light> ().color = Color.blue;
 
 			}
-			if (parent.tag == "Enemy" || parent.tag == "StopEnemy") {
+			if (parent.layer==9) {
 				parent.GetComponent<Red> ().lightup = !lineFlag;
 				parent.GetComponent<Light> ().color = Color.red;
 			}
@@ -130,7 +139,7 @@ public class Player : MonoBehaviour
 			return;
 		playerc.GetComponent<LineRenderer> ().enabled = false;
 		rayMouse = false;
-		if (chara.tag == "Enemy" || chara.tag == "StopEnemy") {
+		if (chara.layer==9) {
 			foreach (GameObject lightDown in chara.GetComponent<Red>().atEnemys) {
 				lightDown.GetComponent<Light> ().enabled = false;
 			}

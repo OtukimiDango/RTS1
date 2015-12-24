@@ -169,14 +169,14 @@ public class Red : MonoBehaviour
 	private IEnumerator attack ()
 	{
 		tgt.GetComponent<Blue>().HP -= 30;
-		//		GameObject myHPBar = GameObject.Find (gameObject.name + ("hp(Clone)"));
-		//		myHPBar.transform.localScale.x -= 30 / myHPBar.transform.localScale.x;
+		GameObject myHPBar = GameObject.Find (tgt.name + ("hp(Clone)"));
+		myHPBar.transform.localScale -= new Vector3 (0.15f, 0, 0);
 		attackSpace = false;
 		yield return new WaitForSeconds (3);
 		attackSpace = true;
 	}
 	private void changeAttack(GameObject obj){
-		if(tgt.tag == "Player"||tgt.tag=="StopPlayer")
+		if(tgt.layer==10)
 			tgt.GetComponent<Blue> ().atEnemys.Remove (gameObject);
 		tgt = obj;
 

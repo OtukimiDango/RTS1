@@ -125,6 +125,9 @@ public class Blue : MonoBehaviour
 		default :
 			break;
 		}
+		if (col.gameObject == tgt) {
+			col.gameObject.GetComponent<Light> ().color = Color.blue;
+		}
 	}
 
 	public void detourReady ()
@@ -163,20 +166,21 @@ public class Blue : MonoBehaviour
 	public static Vector3 distance (Vector3 target, Vector3 me)
 	{
 		Vector3 dis = target - me;
+
 		return dis;
 	}
 
 	private IEnumerator attack ()
 	{
 		tgt.GetComponent<Red>().HP -= 30;
-				GameObject myHPBar = GameObject.Find (gameObject.name + ("hp(Clone)"));
-				myHPBar.transform.localScale.x -= 30 / myHPBar.transform.localScale.x;
+		//GameObject myHPBar = GameObject.Find (gameObject.name + ("hp(Clone)"));
+//		myHPBar.transform.localScale -= new Vector3 (0.15f, 0, 0);
 		attackSpace = false;
 		yield return new WaitForSeconds (3);
 		attackSpace = true;
 	}
 	private void changeAttack(GameObject obj){
-		if(tgt.tag == "Enemy"||tgt.tag=="StopEnemy")
+		if(tgt.layer==9)
 		tgt.GetComponent<Red> ().atEnemys.Remove (gameObject);
 		tgt = obj;
 
