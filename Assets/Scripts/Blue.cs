@@ -81,14 +81,11 @@ public class Blue : MonoBehaviour
 				if (atEnemys [i].GetComponent<Light> ().enabled == false) {
 					atEnemys [i].GetComponent<Light> ().enabled=true;
 				    atEnemys [i].GetComponent<Light> ().color = Color.red;
-					Debug.Log (atEnemys [i].name + "+" + tgt.name);
 				if (atEnemys[i].name == tgt.name) {
 						Debug.Log (atEnemys [i].GetComponent<Light> ().color);
 						atEnemys [i].GetComponent<Light> ().color = Color.blue;
 					}
 				}
-				//Debug.Log (atEnemys [i].GetComponent<Light> ().color);
-
 				renderer.SetVertexCount (2+((i+1)*2));
 				renderer.SetPosition (2+((i+1)*2-2), transform.position);
 				renderer.SetPosition (2+((i+1)*2-1), atEnemys[i].transform.position);
@@ -172,31 +169,33 @@ public class Blue : MonoBehaviour
 	private IEnumerator attack ()
 	{
 		tgt.GetComponent<Red>().HP -= 30;
-		//		GameObject myHPBar = GameObject.Find (gameObject.name + ("hp(Clone)"));
-		//		myHPBar.transform.localScale.x -= 30 / myHPBar.transform.localScale.x;
+				GameObject myHPBar = GameObject.Find (gameObject.name + ("hp(Clone)"));
+				myHPBar.transform.localScale.x -= 30 / myHPBar.transform.localScale.x;
 		attackSpace = false;
 		yield return new WaitForSeconds (3);
 		attackSpace = true;
 	}
-	private void changeAttak(){
-		if (tgt == null || atEnemys != null) {
-			tgt = atEnemys [0];
-		}
+	private void changeAttack(GameObject obj){
+		if(tgt.tag == "Enemy"||tgt.tag=="StopEnemy")
+		tgt.GetComponent<Red> ().atEnemys.Remove (gameObject);
+		tgt = obj;
+
 	}
 	private void Death(){
-		if (tgt != null) {
-			tgt.GetComponent<Red> ().atEnemys.Remove (gameObject);
-		}
+		lightup = false;
+		if (gameObject == Player.rayobj)
+			Player.rayobj = null;
+		tgt.GetComponent<Red> ().atEnemys.Remove (gameObject);
+		tgt.GetComponent<LineRenderer > ().SetVertexCount (tgt.GetComponent<Red> ().atEnemys.Count+2);
 		Player.charaDestroy (gameObject);
 		foreach (GameObject enemy in atEnemys) {
 			script = enemy.GetComponent<Red> ();
-			if (script.atEnemys.Count != 0) {
-				Debug.Log (script.atEnemys.Count);
-				script.tgt = script.atEnemys [0];
-			} else {
+			if (script.atEnemys.Count == 0) {
 				script.state = "move";
 				script.tgt = GameObject.Find("summonBlue");
 				enemy.tag = "Enemy";
+			} else {
+				script.tgt = script.atEnemys [0];
 			}
 		}
 		if (Player.saveChara == gameObject)

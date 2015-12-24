@@ -82,7 +82,6 @@ public class summonsServant : MonoBehaviour {
 	}
 	public IEnumerator spawnPoints(){
 		spawnPoint = GameObject.Find("spawnPointA").transform;
-		Debug.Log (spawnPoint.name);
 		yield return null;
 		spawnPoint = GameObject.Find("spawnPointB").transform;
 		yield return null;
