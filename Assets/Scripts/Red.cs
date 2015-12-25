@@ -22,17 +22,19 @@ public class Red : MonoBehaviour
 	private bool attackSpace = true;//攻撃のクールタイムが終了しているか
 	public LineRenderer renderer;//ラインレンダラー
 	public bool lightup = false;
+	public static int count = 0;
+	public GameObject attackObj;
 
 	void Start ()
 	{
 		renderer = GetComponent<LineRenderer> ();//LineRendererコンポーネントを変数に
 		tgt = GameObject.Find ("summonBlue");//移動先!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 		myPos = transform.position;//自分のポジションを入れる
-		if (transform.localScale == new Vector3 (6, 6, 6)) {
-			gameObject.name = ("RedSoldier" + summonsServant.servantCount); //名前に味方召喚数の変数を付随させる
-		} else if (transform.localScale == new Vector3 (10, 10, 10)) {
-			gameObject.name = ("redWitch" + summonsServant.servantCount); //名前に味方召喚数の変数を付随させる
-		}
+		if (transform.localScale == new Vector3 (6, 6, 6)) 
+			gameObject.name = ("RedSoldier" + count); //名前に味方召喚数の変数を付随させる
+		 else if (transform.localScale == new Vector3 (10, 10, 10))
+			gameObject.name = ("redWitch" + count); //名前に味方召喚数の変数を付随させる
+		count++;
 		tgtDis = distance (tgt.transform.position, myPos);//移動先の座標と自分の座標の差分を図り、変数にいれる
 		tgtDis = tgtDis.normalized;
 		state = "move";//初期状態を移動にする
@@ -49,9 +51,8 @@ public class Red : MonoBehaviour
 		case "move"://移動中であれば
 			transform.LookAt (tgt.transform);//移動先に注目
 			myPos.z = myPos.z + (tgtDis.z * speed * Time.deltaTime);//移動先へ移動
-			if (myPos.x >= 10 || myPos.x <= -10) {
+			if (myPos.x >= 10 || myPos.x <= -10)
 				myPos.x = myPos.x - (tgtDis.x * (Time.deltaTime / (speed * (myPos.z / tgtDis.z))));//縦軸一定範囲まで移動
-			}
 			transform.position = myPos;//変更された変数を自分のポジションへ代入
 			break;
 		case "detour"://迂回であれば
@@ -63,27 +64,30 @@ public class Red : MonoBehaviour
 				break;
 			}
 			transform.LookAt (tgt.transform);//敵に注目
-			if (attackSpace) {//攻撃のクールタイムが終わっていれば
+			if (attackSpace) //攻撃のクールタイムが終わっていれば
 				StartCoroutine (attack ()); //攻撃
-			}
 			break;
 		default :
 			break;
 		}
-		if (HP < 0) {
+		if (HP < 0)
 			Death ();//HPがゼロになっていたら死亡
-		}
 		if (lightup) {
 			renderer.SetPosition(0, transform.position);
 			renderer.SetPosition (1, tgt.transform.position);
-
+			if(	tgt.GetComponent<Light> ().enabled == false)
+				tgt.GetComponent<Light> ().enabled = true;
+			if (attackObj!=tgt && tgt.GetComponent<Light> ().color != Color.yellow) {
+				tgt.GetComponent<Light> ().color = Color.yellow;
+			}
+			if (gameObject.GetComponent<Light> ().color != Color.red)
+				gameObject.GetComponent<Light> ().color = Color.red;
 			for (int i = 0; i < atEnemys.Count; i++) {
 				if (atEnemys [i].GetComponent<Light> ().enabled == false) {
 					atEnemys [i].GetComponent<Light> ().enabled=true;
-					atEnemys [i].GetComponent<Light> ().color = Color.red;
+					atEnemys [i].GetComponent<Light> ().color = Color.blue;
 					if (atEnemys[i].name == tgt.name) {
-						Debug.Log (atEnemys [i].GetComponent<Light> ().color);
-						atEnemys [i].GetComponent<Light> ().color = Color.blue;
+						atEnemys [i].GetComponent<Light> ().color = Color.red;
 					}
 				}
 				renderer.SetVertexCount (2+((i+1)*2));
@@ -95,6 +99,9 @@ public class Red : MonoBehaviour
 
 	void OnTriggerEnter (Collider col)
 	{
+		if (tgt.layer == 10 && tgt != col.gameObject)
+			return;
+		
 		switch (col.gameObject.tag) {
 		case "Player":
 			if (gameObject.CompareTag ("Enemy") && state != "fight") {
@@ -102,6 +109,7 @@ public class Red : MonoBehaviour
 				if (script.atEnemys.Count < 3) {
 					script.atEnemys.Add (gameObject);
 					tgt = col.gameObject;
+					attackObj = tgt;
 					state = "fight";
 					gameObject.tag = "StopEnemy";
 				}
@@ -113,6 +121,7 @@ public class Red : MonoBehaviour
 				if (script.atEnemys.Count < 3) {
 					script.atEnemys.Add (gameObject);
 					tgt = col.gameObject;
+					attackObj = tgt;
 					state = "fight";
 					gameObject.tag = "StopEnemy";
 				}
@@ -125,6 +134,8 @@ public class Red : MonoBehaviour
 		default :
 			break;
 		}
+		if (col.gameObject == tgt)
+			col.gameObject.GetComponent<Light> ().color = Color.red;
 	}
 
 	public void detourReady ()
@@ -176,15 +187,20 @@ public class Red : MonoBehaviour
 		attackSpace = true;
 	}
 	private void changeAttack(GameObject obj){
-		if(tgt.layer==10)
+		if (tgt.GetComponent<Light> ().color == Color.yellow)
+			tgt.GetComponent<Light> ().enabled = false;
+		if (tgt.layer == 10){
 			tgt.GetComponent<Blue> ().atEnemys.Remove (gameObject);
-		tgt = obj;
+			tgt = obj;
+			tgtDis = distance (tgt.transform.position, myPos);
+		}
 
 	}
 	private void Death(){
 		lightup = false;
 		if (gameObject == Player.rayobj)
 			Player.rayobj = null;
+		if(tgt.layer == 10)
 		tgt.GetComponent<Blue> ().atEnemys.Remove (gameObject);
 		tgt.GetComponent<LineRenderer > ().SetVertexCount (tgt.GetComponent<Blue> ().atEnemys.Count+2);
 		Player.charaDestroy (gameObject);
@@ -194,9 +210,8 @@ public class Red : MonoBehaviour
 				script.state = "move";
 				script.tgt = GameObject.Find("summonRed");
 				enemy.tag = "Player";
-			} else {
+			} else
 				script.tgt = script.atEnemys [0];
-			}
 		}
 		if (Player.saveChara == gameObject)
 			Player.saveChara = null;
