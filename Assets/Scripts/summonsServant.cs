@@ -1,28 +1,26 @@
 ﻿using UnityEngine;
 using System.Collections;
+using System;
 using UnityEngine.UI;
 
 public class summonsServant : MonoBehaviour {
-	public Camera maincamera;
 	public static int servantCount  = 0;
 
 	private bool summonSpace = true;
 
 	public static int sp = 500;
 
-	public int UpSp = 1;
+	public sbyte UpSp = 1;
 
-	private int soldierCount = 0;
-	private int witchCount = 0;
-	private Transform spawnPoint;
-	public IEnumerator coroutine;
+	private static sbyte soldierCount = 0;
+	private sbyte witchCount = 0;
+	private static Transform spawnPoint;
+	public static IEnumerator coroutine;
 	// Use this for initialization
 	void Start () {
 		coroutine = spawnPoints();
 		StartCoroutine (spUp ());
 		StartCoroutine (gameTime());
-
-		//spawnPoint = GameObject.Find("spawnPoint");
 	}
 
 	// Update is called once per frame
@@ -50,7 +48,7 @@ public class summonsServant : MonoBehaviour {
 		GameObject servant = (GameObject)Resources.Load ("Servents/" + s);//召喚するオブジェクトを変数に入れる
 		Vector3 summonPosition = spawnPoint.position;//召喚時の初期座標を変数に入れる
 		summonPosition.y = summonPosition.y + servant.transform.position.y;//初期座標y軸に召喚するオブジェクトの半径をプラス
-		Object.Instantiate((GameObject)Resources.Load ("Servents/" + s),summonPosition,spawnPoint.rotation);//召喚
+		Instantiate((GameObject)Resources.Load ("Servents/" + s),summonPosition,spawnPoint.rotation);//召喚
 		servant.name = (s+servantCount);//召喚するオブジェクトを召喚数を付随させた名前にする
 
 		GameObject hp = (GameObject)Resources.Load ("HPbar");//召喚したオブジェクトに付随させるHPを変数に入れる
@@ -58,7 +56,7 @@ public class summonsServant : MonoBehaviour {
 		hp.transform.localScale = new Vector3(hpPlus,0.15f,0.1f);//HP量に合わせてバーの長さを変更
 		GameObject hpbar = (GameObject)Instantiate (hp,Vector3.zero,Quaternion.identity);//HPバーをHierarchyに
 		hpbar.transform.SetParent(GameObject.Find ("Canvas").transform,false);//HPバーの親オブジェクトをCanvasにしてUI表示する
-		hpbar.transform.position = maincamera.WorldToScreenPoint(summonPosition);
+		hpbar.transform.position = Camera.main.WorldToScreenPoint(summonPosition);
 
 		yield return new WaitForSeconds(1);//2秒待つ
 		summonSpace = true;//召喚可能にする

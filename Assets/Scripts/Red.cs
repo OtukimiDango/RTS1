@@ -11,18 +11,16 @@ public class Red : MonoBehaviour
 	private Vector3 myPos;//自分の座標
 	private Vector3 savePos;//自分の座標を一時的に保存する変数
 	private float detourDis;//迂回する距離
-	private static int speed = 10;//移動速度
+	private const int speed = 10;//移動速度
 	public string state;//自分の状態
 	public GameObject frontAlly = null;//前方の味方
 	public static List<GameObject> allys = new List<GameObject> ();//味方のリスト
 	public List<GameObject> atEnemys = new List<GameObject> ();//自分に攻撃してる敵のリスト
 	private GameObject saveFrontAlly;//前方の味方を判定するときにブッキングを回避するための保存用変数
 	private bool right;//迂回時の方向
-	public Blue script;//敵スクリプト
 	private bool attackSpace = true;//攻撃のクールタイムが終了しているか
 	public LineRenderer renderer;//ラインレンダラー
 	public bool lightup = false;
-	public static int count = 0;
 	public GameObject attackObj;
 
 	void Start ()
@@ -31,16 +29,15 @@ public class Red : MonoBehaviour
 		tgt = GameObject.Find ("summonBlue");//移動先!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 		myPos = transform.position;//自分のポジションを入れる
 		if (transform.localScale == new Vector3 (6, 6, 6)) 
-			gameObject.name = ("RedSoldier" + count); //名前に味方召喚数の変数を付随させる
+			gameObject.name = ("RedSoldier" + EnemyControl.servantCount); //名前に味方召喚数の変数を付随させる
 		 else if (transform.localScale == new Vector3 (10, 10, 10))
-			gameObject.name = ("redWitch" + count); //名前に味方召喚数の変数を付随させる
-		count++;
+			gameObject.name = ("RedWitch" + EnemyControl.servantCount); //名前に味方召喚数の変数を付随させる
 		tgtDis = distance (tgt.transform.position, myPos);//移動先の座標と自分の座標の差分を図り、変数にいれる
 		tgtDis = tgtDis.normalized;
 		state = "move";//初期状態を移動にする
 		HP = 200;//初期体力は200
 		right = Random.value > 0.5f ? true : false;//迂回時の左右方向を50%で分けてる
-		//UIHP.targets.Add (gameObject.transform);//召喚したオブジェクトをHP表示するオブジェクトのリストに入れる
+		UIHP.targets.Add (gameObject.transform);//召喚したオブジェクトをHP表示するオブジェクトのリストに入れる
 
 	}
 
@@ -51,8 +48,9 @@ public class Red : MonoBehaviour
 		case "move"://移動中であれば
 			transform.LookAt (tgt.transform);//移動先に注目
 			myPos.z = myPos.z + (tgtDis.z * speed * Time.deltaTime);//移動先へ移動
-			if (myPos.x >= 10 || myPos.x <= -10)
+			if (myPos.x >= tgt.transform.position.x+2 || myPos.x <= tgt.transform.position.x-2){
 				myPos.x = myPos.x - (tgtDis.x * (Time.deltaTime / (speed * (myPos.z / tgtDis.z))));//縦軸一定範囲まで移動
+		}
 			transform.position = myPos;//変更された変数を自分のポジションへ代入
 			break;
 		case "detour"://迂回であれば
@@ -75,13 +73,17 @@ public class Red : MonoBehaviour
 		if (lightup) {
 			renderer.SetPosition(0, transform.position);
 			renderer.SetPosition (1, tgt.transform.position);
-			if(	tgt.GetComponent<Light> ().enabled == false)
+			if (tgt.GetComponent<Light> ().enabled == false) {
 				tgt.GetComponent<Light> ().enabled = true;
+			}
 			if (attackObj!=tgt && tgt.GetComponent<Light> ().color != Color.yellow) {
 				tgt.GetComponent<Light> ().color = Color.yellow;
+			}else if (attackObj == tgt && tgt.GetComponent<Light> ().color == Color.red && atEnemys.Count == 0){
+				tgt.GetComponent<Light> ().color = Color.blue;
 			}
-			if (gameObject.GetComponent<Light> ().color != Color.red)
+			if (gameObject.GetComponent<Light> ().color != Color.red) {
 				gameObject.GetComponent<Light> ().color = Color.red;
+			}
 			for (int i = 0; i < atEnemys.Count; i++) {
 				if (atEnemys [i].GetComponent<Light> ().enabled == false) {
 					atEnemys [i].GetComponent<Light> ().enabled=true;
@@ -105,7 +107,7 @@ public class Red : MonoBehaviour
 		switch (col.gameObject.tag) {
 		case "Player":
 			if (gameObject.CompareTag ("Enemy") && state != "fight") {
-				script = col.gameObject.GetComponent<Blue> ();
+				Blue script = col.gameObject.GetComponent<Blue> ();
 				if (script.atEnemys.Count < 3) {
 					script.atEnemys.Add (gameObject);
 					tgt = col.gameObject;
@@ -117,7 +119,7 @@ public class Red : MonoBehaviour
 			break;
 		case "StopPlayer":
 			if (gameObject.CompareTag ("Enemy") && state != "fight") {
-				script = col.gameObject.GetComponent<Blue> ();
+				Blue script = col.gameObject.GetComponent<Blue> ();
 				if (script.atEnemys.Count < 3) {
 					script.atEnemys.Add (gameObject);
 					tgt = col.gameObject;
@@ -205,7 +207,7 @@ public class Red : MonoBehaviour
 		tgt.GetComponent<LineRenderer > ().SetVertexCount (tgt.GetComponent<Blue> ().atEnemys.Count+2);
 		Player.charaDestroy (gameObject);
 		foreach (GameObject enemy in atEnemys) {
-			script = enemy.GetComponent<Blue> ();
+			Blue script = enemy.GetComponent<Blue> ();
 			if (script.atEnemys.Count == 0) {
 				script.state = "move";
 				script.tgt = GameObject.Find("summonRed");

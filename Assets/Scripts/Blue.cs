@@ -9,7 +9,7 @@ public class Blue : MonoBehaviour
 	public Vector3 tgtDis;
 //攻撃先までの距離
 
-	public int HP;
+	public byte HP;
 //自分のHP
 	private Vector3 myPos;
 //自分の座標
@@ -17,7 +17,7 @@ public class Blue : MonoBehaviour
 //自分の座標を一時的に保存する変数
 	private float detourDis;
 //迂回する距離
-	private static int speed = 10;
+	private const int speed = 10;
 //移動速度
 	public string state;
 //自分の状態
@@ -31,18 +31,18 @@ public class Blue : MonoBehaviour
 //前方の味方を判定するときにブッキングを回避するための保存用変数
 	private bool right;
 //迂回時の方向
-	public Red script;
-//敵スクリプト
 	private bool attackSpace = true;
 //攻撃のクールタイムが終了しているか
-	public LineRenderer renderer;
+	public LineRenderer linerende;
 //ラインレンダラー
+	public bool detourbool = false;
 	public bool lightup = false;
 	public GameObject attackObj;
+	float dx ,dy, radian=1f,radi = 0f, i = 0;
 
 	void Start ()
 	{
-		renderer = GetComponent<LineRenderer> ();//LineRendererコンポーネントを変数に
+		linerende = GetComponent<LineRenderer> ();//LineRendererコンポーネントを変数に
 		tgt = GameObject.Find ("summonRed");//移動先!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 		myPos = transform.position;//自分のポジションを入れる
 		if (transform.localScale == new Vector3 (6, 6, 6)) 
@@ -64,13 +64,11 @@ public class Blue : MonoBehaviour
 		switch (state) {//自分の状態を要素としswitch文
 		case "move"://移動中であれば
 			transform.LookAt (tgt.transform);//移動先に注目
-			myPos.z = myPos.z + (tgtDis.z * speed * Time.deltaTime);//移動先へ移動
-			if (myPos.x >= tgtDis.x + 1 || myPos.x <= tgtDis.x - 1)
-				myPos.x = myPos.x - (tgtDis.x * (Time.deltaTime / (speed * (myPos.z / tgtDis.z))));//縦軸一定範囲まで移動
+			myPos = myPos + (tgtDis * speed * Time.deltaTime);//移動先へ移動
 			transform.position = myPos;//変更された変数を自分のポジションへ代入
 			break;
 		case "detour"://迂回であれば
-			detour ();//迂回を開始する
+			detour(gameObject.transform);
 			break;
 		case "fight"://戦闘中であれば
 			transform.LookAt (tgt.transform);//敵に注目
@@ -83,12 +81,15 @@ public class Blue : MonoBehaviour
 		if (HP < 0)
 			Death ();//HPがゼロになっていたら死亡
 		if (lightup) {
-			renderer.SetPosition (0, transform.position);
-			renderer.SetPosition (1, tgt.transform.position);
+			linerende.SetPosition (0, transform.position);
+			linerende.SetPosition (1, tgt.transform.position);
 			if (tgt.GetComponent<Light> ().enabled == false)
 				tgt.GetComponent<Light> ().enabled = true;
-			if (attackObj != tgt && tgt.GetComponent<Light> ().color != Color.yellow)
+			if (attackObj != tgt && tgt.GetComponent<Light> ().color != Color.yellow) {
 				tgt.GetComponent<Light> ().color = Color.yellow;
+			}else if (attackObj == tgt && tgt.GetComponent<Light> ().color == Color.red && atEnemys.Count == 0){
+				tgt.GetComponent<Light> ().color = Color.blue;
+			}
 			if (gameObject.GetComponent<Light> ().color != Color.blue)
 				gameObject.GetComponent<Light> ().color = Color.blue;
 			for (int i = 0; i < atEnemys.Count; i++) {
@@ -98,21 +99,22 @@ public class Blue : MonoBehaviour
 					if (atEnemys [i].name == tgt.name)
 						atEnemys [i].GetComponent<Light> ().color = Color.blue;
 				}
-				renderer.SetVertexCount (2 + ((i + 1) * 2));
-				renderer.SetPosition (2 + ((i + 1) * 2 - 2), transform.position);
-				renderer.SetPosition (2 + ((i + 1) * 2 - 1), atEnemys [i].transform.position);
+				linerende.SetVertexCount (2 + ((i + 1) * 2));
+				linerende.SetPosition (2 + ((i + 1) * 2 - 2), transform.position);
+				linerende.SetPosition (2 + ((i + 1) * 2 - 1), atEnemys [i].transform.position);
 			}
 		}
 	}
 
 	void OnTriggerEnter (Collider col)
 	{
-		if (tgt.layer == 9 && tgt != col.gameObject)
+		if (tgt.layer == 9 && tgt != col.gameObject) {
 			return;
+		}
 		switch (col.gameObject.tag) {
 		case "Enemy":
 			if (gameObject.tag == ("Player") && state != "fight") {
-				script = col.gameObject.GetComponent<Red> ();
+				Red script = col.gameObject.GetComponent<Red> ();
 				if (script.atEnemys.Count < 3) {
 					script.atEnemys.Add (gameObject);
 					tgt = col.gameObject;
@@ -124,7 +126,7 @@ public class Blue : MonoBehaviour
 			break;
 		case "StopEnemy":
 			if (gameObject.tag == ("Player") && state != "fight") {
-				script = col.gameObject.GetComponent<Red> ();
+				Red script = col.gameObject.GetComponent<Red> ();
 				if (script.atEnemys.Count < 3) {
 					script.atEnemys.Add (gameObject);
 					tgt = col.gameObject;
@@ -141,41 +143,61 @@ public class Blue : MonoBehaviour
 		default :
 			break;
 		}
-		if (col.gameObject == tgt)
+		if (col.gameObject == tgt){
 			col.gameObject.GetComponent<Light> ().color = Color.blue;
+	
+		}
 	}
 
 	public void detourReady ()
 	{
 		if (saveFrontAlly != frontAlly) { 
 			saveFrontAlly = frontAlly;
-			detourDis = right ? saveFrontAlly.transform.localScale.x + 3 : -(saveFrontAlly.transform.localScale.x + 3);
+			detourDis = right ? saveFrontAlly.transform.localScale.x : -(saveFrontAlly.transform.localScale.x);
 			state = "detour";
-			savePos = myPos;
+			detourbool = true;
+			detour (gameObject.transform);//迂回を開始する
 		}
 	}
 
-	private void detour ()
+	private void detour (Transform me)
 	{
-		if (detourDis > 0) {
-			if (myPos.x >= savePos.x + detourDis + 1) {
-				state = "move";
-				gameObject.tag = "Player";
-				tgtDis.x = myPos.x;
-			} else {
-				myPos.x += (detourDis * (Time.deltaTime * 3));
-				transform.position = myPos;
-			}
-		} else {
-			if (myPos.x <= savePos.x + detourDis + 1) {
-				state = "move";
-				gameObject.tag = "Player";
-				tgtDis.x = myPos.x;
-			} else {
-				myPos.x += (detourDis * (Time.deltaTime * 3));
-				transform.position = myPos;
-			}
+		if (detourbool) {
+			dy = frontAlly.transform.position.x + detourDis - me.position.x;
+			dx = frontAlly.transform.position.z - me.position.z;
+			radian = Mathf.Atan2 (dy, dx);
+			detourbool = false;
 		}
+		i += Time.deltaTime;
+		radi = (radian * Mathf.Rad2Deg) * i;
+		gameObject.transform.eulerAngles = new Vector3(0, radi, 0);
+		transform.Translate (transform.forward * (tgtDis.z * speed * Time.deltaTime));
+		myPos = transform.position;
+		if (i >= 2) {
+			i = 0;
+			state = "move";
+			gameObject.tag = "Player";
+		}
+//		if (detourDis > 0) {
+//			if (myPos.x >= savePos.x + detourDis + 1) {
+//				state = "move";
+//				gameObject.tag = "Player";
+//				tgtDis.x = myPos.x;
+//			} else {
+//				myPos = myPos + (tgtDis * speed * Time.deltaTime);//移動先へ移動
+//				transform.position = myPos;//変更された変数を自分のポジションへ代入
+//			}
+//		} else {
+//			if (myPos.x <= savePos.x + detourDis + 1) {
+//				state = "move";
+//				gameObject.tag = "Player";
+//				tgtDis.x = myPos.x;
+//			} else {
+//				myPos = myPos + (tgtDis * speed * Time.deltaTime);//移動先へ移動
+//				transform.position = myPos;//変更された変数を自分のポジションへ代入
+//
+//			}
+//		}
 	}
 
 	public static Vector3 distance (Vector3 target, Vector3 me)
@@ -224,7 +246,7 @@ public class Blue : MonoBehaviour
 		tgt.GetComponent<LineRenderer > ().SetVertexCount (tgt.GetComponent<Red> ().atEnemys.Count + 2);
 		Player.charaDestroy (gameObject);
 		foreach (GameObject enemy in atEnemys) {//自分を狙っている敵
-			script = enemy.GetComponent<Red> ();//敵のスクリプトを入手
+			Red script = enemy.GetComponent<Red> ();//敵のスクリプトを入手
 			if (script.atEnemys.Count == 0) {//敵を狙っている味方がいなければ
 				script.state = "move";//敵の状態をmove
 				script.tgt = GameObject.Find ("summonBlue");//敵のターゲットを自陣に
