@@ -157,6 +157,26 @@ public class Player : MonoBehaviour
 			parent.GetComponent<LineRenderer> ().enabled = !lineFlag;
 			parent.GetComponent<Light> ().enabled = !lineFlag;
 
+//			try{
+//				parent.GetComponent<Blue> ().lightup = !lineFlag;
+//				parent.GetComponent<Light> ().color = Color.blue;
+//				if (parent.GetComponent<Blue> ().tgt != null && parent.GetComponent<Blue> ().tgt != GameObject.Find ("summonRed")) {
+//					parent.GetComponent<Blue> ().tgt.GetComponent<Light> ().enabled = !lineFlag;
+//					if (parent.GetComponent<Blue> ().tgt == parent.GetComponent<Blue> ().attackObj)
+//						parent.GetComponent<Blue> ().tgt.GetComponent<Light> ().color = Color.blue;
+//				}
+//			}catch{
+//				Debug.Log ("aaa");
+//				parent.GetComponent<Red> ().lightup = !lineFlag;
+//				parent.GetComponent<Light> ().color = Color.red;
+//				rayMouse = false;
+//				playerc.GetComponent<LineRenderer> ().enabled = false;
+//				if (parent.GetComponent<Red> ().tgt != null && parent.GetComponent<Red> ().tgt != GameObject.Find ("summonBlue")) {
+//					parent.GetComponent<Red> ().tgt.GetComponent<Light> ().enabled = !lineFlag;
+//					if (parent.GetComponent<Red> ().tgt == parent.GetComponent<Red> ().attackObj)
+//						parent.GetComponent<Red> ().tgt.GetComponent<Light> ().color = Color.red;
+//				}
+//			}
 			if (parent.layer == 10) {//クリックしたのがプレイヤーであれば
 				parent.GetComponent<Blue> ().lightup = !lineFlag;
 				parent.GetComponent<Light> ().color = Color.blue;

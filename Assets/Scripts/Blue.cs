@@ -40,6 +40,7 @@ public class Blue : MonoBehaviour
 	public GameObject attackObj;
 	float dx ,dy, radian=1f,radi = 0f, i = 0;
 
+
 	void Start ()
 	{
 		linerende = GetComponent<LineRenderer> ();//LineRendererコンポーネントを変数に

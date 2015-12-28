@@ -18,6 +18,7 @@ public class EnemyControl : MonoBehaviour
 	public static	List<GameObject> AllySoldier = new List<GameObject> ();
 	public static	List<GameObject> AllyWitch = new List<GameObject> ();
 	public static 	List<GameObject> AllyGuard = new List<GameObject> ();
+	public static	Queue<int> RecordCount = new Queue<int> ();
 	public static	List<GameObject> EnemySoldier = new List<GameObject> ();
 	public static	List<GameObject> EnemyWitch = new List<GameObject> ();
 	public static 	List<GameObject> EnemyGuard = new List<GameObject> ();
@@ -26,9 +27,9 @@ public class EnemyControl : MonoBehaviour
 	void Start ()
 	{
 		coroutine	=	spawnPoints ();
-		StartCoroutine(spUp ());
-		StartCoroutine(gameTime ());
-		StartCoroutine(Brain ());
+		StartCoroutine (spUp ());
+		StartCoroutine (gameTime ());
+		StartCoroutine (Brain ());
 	}
 	
 	// Update is called once per frame
@@ -133,12 +134,17 @@ public class EnemyControl : MonoBehaviour
 
 	public IEnumerator Brain ()
 	{
+
+		int soldier = AllySoldier.Count;
+		int witch = AllyWitch.Count;
+		int guard = AllyGuard.Count;
+		int ans = Mathf.Min (soldier, witch);
+		int ans2 = Mathf.Min (ans, guard);
+
 		while (true) {
-			int soldier = AllySoldier.Count;
-			int witch = AllyWitch.Count;
-			int guard = AllyGuard.Count;
-			int ans = Mathf.Min (soldier, witch);
-			int ans2 = Mathf.Min (ans, guard);
+			
+			yield return new WaitForSeconds (3);//3秒に一回しか考えない
+
 			if (ans2 == soldier)
 				summonState = "NeedSoldier";
 			else if (ans2 == witch)
@@ -149,8 +155,9 @@ public class EnemyControl : MonoBehaviour
 			EnemySoldier.Clear ();
 			EnemyWitch.Clear ();
 			EnemyGuard.Clear ();
-			AllEnemy.AddRange (GameObject.FindGameObjectsWithTag("Player"));
+			AllEnemy.AddRange (GameObject.FindGameObjectsWithTag ("Player"));
 			AllEnemy.AddRange (GameObject.FindGameObjectsWithTag ("StopPlayer"));
+
 			foreach (GameObject ec in AllEnemy) {
 				switch ((int)ec.transform.localScale.x) {
 				case(6):
@@ -164,8 +171,13 @@ public class EnemyControl : MonoBehaviour
 					break;
 				}
 			}
-			Debug.Log ("All : "+AllEnemy.Count+"\nSoldier : "+EnemySoldier.Count+"\nWitch : "+EnemyWitch.Count+"\nGuard"+EnemyGuard.Count);
-			yield return new WaitForSeconds (3);
+			RecordCount.Enqueue (AllEnemy.Count);
+			if (RecordCount.Count > 5) {
+				float i = ((float)AllEnemy.Count / (float)RecordCount.Dequeue ());//15秒前と現在の敵の数の上昇率
+				if (i >= 1.3f) {
+					summonState = "NeedServant";
+				}
+			}
 		}
 	}
 }
