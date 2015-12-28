@@ -3,7 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 
 public class EnemyControl : MonoBehaviour {
-	public static int servantCount  = 0;
+	public static sbyte servantCount  = 0;
 
 	private bool summonActivater = true;
 
@@ -11,8 +11,6 @@ public class EnemyControl : MonoBehaviour {
 
 	public sbyte UpSp = 1;
 
-	private static sbyte soldierCount = 0;
-	private sbyte witchCount = 0;
 	private static Transform spawnPoint;
 	public static IEnumerator coroutine;
 	public static	List<GameObject> AllySoldier = new List<GameObject>();
@@ -31,24 +29,27 @@ public class EnemyControl : MonoBehaviour {
 
 	void Update () {
 		if (summonState == "NeedSoldier") {
-			if (summonActivater && sp > 9 && soldierCount < 10) {
+			if (summonActivater && sp > 9 && AllySoldier.Count < 10) {
 				StartCoroutine (summonServant ("RedSoldier", 10, 1f));
-				soldierCount++;
 			}
 		} else if (summonState == "NeedWitch") {
-			if(summonActivater && sp > 19 && witchCount < 10){
+			if(summonActivater && sp > 19 && AllyWitch.Count < 10){
 				StartCoroutine(summonServant("RedWitch",20,1f));
-				witchCount++;
+			}
+		} else if (summonState == "NeedGuard") {
+			if(summonActivater && sp > 19 && AllyGuard.Count < 10){
+				StartCoroutine(summonServant("RedGuard",15,1f));
 			}
 		}
 		if (summonState == "normal") {
-			if (summonActivater && sp > 9 && soldierCount < 10) {
+			if (summonActivater && sp > 9 && AllySoldier.Count < 10) {
 				StartCoroutine (summonServant ("RedSoldier", 10, 1f));
-				soldierCount++;
 			}
-			if (summonActivater && sp > 19 && witchCount < 10) {
+			if (summonActivater && sp > 19 && AllyWitch.Count < 10) {
 				StartCoroutine (summonServant ("RedWitch", 20, 1f));
-				witchCount++;
+			}
+			if (summonActivater && sp > 19 && AllyGuard.Count < 10) {
+				StartCoroutine (summonServant ("RedGuard", 15, 1f));
 			}
 		}
 	}
@@ -120,13 +121,13 @@ public class EnemyControl : MonoBehaviour {
 			int witch = AllyWitch.Count;
 			int guard = AllyGuard.Count;
 			int ans = Mathf.Min (soldier,witch);
-			//int ans2 = Mathf.Min (ans,guard);
-			if(ans==soldier)
+			int ans2 = Mathf.Min (ans,guard);
+			if(ans2==soldier)
 				summonState = "NeedSoldier";
-			else if(ans == witch)
+			else if(ans2 == witch)
 				summonState = "NeedWitch";
-//			else if(ans2 == guard)
-//				summonState = "NeedGuard";
+			else if(ans2 == guard)
+				summonState = "NeedGuard";
 			yield return new WaitForSeconds (3);
 		}
 	}

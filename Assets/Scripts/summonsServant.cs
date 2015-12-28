@@ -13,7 +13,8 @@ public class summonsServant : MonoBehaviour {
 	public sbyte UpSp = 1;
 
 	private static sbyte soldierCount = 0;
-	private sbyte witchCount = 0;
+	private static sbyte witchCount = 0;
+	private static sbyte guardCount = 0;
 	private static Transform spawnPoint;
 	public static IEnumerator coroutine;
 	// Use this for initialization
@@ -32,6 +33,10 @@ public class summonsServant : MonoBehaviour {
 		if(Input.GetKeyDown(KeyCode.Alpha2) && summonSpace && sp > 19 && witchCount < 10){
 			StartCoroutine(summonServant("BlueWitch",20,1f));
 			witchCount++;
+		}
+		if(Input.GetKeyDown(KeyCode.Alpha3) && summonSpace && sp > 19 && guardCount < 10){
+			StartCoroutine(summonServant("BlueGuard",15,1f));
+			guardCount++;
 		}
 	}
 	private IEnumerator spUp(){

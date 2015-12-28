@@ -49,6 +49,8 @@ public class Blue : MonoBehaviour
 			gameObject.name = ("BlueSoldier" + summonsServant.servantCount); //名前に味方召喚数の変数を付随させる
 		 else if (transform.localScale == new Vector3 (10, 10, 10))
 			gameObject.name = ("BlueWitch" + summonsServant.servantCount); //名前に味方召喚数の変数を付随させる
+		else if (transform.localScale == new Vector3 (8, 8, 8))
+			gameObject.name = ("BlueGuard" + summonsServant.servantCount); //名前に味方召喚数の変数を付随させる
 		tgtDis = distance (tgt.transform.position, myPos);//移動先の座標と自分の座標の差分を図り、変数にいれる
 		tgtDis = tgtDis.normalized;
 		state = "move";//初期状態を移動にする
