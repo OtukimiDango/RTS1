@@ -154,9 +154,13 @@ public class EnemyControl : MonoBehaviour
 					level = 3;
 				}
 			}//上昇率が120%以上になるとレベル上昇して召喚間隔と思考回転間隔が短くなる
-			if(AllyGuard.Count+AllyWitch.Count+AllySoldier.Count>AllEnemy.Count	&& AllyGuard.Count+AllyWitch.Count+AllySoldier.Count/AllEnemy.Count >= 1.2f){
+			try{
+				if(AllyGuard.Count+AllyWitch.Count+AllySoldier.Count>AllEnemy.Count	&& AllyGuard.Count+AllyWitch.Count+AllySoldier.Count/AllEnemy.Count >= 1.2f){
 				level = 100;
-			}//自分の味方の数が敵の数より1.2倍なら召喚しない
+				}//自分の味方の数が敵の数より1.2倍なら召喚しない
+			}catch{
+				level = 100;
+			}
 		}
 	}
 

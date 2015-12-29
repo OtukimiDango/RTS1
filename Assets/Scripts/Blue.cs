@@ -27,8 +27,6 @@ public class Blue : MonoBehaviour
 //自分に攻撃してる敵のリスト
 	private bool right;
 //迂回時の方向
-	private bool attackSpace = true;
-//攻撃のクールタイムが終了しているか
 	public LineRenderer linerende;
 //ラインレンダラー
 	public bool detourbool = false;
@@ -40,7 +38,7 @@ public class Blue : MonoBehaviour
 	void Start ()
 	{
 		linerende = GetComponent<LineRenderer> ();//LineRendererコンポーネントを変数に
-		tgt = GameObject.Find ("summonRed");//移動先
+		tgt = GameObject.Find ("summonRed");//移動先!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 		myPos = transform.position;//自分のポジションを入れる
 		if (transform.localScale == new Vector3 (6, 6, 6)) 
 			gameObject.name = ("BlueSoldier" + summonsServant.servantCount); //名前に味方召喚数の変数を付随させる
@@ -76,8 +74,6 @@ public class Blue : MonoBehaviour
 				tgt = GameObject.Find ("summmonRed");
 				state = "move";
 			}
-			if (attackSpace)//攻撃のクールタイムが終わっていれば
-				StartCoroutine (attack ()); //攻撃
 			break;
 		default :
 			break;
@@ -126,6 +122,7 @@ public class Blue : MonoBehaviour
 					attackObj = tgt;
 					state = "fight";
 					gameObject.tag = "StopPlayer";
+					StartCoroutine (attack ()); //攻撃
 				}
 			}
 			break;
@@ -138,13 +135,20 @@ public class Blue : MonoBehaviour
 					attackObj = tgt;
 					state = "fight";
 					gameObject.tag = "StopPlayer";
+					StartCoroutine (attack ()); //攻撃
 				}
 			}
 			break;
 		case "summonBlue":
+			crystal Cscript = col.gameObject.GetComponent<crystal> ();
+
+			tgt = col.gameObject;
+			attackObj = tgt;
 			state = "fight";
 			gameObject.tag = "StopPlayer";
+			StartCoroutine (attack ()); //攻撃
 			break;
+
 		default :
 			break;
 		}
@@ -194,12 +198,12 @@ public class Blue : MonoBehaviour
 
 	private IEnumerator attack ()
 	{
-		tgt.GetComponent<Red> ().HP -= 30;
-		//GameObject myHPBar = GameObject.Find (gameObject.name + ("hp(Clone)"));
+		while (state == "fight") {
+			tgt.GetComponent<Red> ().HP -= 30;
+			//GameObject myHPBar = GameObject.Find (gameObject.name + ("hp(Clone)"));
 //		myHPBar.transform.localScale -= new Vector3 (0.15f, 0, 0);
-		attackSpace = false;
-		yield return new WaitForSeconds (3);
-		attackSpace = true;
+			yield return new WaitForSeconds (3);
+		}
 	}
 
 	private void changeAttack (GameObject obj)
@@ -224,12 +228,12 @@ public class Blue : MonoBehaviour
 	private void Death ()
 	{
 		lightup = false;
-		if (gameObject == Player.rayobj)
-			Player.rayobj = null;
+		if (gameObject == Instruction.rayobj)
+			Instruction.rayobj = null;
 		if (tgt.layer == 9)
 			tgt.GetComponent<Red> ().atEnemys.Remove (gameObject);
 		tgt.GetComponent<LineRenderer > ().SetVertexCount (tgt.GetComponent<Red> ().atEnemys.Count + 2);
-		Player.charaDestroy (gameObject);
+		Instruction.charaDestroy (gameObject);
 		foreach (GameObject enemy in atEnemys) {//自分を狙っている敵
 			Red script = enemy.GetComponent<Red> ();//敵のスクリプトを入手
 			if (script.atEnemys.Count == 0) {//敵を狙っている味方がいなければ
@@ -240,8 +244,8 @@ public class Blue : MonoBehaviour
 				script.tgt = script.atEnemys [0];
 			
 		}
-		if (Player.saveChara == gameObject)
-			Player.saveChara = null;
+		if (Instruction.saveChara == gameObject)
+			Instruction.saveChara = null;
 		UIHP.targets.Remove (gameObject.transform);
 		Destroy (GameObject.Find (gameObject.name + "hp(Clone)"));
 		summonsServant.sp += 10;

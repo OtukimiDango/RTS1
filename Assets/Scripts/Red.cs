@@ -10,13 +10,12 @@ public class Red : MonoBehaviour
 	public int HP;//自分のHP
 	private Vector3 myPos;//自分の座標
 	private float detourDis;//迂回する距離
-	private readonly int speed = 10;//移動速度
+	private readonly int speed = 60;//移動速度
 	public string state;//自分の状態
 	public GameObject frontAlly = null , saveFrontAlly = null;
 	public static List<GameObject> allys = new List<GameObject> ();//味方のリスト
 	public List<GameObject> atEnemys = new List<GameObject> ();//自分に攻撃してる敵のリスト
 	private bool right;//迂回時の方向
-	private bool attackActivator = true;//攻撃のクールタイムが終了しているか
 	public LineRenderer linerend;//ラインレンダラー
 	public bool lightup = false;
 	public  GameObject attackObj;
@@ -49,6 +48,7 @@ public class Red : MonoBehaviour
 		switch (state) {//自分の状態を要素としswitch文
 		case "move"://移動中であれば
 			transform.LookAt (tgt.transform);//移動先に注目
+			
 			myPos.z = myPos.z + (tgtDis.z * speed * Time.deltaTime);//移動先へ移動
 			if (myPos.x >= tgt.transform.position.x+2 || myPos.x <= tgt.transform.position.x-2){
 				myPos.x = myPos.x - (tgtDis.x * (Time.deltaTime / (speed * (myPos.z / tgtDis.z))));//縦軸一定範囲まで移動
@@ -62,11 +62,11 @@ public class Red : MonoBehaviour
 			try{
 				transform.LookAt (tgt.transform);//敵に注目
 			}catch{
-				tgt = GameObject.Find ("summmonRed");
+				tgt = GameObject.Find ("summonBlue");
+				Debug.Log ("aaa");
 				state = "move";
 			}
-			if (attackActivator) //攻撃のクールタイムが終わっていれば
-				StartCoroutine (attack ()); //攻撃
+
 			break;
 		default :
 			break;
@@ -114,14 +114,15 @@ public class Red : MonoBehaviour
 
 		switch (col.gameObject.tag) {
 		case "Player":
-			if (gameObject.CompareTag ("Enemy") && state != "fight") {
-				Blue script = col.gameObject.GetComponent<Blue> ();
-				if (script.atEnemys.Count < 3) {
-					script.atEnemys.Add (gameObject);
-					tgt = col.gameObject;
-					attackObj = tgt;
-					state = "fight";
-					gameObject.tag = "StopEnemy";
+			if (gameObject.CompareTag ("Enemy") && state != "fight") {//戦闘中でなければ
+				Blue script = col.gameObject.GetComponent<Blue> ();//敵チームスクリプト取得
+				if (script.atEnemys.Count < 3) {//敵が3人に狙われていなければ
+					script.atEnemys.Add (gameObject);//敵の敵リストに自分を追加
+					tgt = col.gameObject;//攻撃対象にする
+					attackObj = tgt;//攻撃開始
+					state = "fight";//自分の状況を戦闘中に切り替え
+					gameObject.tag = "StopEnemy";//自分の行動を止める
+					StartCoroutine (attack ()); //攻撃
 				}
 			}
 			break;
@@ -134,6 +135,7 @@ public class Red : MonoBehaviour
 					attackObj = tgt;
 					state = "fight";
 					gameObject.tag = "StopEnemy";
+					StartCoroutine (attack ()); //攻撃
 				}
 			}
 			break;
@@ -141,11 +143,24 @@ public class Red : MonoBehaviour
 			state = "fight";
 			gameObject.tag = "StopEnemy";
 			break;
+		case "blueCrystal":
+			if(gameObject.CompareTag("Enemy") && state != "fight"){
+				tgt = col.gameObject;
+				attackObj = tgt;
+				state = "fight";
+				gameObject.tag = "StopEnemy";
+				StartCoroutine (attack ()); //攻撃
+			}
+			break;
 		default :
 			break;
 		}
-		if (col.gameObject == tgt)
-			col.gameObject.GetComponent<Light> ().color = Color.red;
+		if (col.gameObject == tgt) {
+			try{
+				col.gameObject.GetComponent<Light> ().color = Color.red;
+			}catch{
+			}
+		}
 	}
 
 	public void detourReady ()
@@ -187,12 +202,16 @@ public class Red : MonoBehaviour
 
 	private IEnumerator attack ()
 	{
-		tgt.GetComponent<Blue>().HP -= 30;
-		GameObject myHPBar = GameObject.Find (tgt.name + ("hp(Clone)"));
-		myHPBar.transform.localScale -= new Vector3 (0.15f, 0, 0);
-		attackActivator = false;
-		yield return new WaitForSeconds (3);
-		attackActivator = true;
+		while (state == "fight") {
+			try{
+				tgt.GetComponent<Blue> ().HP -= 30;
+			}catch{
+				tgt.GetComponent<crystal> ().HP -= 300;
+			}
+			GameObject myHPBar = GameObject.Find (tgt.name + ("hp(Clone)"));
+			myHPBar.transform.localScale -= new Vector3 (1.5f, 0, 0);
+			yield return new WaitForSeconds (3);
+		}
 	}
 	private void changeAttack(GameObject obj){
 		if (tgt.GetComponent<Light> ().color == Color.yellow)
@@ -206,12 +225,12 @@ public class Red : MonoBehaviour
 	}
 	private void Death(){
 		lightup = false;
-		if (gameObject == Player.rayobj)
-			Player.rayobj = null;
+		if (gameObject == Instruction.rayobj)
+			Instruction.rayobj = null;
 		if(tgt.layer == 10)
 		tgt.GetComponent<Blue> ().atEnemys.Remove (gameObject);
 		tgt.GetComponent<LineRenderer > ().SetVertexCount (tgt.GetComponent<Blue> ().atEnemys.Count+2);
-		Player.charaDestroy (gameObject);
+		Instruction.charaDestroy (gameObject);
 		foreach (GameObject enemy in atEnemys) {
 			Blue script = enemy.GetComponent<Blue> ();
 			if (script.atEnemys.Count == 0) {
@@ -221,8 +240,8 @@ public class Red : MonoBehaviour
 			} else
 				script.tgt = script.atEnemys [0];
 		}
-		if (Player.saveChara == gameObject)
-			Player.saveChara = null;
+		if (Instruction.saveChara == gameObject)
+			Instruction.saveChara = null;
 		UIHP.targets.Remove (gameObject.transform);
 		Destroy(GameObject.Find (gameObject.name + "hp(Clone)"));
 		summonsServant.sp += 10;

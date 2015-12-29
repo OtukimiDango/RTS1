@@ -10,7 +10,7 @@ public class UIHP : MonoBehaviour {
 		if(targets == null )
 			return;
 		for (int i = 0; i < targets.Count; i++) {
-			targets [i] = GameObject.Find (targets [i].name).transform;
+				targets [i] = GameObject.Find (targets [i].name).transform;
 		}
 		foreach (Transform tgt in targets) {
 			GameObject hp = GameObject.Find (tgt.name +"hp(Clone)");
