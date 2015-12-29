@@ -9,24 +9,24 @@ public class Red : MonoBehaviour
 
 	public int HP;//自分のHP
 	private Vector3 myPos;//自分の座標
-	private Vector3 savePos;//自分の座標を一時的に保存する変数
 	private float detourDis;//迂回する距離
-	private const int speed = 10;//移動速度
+	private readonly int speed = 10;//移動速度
 	public string state;//自分の状態
-	public GameObject frontAlly = null;//前方の味方
+	public GameObject frontAlly = null , saveFrontAlly = null;
 	public static List<GameObject> allys = new List<GameObject> ();//味方のリスト
 	public List<GameObject> atEnemys = new List<GameObject> ();//自分に攻撃してる敵のリスト
-	private GameObject saveFrontAlly;//前方の味方を判定するときにブッキングを回避するための保存用変数
 	private bool right;//迂回時の方向
-	private bool attackSpace = true;//攻撃のクールタイムが終了しているか
-	public LineRenderer renderer;//ラインレンダラー
+	private bool attackActivator = true;//攻撃のクールタイムが終了しているか
+	public LineRenderer linerend;//ラインレンダラー
 	public bool lightup = false;
-	public GameObject attackObj;
+	public  GameObject attackObj;
+	public bool detourbool = false;
+	float dx ,dy, radian=1f,radi = 0f, i = 0;
 
 	void Start ()
 	{
-		renderer = GetComponent<LineRenderer> ();//LineRendererコンポーネントを変数に
-		tgt = GameObject.Find ("summonBlue");//移動先!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+		tgt = GameObject.Find ("summonBlue");//移動先
+		linerend = GetComponent<LineRenderer> ();//LineRendererコンポーネントを変数に
 		myPos = transform.position;//自分のポジションを入れる
 		if (transform.localScale == new Vector3 (6, 6, 6)) 
 			gameObject.name = ("RedSoldier" + EnemyControl.servantCount); //名前に味方召喚数の変数を付随させる
@@ -59,12 +59,13 @@ public class Red : MonoBehaviour
 			detour ();//迂回を開始する
 			break;
 		case "fight"://戦闘中であれば
-			if (tgt == null) {
+			try{
+				transform.LookAt (tgt.transform);//敵に注目
+			}catch{
+				tgt = GameObject.Find ("summmonRed");
 				state = "move";
-				break;
 			}
-			transform.LookAt (tgt.transform);//敵に注目
-			if (attackSpace) //攻撃のクールタイムが終わっていれば
+			if (attackActivator) //攻撃のクールタイムが終わっていれば
 				StartCoroutine (attack ()); //攻撃
 			break;
 		default :
@@ -73,8 +74,8 @@ public class Red : MonoBehaviour
 		if (HP < 0)
 			Death ();//HPがゼロになっていたら死亡
 		if (lightup) {
-			renderer.SetPosition(0, transform.position);
-			renderer.SetPosition (1, tgt.transform.position);
+			linerend.SetPosition(0, transform.position);
+			linerend.SetPosition (1, tgt.transform.position);
 			if (tgt.GetComponent<Light> ().enabled == false) {
 				tgt.GetComponent<Light> ().enabled = true;
 			}
@@ -94,18 +95,23 @@ public class Red : MonoBehaviour
 						atEnemys [i].GetComponent<Light> ().color = Color.red;
 					}
 				}
-				renderer.SetVertexCount (2+((i+1)*2));
-				renderer.SetPosition (2+((i+1)*2-2), transform.position);
-				renderer.SetPosition (2+((i+1)*2-1), atEnemys[i].transform.position);
+				linerend.SetVertexCount (2+((i+1)*2));
+				linerend.SetPosition (2+((i+1)*2-2), transform.position);
+				linerend.SetPosition (2+((i+1)*2-1), atEnemys[i].transform.position);
 			}
 		}
 	}
 
 	void OnTriggerEnter (Collider col)
 	{
-		if (tgt.layer == 10 && tgt != col.gameObject)
+		try{
+		if (tgt.layer == 10 && tgt != col.gameObject) {
 			return;
-		
+		}
+		}catch{
+			return;
+		}
+
 		switch (col.gameObject.tag) {
 		case "Player":
 			if (gameObject.CompareTag ("Enemy") && state != "fight") {
@@ -148,30 +154,28 @@ public class Red : MonoBehaviour
 			saveFrontAlly = frontAlly;
 			detourDis = right ? saveFrontAlly.transform.localScale.x+3 : -(saveFrontAlly.transform.localScale.x+3);
 			state = "detour";
-			savePos = myPos;
+			detourbool = true;
+			detour();
 		}
 	}
 
 	private void detour ()
 	{
-		if (detourDis > 0) {
-			if (myPos.x >= savePos.x + detourDis +1) {
-				state = "move";
-				gameObject.tag="Enemy";
-				tgtDis.x = myPos.x;
-			} else {
-				myPos.x += (detourDis * (Time.deltaTime * 3));
-				transform.position = myPos;
-			}
-		} else {
-			if (myPos.x <= savePos.x + detourDis+1) {
-				state = "move";
-				gameObject.tag="Enemy";
-				tgtDis.x = myPos.x;
-			} else {
-				myPos.x += (detourDis * (Time.deltaTime * 3));
-				transform.position = myPos;
-			}
+		if (detourbool) {
+			dy = frontAlly.transform.position.x + detourDis - gameObject.transform.position.x;
+			dx = frontAlly.transform.position.z - gameObject.transform.position.z;
+			radian = Mathf.Atan2 (dy, dx);
+			detourbool = false;
+		}
+		i += Time.deltaTime;
+		radi = (radian * Mathf.Rad2Deg) * i;
+		gameObject.transform.eulerAngles = new Vector3(0, radi, 0);
+		transform.Translate (transform.forward * (tgtDis.z * speed * Time.deltaTime));
+		myPos = transform.position;
+		if (i >= 2) {
+			i = 0;
+			state = "move";
+			gameObject.tag = "Player";
 		}
 	}
 
@@ -186,9 +190,9 @@ public class Red : MonoBehaviour
 		tgt.GetComponent<Blue>().HP -= 30;
 		GameObject myHPBar = GameObject.Find (tgt.name + ("hp(Clone)"));
 		myHPBar.transform.localScale -= new Vector3 (0.15f, 0, 0);
-		attackSpace = false;
+		attackActivator = false;
 		yield return new WaitForSeconds (3);
-		attackSpace = true;
+		attackActivator = true;
 	}
 	private void changeAttack(GameObject obj){
 		if (tgt.GetComponent<Light> ().color == Color.yellow)

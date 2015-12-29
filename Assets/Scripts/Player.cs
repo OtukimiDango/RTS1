@@ -109,11 +109,8 @@ public class Player : MonoBehaviour
 						cSerch = hit.collider.gameObject.transform.parent.gameObject.GetComponent<Red> ().tgt;
 					else
 						cSerch = hit.collider.gameObject.transform.parent.gameObject.GetComponent<Blue> ().tgt;
-					if (hit.collider.gameObject.transform.parent.gameObject.layer == 10 && cSerch != saveChara) {
-						hit.collider.gameObject.transform.parent.gameObject.GetComponent<Light> ().enabled = true;//当たったキャラのライトをON
-						hit.collider.gameObject.transform.parent.gameObject.GetComponent<Light> ().color = Color.yellow;//黄色く光らせる
-						rayobj = hit.collider.gameObject.transform.parent.gameObject;//rayMouse内での判定用に保存
-					} else if (hit.collider.gameObject.transform.parent.gameObject.layer == 9 && cSerch != saveChara) {
+					
+					if (cSerch != saveChara) {
 						hit.collider.gameObject.transform.parent.gameObject.GetComponent<Light> ().enabled = true;//当たったキャラのライトをON
 						hit.collider.gameObject.transform.parent.gameObject.GetComponent<Light> ().color = Color.yellow;//黄色く光らせる
 						rayobj = hit.collider.gameObject.transform.parent.gameObject;//rayMouse内での判定用に保存
@@ -137,6 +134,7 @@ public class Player : MonoBehaviour
 			if (saveChara != null) {//前回クリックしたキャラがいれば
 				saveChara.GetComponent<LineRenderer> ().enabled = false;//前回のキャラのラインを消す
 				saveChara.GetComponent<Light> ().enabled = false;//前回のキャラのライトを消す
+
 				if (saveChara.layer == 9) {//前回のキャラがエネミーであれば
 					saveChara.GetComponent<Red> ().lightup = false;//ライトを消して
 					saveChara.GetComponent<Red> ().tgt.GetComponent<Light> ().enabled = false;
@@ -157,26 +155,6 @@ public class Player : MonoBehaviour
 			parent.GetComponent<LineRenderer> ().enabled = !lineFlag;
 			parent.GetComponent<Light> ().enabled = !lineFlag;
 
-//			try{
-//				parent.GetComponent<Blue> ().lightup = !lineFlag;
-//				parent.GetComponent<Light> ().color = Color.blue;
-//				if (parent.GetComponent<Blue> ().tgt != null && parent.GetComponent<Blue> ().tgt != GameObject.Find ("summonRed")) {
-//					parent.GetComponent<Blue> ().tgt.GetComponent<Light> ().enabled = !lineFlag;
-//					if (parent.GetComponent<Blue> ().tgt == parent.GetComponent<Blue> ().attackObj)
-//						parent.GetComponent<Blue> ().tgt.GetComponent<Light> ().color = Color.blue;
-//				}
-//			}catch{
-//				Debug.Log ("aaa");
-//				parent.GetComponent<Red> ().lightup = !lineFlag;
-//				parent.GetComponent<Light> ().color = Color.red;
-//				rayMouse = false;
-//				playerc.GetComponent<LineRenderer> ().enabled = false;
-//				if (parent.GetComponent<Red> ().tgt != null && parent.GetComponent<Red> ().tgt != GameObject.Find ("summonBlue")) {
-//					parent.GetComponent<Red> ().tgt.GetComponent<Light> ().enabled = !lineFlag;
-//					if (parent.GetComponent<Red> ().tgt == parent.GetComponent<Red> ().attackObj)
-//						parent.GetComponent<Red> ().tgt.GetComponent<Light> ().color = Color.red;
-//				}
-//			}
 			if (parent.layer == 10) {//クリックしたのがプレイヤーであれば
 				parent.GetComponent<Blue> ().lightup = !lineFlag;
 				parent.GetComponent<Light> ().color = Color.blue;
@@ -187,7 +165,7 @@ public class Player : MonoBehaviour
 				}
 
 
-			}else if (parent.layer == 9) {//クリックしたのエネミーであれば
+			} else if (parent.layer == 9) {//クリックしたのエネミーであれば
 				parent.GetComponent<Red> ().lightup = !lineFlag;
 				parent.GetComponent<Light> ().color = Color.red;
 				rayMouse = false;
@@ -207,10 +185,10 @@ public class Player : MonoBehaviour
 	{
 		if (chara != saveChara)
 			return;
+		
 		playerc.GetComponent<LineRenderer> ().enabled = false;
 		rayMouse = false;
 		if (chara.layer == 9) {
-			//chara.GetComponent<>
 			foreach (GameObject lightDown in chara.GetComponent<Red>().atEnemys)
 				lightDown.GetComponent<Light> ().enabled = false;
 		} else {

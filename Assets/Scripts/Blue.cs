@@ -13,22 +13,18 @@ public class Blue : MonoBehaviour
 //自分のHP
 	private Vector3 myPos;
 //自分の座標
-	private Vector3 savePos;
-//自分の座標を一時的に保存する変数
 	private float detourDis;
 //迂回する距離
-	private const int speed = 10;
+	private readonly int speed = 10;
 //移動速度
 	public string state;
 //自分の状態
-	public GameObject frontAlly = null;
+	public GameObject frontAlly = null , saveFrontAlly = null;
 //前方の味方
 	public static List<GameObject> allys = new List<GameObject> ();
 //味方のリスト
 	public List<GameObject> atEnemys = new List<GameObject> ();
 //自分に攻撃してる敵のリスト
-	private GameObject saveFrontAlly;
-//前方の味方を判定するときにブッキングを回避するための保存用変数
 	private bool right;
 //迂回時の方向
 	private bool attackSpace = true;
@@ -44,7 +40,7 @@ public class Blue : MonoBehaviour
 	void Start ()
 	{
 		linerende = GetComponent<LineRenderer> ();//LineRendererコンポーネントを変数に
-		tgt = GameObject.Find ("summonRed");//移動先!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+		tgt = GameObject.Find ("summonRed");//移動先
 		myPos = transform.position;//自分のポジションを入れる
 		if (transform.localScale == new Vector3 (6, 6, 6)) 
 			gameObject.name = ("BlueSoldier" + summonsServant.servantCount); //名前に味方召喚数の変数を付随させる
@@ -71,10 +67,15 @@ public class Blue : MonoBehaviour
 			transform.position = myPos;//変更された変数を自分のポジションへ代入
 			break;
 		case "detour"://迂回であれば
-			detour(gameObject.transform);
+			detour();
 			break;
 		case "fight"://戦闘中であれば
-			transform.LookAt (tgt.transform);//敵に注目
+			try{
+				transform.LookAt (tgt.transform);//敵に注目
+			}catch{
+				tgt = GameObject.Find ("summmonRed");
+				state = "move";
+			}
 			if (attackSpace)//攻撃のクールタイムが終わっていれば
 				StartCoroutine (attack ()); //攻撃
 			break;
@@ -83,6 +84,7 @@ public class Blue : MonoBehaviour
 		}
 		if (HP < 0)
 			Death ();//HPがゼロになっていたら死亡
+		
 		if (lightup) {
 			linerende.SetPosition (0, transform.position);
 			linerende.SetPosition (1, tgt.transform.position);
@@ -159,15 +161,15 @@ public class Blue : MonoBehaviour
 			detourDis = right ? saveFrontAlly.transform.localScale.x : -(saveFrontAlly.transform.localScale.x);
 			state = "detour";
 			detourbool = true;
-			detour (gameObject.transform);//迂回を開始する
+			detour ();//迂回を開始する
 		}
 	}
 
-	private void detour (Transform me)
+	private void detour ()
 	{
 		if (detourbool) {
-			dy = frontAlly.transform.position.x + detourDis - me.position.x;
-			dx = frontAlly.transform.position.z - me.position.z;
+			dy = frontAlly.transform.position.x + detourDis - gameObject.transform.position.x;
+			dx = frontAlly.transform.position.z - gameObject.transform.position.z;
 			radian = Mathf.Atan2 (dy, dx);
 			detourbool = false;
 		}
@@ -181,26 +183,6 @@ public class Blue : MonoBehaviour
 			state = "move";
 			gameObject.tag = "Player";
 		}
-//		if (detourDis > 0) {
-//			if (myPos.x >= savePos.x + detourDis + 1) {
-//				state = "move";
-//				gameObject.tag = "Player";
-//				tgtDis.x = myPos.x;
-//			} else {
-//				myPos = myPos + (tgtDis * speed * Time.deltaTime);//移動先へ移動
-//				transform.position = myPos;//変更された変数を自分のポジションへ代入
-//			}
-//		} else {
-//			if (myPos.x <= savePos.x + detourDis + 1) {
-//				state = "move";
-//				gameObject.tag = "Player";
-//				tgtDis.x = myPos.x;
-//			} else {
-//				myPos = myPos + (tgtDis * speed * Time.deltaTime);//移動先へ移動
-//				transform.position = myPos;//変更された変数を自分のポジションへ代入
-//
-//			}
-//		}
 	}
 
 	public static Vector3 distance (Vector3 target, Vector3 me)

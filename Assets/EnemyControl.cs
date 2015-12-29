@@ -8,7 +8,7 @@ public class EnemyControl : MonoBehaviour
 
 	private	bool	summonActivater = true;
 
-	public	static	int sp = 500;
+	public	static	int sp = 50;
 
 	public	sbyte	UpSp = 1;
 
@@ -22,7 +22,8 @@ public class EnemyControl : MonoBehaviour
 	public static	List<GameObject> EnemySoldier = new List<GameObject> ();
 	public static	List<GameObject> EnemyWitch = new List<GameObject> ();
 	public static 	List<GameObject> EnemyGuard = new List<GameObject> ();
-	private	static	string	summonState = "normal";
+	private	static	string	summonState = "NeedSoldier";
+	private static byte level = 5;
 	// Use this for initialization
 	void Start ()
 	{
@@ -30,37 +31,7 @@ public class EnemyControl : MonoBehaviour
 		StartCoroutine (spUp ());
 		StartCoroutine (gameTime ());
 		StartCoroutine (Brain ());
-	}
-	
-	// Update is called once per frame
-
-	void Update ()
-	{
-		if (summonState == "NeedSoldier") {
-			if (summonActivater && sp > 9 && AllySoldier.Count < 10) {
-				StartCoroutine (summonServant ("RedSoldier", 10, 1f));
-			}
-		} else if (summonState == "NeedWitch") {
-			if (summonActivater && sp > 19 && AllyWitch.Count < 10) {
-				StartCoroutine (summonServant ("RedWitch", 20, 1f));
-			}
-		} else if (summonState == "NeedGuard") {
-			if (summonActivater && sp > 19 && AllyGuard.Count < 10) {
-				StartCoroutine (summonServant ("RedGuard", 15, 1f));
-			}
-		}
-
-		if (summonState == "normal") {
-			if (summonActivater && sp > 9 && AllySoldier.Count < 10) {
-				StartCoroutine (summonServant ("RedSoldier", 10, 1f));
-			}
-			if (summonActivater && sp > 19 && AllyWitch.Count < 10) {
-				StartCoroutine (summonServant ("RedWitch", 20, 1f));
-			}
-			if (summonActivater && sp > 19 && AllyGuard.Count < 10) {
-				StartCoroutine (summonServant ("RedGuard", 15, 1f));
-			}
-		}
+		StartCoroutine (summon());
 	}
 
 	private IEnumerator spUp ()
@@ -76,7 +47,7 @@ public class EnemyControl : MonoBehaviour
 		sp -= cost;//spからコストを引く
 		summonActivater = false;//召喚不可能にする
 		servantCount++;//召喚したサーヴァントの数をプラス
-		coroutine.MoveNext ();
+		coroutine.MoveNext ();//召喚ポジションを移動
 		GameObject servant = (GameObject)Resources.Load ("Servents/" + s);//召喚するオブジェクトを変数に入れる
 		Vector3 summonPosition = spawnPoint.position;//召喚時の初期座標を変数に入れる
 		summonPosition.y = summonPosition.y + servant.transform.position.y;//初期座標y軸に召喚するオブジェクトの半径をプラス
@@ -101,7 +72,7 @@ public class EnemyControl : MonoBehaviour
 			AllyGuard.Add (sa);
 			break;
 		}
-		yield return new WaitForSeconds (1);//2秒待つ
+		yield return new WaitForSeconds (1);//1秒待つ
 		summonActivater = true;//召喚可能にする
 
 	}
@@ -123,38 +94,41 @@ public class EnemyControl : MonoBehaviour
 
 	public IEnumerator spawnPoints ()
 	{
-		spawnPoint = GameObject.Find ("spawnPointAred").transform;
+		spawnPoint = GameObject.Find ("spawnPointAred").transform;//召喚一A
 		yield return null;
-		spawnPoint = GameObject.Find ("spawnPointBred").transform;
+		spawnPoint = GameObject.Find ("spawnPointBred").transform;//召喚一B
 		yield return null;
-		spawnPoint = GameObject.Find ("spawnPointCred").transform;
-		coroutine = spawnPoints ();
+		spawnPoint = GameObject.Find ("spawnPointCred").transform;//召喚一C
+		coroutine = spawnPoints ();//最初からやり直し
 		yield return null;
 	}
 
 	public IEnumerator Brain ()
 	{
 
-		int soldier = AllySoldier.Count;
-		int witch = AllyWitch.Count;
-		int guard = AllyGuard.Count;
-		int ans = Mathf.Min (soldier, witch);
-		int ans2 = Mathf.Min (ans, guard);
-
 		while (true) {
-			
-			yield return new WaitForSeconds (3);//3秒に一回しか考えない
 
-			if (ans2 == soldier)
+			yield return new WaitForSeconds (level);//状況に応じてサボる
+
+			int soldier = AllySoldier.Count;
+			int witch = AllyWitch.Count;
+			int guard = AllyGuard.Count;
+			int ans = Mathf.Min (soldier, witch);
+			int ans2 = Mathf.Min (ans, guard);
+
+			if (ans2 == soldier) {
 				summonState = "NeedSoldier";
-			else if (ans2 == witch)
+			} else if (ans2 == witch) {
 				summonState = "NeedWitch";
-			else if (ans2 == guard)
+			} else if (ans2 == guard) {
 				summonState = "NeedGuard";
+			}
+
 			AllEnemy.Clear ();
 			EnemySoldier.Clear ();
 			EnemyWitch.Clear ();
 			EnemyGuard.Clear ();
+
 			AllEnemy.AddRange (GameObject.FindGameObjectsWithTag ("Player"));
 			AllEnemy.AddRange (GameObject.FindGameObjectsWithTag ("StopPlayer"));
 
@@ -171,13 +145,38 @@ public class EnemyControl : MonoBehaviour
 					break;
 				}
 			}
+
 			RecordCount.Enqueue (AllEnemy.Count);
-			if (RecordCount.Count > 5) {
+			if (RecordCount.Count > 3) {
 				float i = ((float)AllEnemy.Count / (float)RecordCount.Dequeue ());//15秒前と現在の敵の数の上昇率
-				if (i >= 1.3f) {
-					summonState = "NeedServant";
+				if (i >= 3) {
+					Debug.Log ("3");
+					level = 3;
+				}
+			}//上昇率が120%以上になるとレベル上昇して召喚間隔と思考回転間隔が短くなる
+			if(AllyGuard.Count+AllyWitch.Count+AllySoldier.Count>AllEnemy.Count	&& AllyGuard.Count+AllyWitch.Count+AllySoldier.Count/AllEnemy.Count >= 1.2f){
+				level = 100;
+			}//自分の味方の数が敵の数より1.2倍なら召喚しない
+		}
+	}
+
+	private IEnumerator summon ()
+	{
+		while (level != 100) {
+			if (summonState == "NeedSoldier") {
+				if (summonActivater && sp > 9 && AllySoldier.Count < 10) {
+					StartCoroutine (summonServant ("RedSoldier", 5, 1f));
+				}
+			} else if (summonState == "NeedWitch") {
+				if (summonActivater && sp > 19 && AllyWitch.Count < 10) {
+					StartCoroutine (summonServant ("RedWitch", 5, 1f));
+				}
+			} else if (summonState == "NeedGuard") {
+				if (summonActivater && sp > 19 && AllyGuard.Count < 10) {
+					StartCoroutine (summonServant ("RedGuard", 5, 1f));
 				}
 			}
+			yield return new WaitForSeconds (level);
 		}
 	}
 }
