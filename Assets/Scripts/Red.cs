@@ -10,21 +10,21 @@ public class Red : MonoBehaviour
 	public int HP;//自分のHP
 	private Vector3 myPos;//自分の座標
 	private float detourDis;//迂回する距離
-	private readonly int speed = 60;//移動速度
+	private readonly byte speed = 10;//移動速度
+	private readonly byte power = 30;
 	public string state;//自分の状態
-	public GameObject frontAlly = null , saveFrontAlly = null;
+	public GameObject frontAlly = null;
 	public static List<GameObject> allys = new List<GameObject> ();//味方のリスト
-	public List<GameObject> atEnemys = new List<GameObject> ();//自分に攻撃してる敵のリスト
+	public List<GameObject> atEnemys = new List<GameObject> (),behindAlly = new List<GameObject>();//自分に攻撃してる敵のリスト
 	private bool right;//迂回時の方向
 	public LineRenderer linerend;//ラインレンダラー
 	public bool lightup = false;
 	public  GameObject attackObj;
-	public bool detourbool = false;
 	float dx ,dy, radian=1f,radi = 0f, i = 0;
 
 	void Start ()
 	{
-		tgt = GameObject.Find ("summonBlue");//移動先
+		tgt = GameObject.Find ("blueFirstCrystal");//移動先
 		linerend = GetComponent<LineRenderer> ();//LineRendererコンポーネントを変数に
 		myPos = transform.position;//自分のポジションを入れる
 		if (transform.localScale == new Vector3 (6, 6, 6)) 
@@ -33,7 +33,7 @@ public class Red : MonoBehaviour
 			gameObject.name = ("RedWitch" + EnemyControl.servantCount); //名前に味方召喚数の変数を付随させる
 		else if (transform.localScale == new Vector3 (8, 8, 8))
 			gameObject.name = ("RedGuard" + EnemyControl.servantCount); //名前に味方召喚数の変数を付随させる
-		tgtDis = distance (tgt.transform.position, myPos);//移動先の座標と自分の座標の差分を図り、変数にいれる
+		tgtDis =  distance(tgt.transform.position, myPos);//移動先の座標と自分の座標の差分を図り、変数にいれる
 		tgtDis = tgtDis.normalized;
 		state = "move";//初期状態を移動にする
 		HP = 200;//初期体力は200
@@ -48,11 +48,8 @@ public class Red : MonoBehaviour
 		switch (state) {//自分の状態を要素としswitch文
 		case "move"://移動中であれば
 			transform.LookAt (tgt.transform);//移動先に注目
-			
-			myPos.z = myPos.z + (tgtDis.z * speed * Time.deltaTime);//移動先へ移動
-			if (myPos.x >= tgt.transform.position.x+2 || myPos.x <= tgt.transform.position.x-2){
-				myPos.x = myPos.x - (tgtDis.x * (Time.deltaTime / (speed * (myPos.z / tgtDis.z))));//縦軸一定範囲まで移動
-		}
+			myPos = myPos + (tgtDis * speed * Time.deltaTime);//移動先へ移動
+			transform.position = myPos;//変更された変数を自分のポジションへ代入
 			transform.position = myPos;//変更された変数を自分のポジションへ代入
 			break;
 		case "detour"://迂回であれば
@@ -76,13 +73,16 @@ public class Red : MonoBehaviour
 		if (lightup) {
 			linerend.SetPosition(0, transform.position);
 			linerend.SetPosition (1, tgt.transform.position);
-			if (tgt.GetComponent<Light> ().enabled == false) {
+			try{
+				if (tgt.GetComponent<Light> ().enabled == false){
 				tgt.GetComponent<Light> ().enabled = true;
-			}
-			if (attackObj!=tgt && tgt.GetComponent<Light> ().color != Color.yellow) {
-				tgt.GetComponent<Light> ().color = Color.yellow;
-			}else if (attackObj == tgt && tgt.GetComponent<Light> ().color == Color.red && atEnemys.Count == 0){
-				tgt.GetComponent<Light> ().color = Color.blue;
+				}
+					if (attackObj!=tgt && tgt.GetComponent<Light> ().color != Color.yellow) {
+						tgt.GetComponent<Light> ().color = Color.yellow;
+					}else if (attackObj == tgt && tgt.GetComponent<Light> ().color == Color.red && atEnemys.Count == 0){
+						tgt.GetComponent<Light> ().color = Color.blue;
+					}
+			}catch{
 			}
 			if (gameObject.GetComponent<Light> ().color != Color.red) {
 				gameObject.GetComponent<Light> ().color = Color.red;
@@ -121,6 +121,7 @@ public class Red : MonoBehaviour
 					tgt = col.gameObject;//攻撃対象にする
 					attackObj = tgt;//攻撃開始
 					state = "fight";//自分の状況を戦闘中に切り替え
+					behindAlly.ForEach(i => i.GetComponent<Red>().detourReady());
 					gameObject.tag = "StopEnemy";//自分の行動を止める
 					StartCoroutine (attack ()); //攻撃
 				}
@@ -134,6 +135,7 @@ public class Red : MonoBehaviour
 					tgt = col.gameObject;
 					attackObj = tgt;
 					state = "fight";
+					behindAlly.ForEach(i => i.GetComponent<Red>().detourReady());
 					gameObject.tag = "StopEnemy";
 					StartCoroutine (attack ()); //攻撃
 				}
@@ -148,6 +150,7 @@ public class Red : MonoBehaviour
 				tgt = col.gameObject;
 				attackObj = tgt;
 				state = "fight";
+				behindAlly.ForEach(i => i.GetComponent<Red>().detourReady());
 				gameObject.tag = "StopEnemy";
 				StartCoroutine (attack ()); //攻撃
 			}
@@ -165,32 +168,25 @@ public class Red : MonoBehaviour
 
 	public void detourReady ()
 	{
-		if (saveFrontAlly != frontAlly) { 
-			saveFrontAlly = frontAlly;
-			detourDis = right ? saveFrontAlly.transform.localScale.x+3 : -(saveFrontAlly.transform.localScale.x+3);
+			detourDis = right ? frontAlly.transform.localScale.x+3 : -(frontAlly.transform.localScale.x+3);
 			state = "detour";
-			detourbool = true;
+			dy = frontAlly.transform.position.x + detourDis - gameObject.transform.position.x;
+			dx = frontAlly.transform.position.z - gameObject.transform.position.z;
+			radian = Mathf.Atan2 (dy, dx);
 			detour();
-		}
 	}
 
 	private void detour ()
 	{
-		if (detourbool) {
-			dy = frontAlly.transform.position.x + detourDis - gameObject.transform.position.x;
-			dx = frontAlly.transform.position.z - gameObject.transform.position.z;
-			radian = Mathf.Atan2 (dy, dx);
-			detourbool = false;
-		}
 		i += Time.deltaTime;
 		radi = (radian * Mathf.Rad2Deg) * i;
 		gameObject.transform.eulerAngles = new Vector3(0, radi, 0);
 		transform.Translate (transform.forward * (tgtDis.z * speed * Time.deltaTime));
 		myPos = transform.position;
-		if (i >= 2) {
+		if (i >= 1.5f) {
 			i = 0;
 			state = "move";
-			gameObject.tag = "Player";
+			gameObject.tag = "Enemy";
 		}
 	}
 
@@ -204,18 +200,21 @@ public class Red : MonoBehaviour
 	{
 		while (state == "fight") {
 			try{
-				tgt.GetComponent<Blue> ().HP -= 30;
+				tgt.GetComponent<Blue> ().HP -= power;
 			}catch{
-				tgt.GetComponent<crystal> ().HP -= 300;
+				tgt.GetComponent<crystal> ().HP -= power;
 			}
 			GameObject myHPBar = GameObject.Find (tgt.name + ("hp(Clone)"));
-			myHPBar.transform.localScale -= new Vector3 (1.5f, 0, 0);
+			myHPBar.transform.localScale -= new Vector3 (0.15f, 0, 0);
 			yield return new WaitForSeconds (3);
 		}
 	}
 	private void changeAttack(GameObject obj){
+		try{
 		if (tgt.GetComponent<Light> ().color == Color.yellow)
 			tgt.GetComponent<Light> ().enabled = false;
+		}catch{
+		}
 		if (tgt.layer == 10){
 			tgt.GetComponent<Blue> ().atEnemys.Remove (gameObject);
 			tgt = obj;
@@ -229,8 +228,11 @@ public class Red : MonoBehaviour
 			Instruction.rayobj = null;
 		if(tgt.layer == 10)
 		tgt.GetComponent<Blue> ().atEnemys.Remove (gameObject);
+		try{
 		tgt.GetComponent<LineRenderer > ().SetVertexCount (tgt.GetComponent<Blue> ().atEnemys.Count+2);
-		Instruction.charaDestroy (gameObject);
+		}catch{
+
+		}
 		foreach (GameObject enemy in atEnemys) {
 			Blue script = enemy.GetComponent<Blue> ();
 			if (script.atEnemys.Count == 0) {
@@ -243,8 +245,9 @@ public class Red : MonoBehaviour
 		if (Instruction.saveChara == gameObject)
 			Instruction.saveChara = null;
 		UIHP.targets.Remove (gameObject.transform);
-		Destroy(GameObject.Find (gameObject.name + "hp(Clone)"));
 		summonsServant.sp += 10;
+		Instruction.charaDestroy (gameObject);
+		Destroy(GameObject.Find (gameObject.name + "hp(Clone)"));
 		Destroy (gameObject);
 
 	}

@@ -1,15 +1,18 @@
 ﻿<Properties StartupItem="Assembly-CSharp.csproj">
   <MonoDevelop.Ide.Workspace ActiveConfiguration="Debug" PreferredExecutionTarget="Unity.Instance.Unity Editor" />
-  <MonoDevelop.Ide.Workbench ActiveDocument="Assets/EnemyControl.cs">
+  <MonoDevelop.Ide.Workbench ActiveDocument="Assets/crystal.cs">
     <Files>
-      <File FileName="Assets/EnemyControl.cs" Line="150" Column="14" />
-      <File FileName="Assets/Scripts/Player.cs" Line="183" Column="16" />
-      <File FileName="Assets/UIHP.cs" Line="1" Column="1" />
-      <File FileName="Assets/Scripts/Red.cs" Line="1" Column="1" />
-      <File FileName="Assets/Scripts/Blue.cs" Line="1" Column="1" />
-      <File FileName="Assets/Scripts/Measure.cs" Line="1" Column="1" />
+      <File FileName="Assets/EnemyControl.cs" Line="166" Column="2" />
+      <File FileName="Assets/Scripts/Instruction.cs" Line="5" Column="25" />
+      <File FileName="Assets/UIHP.cs" Line="19" Column="4" />
+      <File FileName="Assets/Scripts/Red.cs" Line="246" Column="4" />
+      <File FileName="Assets/Scripts/Blue.cs" Line="220" Column="45" />
+      <File FileName="Assets/Scripts/Measure.cs" Line="6" Column="4" />
       <File FileName="Assets/Scripts/sin.cs" Line="1" Column="1" />
-      <File FileName="Assets/Scripts/summonsServant.cs" Line="1" Column="1" />
+      <File FileName="Assets/Scripts/summonsServant.cs" Line="58" Column="3" />
+      <File FileName="Assets/Scripts/nextStage.cs" Line="16" Column="15" />
+      <File FileName="Assets/Scripts/EyeCol.cs" Line="21" Column="53" />
+      <File FileName="Assets/crystal.cs" Line="48" Column="5" />
     </Files>
   </MonoDevelop.Ide.Workbench>
   <MonoDevelop.Ide.DebuggingService.Breakpoints>

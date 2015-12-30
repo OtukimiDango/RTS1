@@ -3,7 +3,8 @@ using System.Collections;
 using System.Collections.Generic;
 public class crystal : MonoBehaviour {
 	public int HP;
-	public Queue<GameObject> nearEnemy = new Queue<GameObject>();
+	private readonly byte power = 90;
+	public List<GameObject> nearEnemy = new List<GameObject>();
 	public Red script;
 	// Use this for initialization
 	void Start () {
@@ -21,25 +22,30 @@ public class crystal : MonoBehaviour {
 	void Update () {
 		if (HP <= 0) {
 			Death ();
-		}
-			
+		}			
 	}
 	void OnTriggerEnter(Collider col){
 		if(col.gameObject.layer == 9){
-			nearEnemy.Enqueue (col.gameObject);
+			nearEnemy.Add (col.gameObject);
+			if(nearEnemy.Count == 1){
+				StartCoroutine (attack());
+			}
 		}
 	}
 	public virtual IEnumerator attack(){
-		GameObject attackTgt;
+		GameObject attackTgt = gameObject;
+		GameObject myHPBar;
 		while (nearEnemy.Count != 0) {
 			try{
-				attackTgt = nearEnemy.Peek();
+				attackTgt = nearEnemy[0];
 				enemyScript(attackTgt);
+				script.HP -= power;
+				myHPBar = GameObject.Find (attackTgt.name + ("hp(Clone)"));
+				myHPBar.transform.localScale -= new Vector3 (0.45f, 0, 0);
 			}catch{
-				
+				nearEnemy.RemoveAt (0);
 			}
-
-			script.HP -= 70;
+			Debug.Log (nearEnemy.Count);
 			yield return new WaitForSeconds (1);
 		}
 	}

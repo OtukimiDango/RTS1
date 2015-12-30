@@ -15,15 +15,16 @@ public class Blue : MonoBehaviour
 //自分の座標
 	private float detourDis;
 //迂回する距離
-	private readonly int speed = 10;
+	private readonly byte speed = 10;
 //移動速度
+	private readonly byte power = 30;
 	public string state;
 //自分の状態
-	public GameObject frontAlly = null , saveFrontAlly = null;
+	public GameObject frontAlly = null;
 //前方の味方
 	public static List<GameObject> allys = new List<GameObject> ();
 //味方のリスト
-	public List<GameObject> atEnemys = new List<GameObject> ();
+	public List<GameObject> atEnemys = new List<GameObject> (),behindAlly = new List<GameObject>();
 //自分に攻撃してる敵のリスト
 	private bool right;
 //迂回時の方向
@@ -38,7 +39,7 @@ public class Blue : MonoBehaviour
 	void Start ()
 	{
 		linerende = GetComponent<LineRenderer> ();//LineRendererコンポーネントを変数に
-		tgt = GameObject.Find ("summonRed");//移動先!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+		tgt = GameObject.Find ("redFirstCrystal");//移動先!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 		myPos = transform.position;//自分のポジションを入れる
 		if (transform.localScale == new Vector3 (6, 6, 6)) 
 			gameObject.name = ("BlueSoldier" + summonsServant.servantCount); //名前に味方召喚数の変数を付随させる
@@ -71,7 +72,7 @@ public class Blue : MonoBehaviour
 			try{
 				transform.LookAt (tgt.transform);//敵に注目
 			}catch{
-				tgt = GameObject.Find ("summmonRed");
+				tgt = GameObject.Find ("summonRed");
 				state = "move";
 			}
 			break;
@@ -84,12 +85,15 @@ public class Blue : MonoBehaviour
 		if (lightup) {
 			linerende.SetPosition (0, transform.position);
 			linerende.SetPosition (1, tgt.transform.position);
+			try{
 			if (tgt.GetComponent<Light> ().enabled == false)
 				tgt.GetComponent<Light> ().enabled = true;
 			if (attackObj != tgt && tgt.GetComponent<Light> ().color != Color.yellow) {
 				tgt.GetComponent<Light> ().color = Color.yellow;
-			}else if (attackObj == tgt && tgt.GetComponent<Light> ().color == Color.red && atEnemys.Count == 0){
-				tgt.GetComponent<Light> ().color = Color.blue;
+				}else if (attackObj == tgt && tgt.GetComponent<Light> ().color == Color.red && atEnemys.Count == 0){
+					tgt.GetComponent<Light> ().color = Color.blue;
+				}
+			}catch{
 			}
 			if (gameObject.GetComponent<Light> ().color != Color.blue)
 				gameObject.GetComponent<Light> ().color = Color.blue;
@@ -109,7 +113,11 @@ public class Blue : MonoBehaviour
 
 	void OnTriggerEnter (Collider col)
 	{
-		if (tgt.layer == 9 && tgt != col.gameObject) {
+		try{
+			if (tgt.layer == 9 && tgt != col.gameObject) {
+				return;
+			}
+		}catch{
 			return;
 		}
 		switch (col.gameObject.tag) {
@@ -121,6 +129,7 @@ public class Blue : MonoBehaviour
 					tgt = col.gameObject;
 					attackObj = tgt;
 					state = "fight";
+					behindAlly.ForEach(i => i.GetComponent<Blue>().detourReady());
 					gameObject.tag = "StopPlayer";
 					StartCoroutine (attack ()); //攻撃
 				}
@@ -134,21 +143,29 @@ public class Blue : MonoBehaviour
 					tgt = col.gameObject;
 					attackObj = tgt;
 					state = "fight";
+					behindAlly.ForEach(i => i.GetComponent<Blue>().detourReady());
 					gameObject.tag = "StopPlayer";
 					StartCoroutine (attack ()); //攻撃
 				}
 			}
 			break;
 		case "summonBlue":
-			crystal Cscript = col.gameObject.GetComponent<crystal> ();
-
 			tgt = col.gameObject;
 			attackObj = tgt;
 			state = "fight";
 			gameObject.tag = "StopPlayer";
 			StartCoroutine (attack ()); //攻撃
 			break;
-
+		case "redCrystal":
+			if(gameObject.CompareTag("Player") && state != "fight"){
+				tgt = col.gameObject;
+				attackObj = tgt;
+				state = "fight";
+				behindAlly.ForEach(i => i.GetComponent<Blue>().detourReady());
+				gameObject.tag = "StopPlayer";
+				StartCoroutine (attack ()); //攻撃
+			}
+			break;
 		default :
 			break;
 		}
@@ -160,29 +177,22 @@ public class Blue : MonoBehaviour
 
 	public void detourReady ()
 	{
-		if (saveFrontAlly != frontAlly) { 
-			saveFrontAlly = frontAlly;
-			detourDis = right ? saveFrontAlly.transform.localScale.x : -(saveFrontAlly.transform.localScale.x);
+		detourDis = right ? frontAlly.transform.localScale.x : -(frontAlly.transform.localScale.x);
 			state = "detour";
-			detourbool = true;
+		dy = frontAlly.transform.position.x + detourDis - gameObject.transform.position.x;
+		dx = frontAlly.transform.position.z - gameObject.transform.position.z;
+		radian = Mathf.Atan2 (dy, dx);
 			detour ();//迂回を開始する
-		}
 	}
 
 	private void detour ()
 	{
-		if (detourbool) {
-			dy = frontAlly.transform.position.x + detourDis - gameObject.transform.position.x;
-			dx = frontAlly.transform.position.z - gameObject.transform.position.z;
-			radian = Mathf.Atan2 (dy, dx);
-			detourbool = false;
-		}
 		i += Time.deltaTime;
 		radi = (radian * Mathf.Rad2Deg) * i;
 		gameObject.transform.eulerAngles = new Vector3(0, radi, 0);
 		transform.Translate (transform.forward * (tgtDis.z * speed * Time.deltaTime));
 		myPos = transform.position;
-		if (i >= 2) {
+		if (i >= 1.5f) {
 			i = 0;
 			state = "move";
 			gameObject.tag = "Player";
@@ -199,17 +209,24 @@ public class Blue : MonoBehaviour
 	private IEnumerator attack ()
 	{
 		while (state == "fight") {
-			tgt.GetComponent<Red> ().HP -= 30;
-			//GameObject myHPBar = GameObject.Find (gameObject.name + ("hp(Clone)"));
-//		myHPBar.transform.localScale -= new Vector3 (0.15f, 0, 0);
+			try{
+			tgt.GetComponent<Red> ().HP -= power;
+			}catch{
+				tgt.GetComponent<crystal> ().HP -= power;
+			}
+			GameObject myHPBar = GameObject.Find (tgt.name + ("hp(Clone)"));
+			myHPBar.transform.localScale -= new Vector3 (0.15f, 0, 0);
 			yield return new WaitForSeconds (3);
 		}
 	}
 
 	private void changeAttack (GameObject obj)
 	{
+		try{
 		if (tgt.GetComponent<Light> ().color == Color.yellow)
 			tgt.GetComponent<Light> ().enabled = false;
+		}catch{
+		}
 		if (tgt.layer == 9)
 			tgt.GetComponent<Red> ().atEnemys.Remove (gameObject);
 		tgt = obj;
@@ -232,7 +249,11 @@ public class Blue : MonoBehaviour
 			Instruction.rayobj = null;
 		if (tgt.layer == 9)
 			tgt.GetComponent<Red> ().atEnemys.Remove (gameObject);
+		try{
 		tgt.GetComponent<LineRenderer > ().SetVertexCount (tgt.GetComponent<Red> ().atEnemys.Count + 2);
+		}catch{
+
+		}
 		Instruction.charaDestroy (gameObject);
 		foreach (GameObject enemy in atEnemys) {//自分を狙っている敵
 			Red script = enemy.GetComponent<Red> ();//敵のスクリプトを入手

@@ -23,7 +23,7 @@ public class EnemyControl : MonoBehaviour
 	public static	List<GameObject> EnemyWitch = new List<GameObject> ();
 	public static 	List<GameObject> EnemyGuard = new List<GameObject> ();
 	private	static	string	summonState = "NeedSoldier";
-	private static byte level = 5;
+	private static byte level = 1;
 	// Use this for initialization
 	void Start ()
 	{
@@ -107,7 +107,6 @@ public class EnemyControl : MonoBehaviour
 	{
 
 		while (true) {
-
 			yield return new WaitForSeconds (level);//状況に応じてサボる
 
 			int soldier = AllySoldier.Count;
@@ -149,38 +148,44 @@ public class EnemyControl : MonoBehaviour
 			RecordCount.Enqueue (AllEnemy.Count);
 			if (RecordCount.Count > 3) {
 				float i = ((float)AllEnemy.Count / (float)RecordCount.Dequeue ());//15秒前と現在の敵の数の上昇率
-				if (i >= 3) {
-					Debug.Log ("3");
+				if (i >= 1.2) {
 					level = 3;
 				}
 			}//上昇率が120%以上になるとレベル上昇して召喚間隔と思考回転間隔が短くなる
 			try{
 				if(AllyGuard.Count+AllyWitch.Count+AllySoldier.Count>AllEnemy.Count	&& AllyGuard.Count+AllyWitch.Count+AllySoldier.Count/AllEnemy.Count >= 1.2f){
-				level = 100;
+				level = 4;
 				}//自分の味方の数が敵の数より1.2倍なら召喚しない
+				else if(AllyGuard.Count+AllyWitch.Count+AllySoldier.Count<AllEnemy.Count	&& AllEnemy.Count/AllyGuard.Count+AllyWitch.Count+AllySoldier.Count >= 1.5f){
+					level = 1;
+				}
 			}catch{
-				level = 100;
+
 			}
 		}
 	}
 
 	private IEnumerator summon ()
 	{
-		while (level != 100) {
-			if (summonState == "NeedSoldier") {
-				if (summonActivater && sp > 9 && AllySoldier.Count < 10) {
-					StartCoroutine (summonServant ("RedSoldier", 5, 1f));
+		while (true) {
+			if (level != 4) {
+				Debug.Log ("true");
+				if (summonState == "NeedSoldier") {
+					if (summonActivater && sp > 9 && AllySoldier.Count < 10) {
+						StartCoroutine (summonServant ("RedSoldier", 5, 1f));
+					}
+				} else if (summonState == "NeedWitch") {
+					if (summonActivater && sp > 9 && AllyWitch.Count < 10) {
+						StartCoroutine (summonServant ("RedWitch", 5, 1f));
+					}
+				} else if (summonState == "NeedGuard") {
+					if (summonActivater && sp > 9 && AllyGuard.Count < 10) {
+						StartCoroutine (summonServant ("RedGuard", 5, 1f));
+					}
 				}
-			} else if (summonState == "NeedWitch") {
-				if (summonActivater && sp > 19 && AllyWitch.Count < 10) {
-					StartCoroutine (summonServant ("RedWitch", 5, 1f));
-				}
-			} else if (summonState == "NeedGuard") {
-				if (summonActivater && sp > 19 && AllyGuard.Count < 10) {
-					StartCoroutine (summonServant ("RedGuard", 5, 1f));
-				}
+				yield return new WaitForSeconds (level);
 			}
-			yield return new WaitForSeconds (level);
+			yield return null;
 		}
 	}
 }
