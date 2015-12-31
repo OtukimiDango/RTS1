@@ -36,10 +36,6 @@ public class Instruction : MonoBehaviour
 				writeobject = hit.collider.gameObject;//オブジェクト代入
 
 				clickCharacter (hit.collider.gameObject);//Method実
-				Debug.Log ("dasdsadsadaj");
-
-				Debug.Log(writeobject);
-				Debug.Log ("dasdsadsadaj");
 			}
 		} else if (Input.GetMouseButtonDown (0) && rayMouse) {
 			Ray ray = Camera.main.ScreenPointToRay (Input.mousePosition);
@@ -139,7 +135,6 @@ public class Instruction : MonoBehaviour
 
 	private static void clickCharacter (GameObject clickChara)
 	{
-		Debug.Log (clickChara);
 		GameObject parent = clickChara.transform.parent.gameObject;//クリックしたオブジェクトの親オブジェクト
 		if (parent.gameObject.layer == 10 || parent.gameObject.layer == 9) { //上記オブジェクトがキャラクターであるならば
 			bool lineFlag = parent.GetComponent<LineRenderer> ().enabled;//クリックしたオブジェクトのラインのbool
@@ -205,7 +200,6 @@ public class Instruction : MonoBehaviour
 
 			}
 			saveChara = parent;
-			Debug.Log (saveChara.name);
 		}
 	}
 

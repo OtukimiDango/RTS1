@@ -13,8 +13,6 @@ public class Blue : MonoBehaviour
 //自分のHP
 	private Vector3 myPos;
 //自分の座標
-	private float detourDis;
-//迂回する距離
 	private readonly byte speed = 10;
 //移動速度
 	private readonly byte power = 30;
@@ -63,6 +61,7 @@ public class Blue : MonoBehaviour
 		case "move"://移動中であれば
 			transform.LookAt (tgt.transform);//移動先に注目
 			myPos = myPos + (tgtDis * speed * Time.deltaTime);//移動先へ移動
+			myPos.y = transform.position.y;
 			transform.position = myPos;//変更された変数を自分のポジションへ代入
 			break;
 		case "detour"://迂回であれば
@@ -73,6 +72,7 @@ public class Blue : MonoBehaviour
 				transform.LookAt (tgt.transform);//敵に注目
 			}catch{
 				tgt = GameObject.Find ("summonRed");
+				Debug.Log ("change");
 				state = "move";
 			}
 			break;
@@ -177,9 +177,20 @@ public class Blue : MonoBehaviour
 
 	public void detourReady ()
 	{
-		detourDis = right ? frontAlly.transform.localScale.x : -(frontAlly.transform.localScale.x);
+		float detourDis = 0f;	
+		try{
+		if (right) {
+			if (frontAlly.transform.position.x <= myPos.x) {
+				detourDis = transform.localScale.x / 2 + (frontAlly.transform.localScale.x / 2 - (transform.position.x - frontAlly.transform.position.x));
+			}
+		} else {
+			detourDis =  transform.localScale.x/2-(-frontAlly.transform.localScale.x/2 - (transform.position.x - frontAlly.transform.position.x));
+		}
+		}catch{
+			return;
+		}
 			state = "detour";
-		dy = frontAlly.transform.position.x + detourDis - gameObject.transform.position.x;
+		dy = (frontAlly.transform.position.x + detourDis) - gameObject.transform.position.x;
 		dx = frontAlly.transform.position.z - gameObject.transform.position.z;
 		radian = Mathf.Atan2 (dy, dx);
 			detour ();//迂回を開始する
@@ -192,7 +203,7 @@ public class Blue : MonoBehaviour
 		gameObject.transform.eulerAngles = new Vector3(0, radi, 0);
 		transform.Translate (transform.forward * (tgtDis.z * speed * Time.deltaTime));
 		myPos = transform.position;
-		if (i >= 1.5f) {
+		if (i >= 1f) {
 			i = 0;
 			state = "move";
 			gameObject.tag = "Player";
@@ -263,7 +274,6 @@ public class Blue : MonoBehaviour
 				enemy.tag = "Enemy";//敵のタグを一般に
 			} else
 				script.tgt = script.atEnemys [0];
-			
 		}
 		if (Instruction.saveChara == gameObject)
 			Instruction.saveChara = null;

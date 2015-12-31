@@ -52,7 +52,7 @@ public class summonsServant : MonoBehaviour {
 		coroutine.MoveNext ();
 		GameObject servant = (GameObject)Resources.Load ("Servents/" + s);//召喚するオブジェクトを変数に入れる
 		Vector3 summonPosition = spawnPoint.position;//召喚時の初期座標を変数に入れる
-		summonPosition.y = summonPosition.y + servant.transform.position.y;//初期座標y軸に召喚するオブジェクトの半径をプラス
+		summonPosition.y = summonPosition.y + servant.transform.localScale.y/2;//初期座標y軸に召喚するオブジェクトの半径をプラス
 		Instantiate((GameObject)Resources.Load ("Servents/" + s),summonPosition,spawnPoint.rotation);//召喚
 		servant.name = (s+servantCount);//召喚するオブジェクトを召喚数を付随させた名前にする
 
