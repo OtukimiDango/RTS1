@@ -8,14 +8,8 @@ public class Red : MonoBehaviour
 //攻撃先
 	public Vector3 tgtDis;
 //攻撃先までの距離
-
 	public int HP;
 //自分のHP
-	private Vector3 myPos;
-//自分の座標
-	private readonly byte speed = 10;
-//移動速度
-	private readonly byte power = 30;
 	public string state;
 //自分の状態
 	public GameObject frontAlly = null;
@@ -25,24 +19,20 @@ public class Red : MonoBehaviour
 //自分に攻撃してる敵のリスト
 	private bool right;
 //迂回時の方向
-	public LineRenderer linerend;
-//ラインレンダラー
 	public bool lightup = false;
 	public  GameObject attackObj;
-	float dx, dy, radian = 1f, radi = 0f, i = 0;
+	float radian = 1f,i = 0;
 
 	void Start ()
 	{
 		tgt = GameObject.Find ("blueFirstCrystal");//移動先
-		linerend = GetComponent<LineRenderer> ();//LineRendererコンポーネントを変数に
-		myPos = transform.position;//自分のポジションを入れる
 		if (transform.localScale == new Vector3 (6, 6, 6))
 			gameObject.name = ("RedSoldier" + EnemyControl.servantCount); //名前に味方召喚数の変数を付随させる
 		 else if (transform.localScale == new Vector3 (10, 10, 10))
 			gameObject.name = ("RedWitch" + EnemyControl.servantCount); //名前に味方召喚数の変数を付随させる
 		else if (transform.localScale == new Vector3 (8, 8, 8))
 			gameObject.name = ("RedGuard" + EnemyControl.servantCount); //名前に味方召喚数の変数を付随させる
-		tgtDis = distance (tgt.transform.position, myPos);//移動先の座標と自分の座標の差分を図り、変数にいれる
+		tgtDis = distance (tgt.transform.position, transform.position);//移動先の座標と自分の座標の差分を図り、変数にいれる
 		tgtDis = tgtDis.normalized;
 		state = "move";//初期状態を移動にする
 		HP = 200;//初期体力は200
@@ -57,12 +47,13 @@ public class Red : MonoBehaviour
 		switch (state) {//自分の状態を要素としswitch文
 		case "move"://移動中であれば
 			transform.LookAt (tgt.transform);//移動先に注目
-			myPos = myPos + (tgtDis * speed * Time.deltaTime);//移動先へ移動
-			myPos.y = transform.position.y;
-			transform.position = myPos;//変更された変数を自分のポジションへ代入
+			transform.position = new Vector3
+				(transform.position.x+(tgtDis.x * 10 * Time.deltaTime),
+					transform.position.y,
+					transform.position.z+(tgtDis.z * 10 * Time.deltaTime));
 			break;
 		case "detour"://迂回であれば
-			detour ();//迂回を開始する
+			detour (10,radian);//迂回を開始する
 			break;
 		case "fight"://戦闘中であれば
 			try {
@@ -80,6 +71,7 @@ public class Red : MonoBehaviour
 		if (HP < 0)
 			Death ();//HPがゼロになっていたら死亡
 		if (lightup) {
+			var linerend = GetComponent<LineRenderer> ();//LineRendererコンポーネントを変数に
 			linerend.SetPosition (0, transform.position);
 			linerend.SetPosition (1, tgt.transform.position);
 			try {
@@ -130,9 +122,12 @@ public class Red : MonoBehaviour
 					tgt = col.gameObject;//攻撃対象にする
 					attackObj = tgt;//攻撃開始
 					state = "fight";//自分の状況を戦闘中に切り替え
+					try{
 					behindAlly.ForEach (i => i.GetComponent<Red> ().detourReady ());
+					}catch{
+					}
 					gameObject.tag = "StopEnemy";//自分の行動を止める
-					StartCoroutine (attack ()); //攻撃
+					StartCoroutine (attack (30)); //攻撃
 				}
 			}
 			break;
@@ -144,9 +139,11 @@ public class Red : MonoBehaviour
 					tgt = col.gameObject;
 					attackObj = tgt;
 					state = "fight";
-					behindAlly.ForEach (i => i.GetComponent<Red> ().detourReady ());
-					gameObject.tag = "StopEnemy";
-					StartCoroutine (attack ()); //攻撃
+					try{
+						behindAlly.ForEach (i => i.GetComponent<Red> ().detourReady ());
+					}catch{
+					}					gameObject.tag = "StopEnemy";
+					StartCoroutine (attack (30)); //攻撃
 				}
 			}
 			break;
@@ -159,9 +156,11 @@ public class Red : MonoBehaviour
 				tgt = col.gameObject;
 				attackObj = tgt;
 				state = "fight";
-				behindAlly.ForEach (i => i.GetComponent<Red> ().detourReady ());
-				gameObject.tag = "StopEnemy";
-				StartCoroutine (attack ()); //攻撃
+				try{
+					behindAlly.ForEach (i => i.GetComponent<Red> ().detourReady ());
+				}catch{
+				}				gameObject.tag = "StopEnemy";
+				StartCoroutine (attack (30)); //攻撃
 			}
 			break;
 		default :
@@ -180,7 +179,7 @@ public class Red : MonoBehaviour
 		float detourDis = 0f;
 		try{
 		if (right) {
-			if (frontAlly.transform.position.x <= myPos.x) {
+			if (frontAlly.transform.position.x <= transform.position.x) {
 				detourDis = transform.localScale.x / 2 + (frontAlly.transform.localScale.x / 2 - (transform.position.x - frontAlly.transform.position.x));
 			}
 		} else {
@@ -190,19 +189,18 @@ public class Red : MonoBehaviour
 			return;
 		}
 		state = "detour";
-		dy = frontAlly.transform.position.x + detourDis - gameObject.transform.position.x;
-		dx = frontAlly.transform.position.z - gameObject.transform.position.z;
+		float dy = frontAlly.transform.position.x + detourDis - gameObject.transform.position.x;
+		float dx = frontAlly.transform.position.z - gameObject.transform.position.z;
 		radian = Mathf.Atan2 (dy, dx);
-		detour ();
+		detour (10,radian);
 	}
 
-	private void detour ()
+	private void detour (byte speed,float radian)
 	{
 		i += Time.deltaTime;
-		radi = (radian * Mathf.Rad2Deg) * i;
+		var radi = (radian * Mathf.Rad2Deg) * i;
 		gameObject.transform.eulerAngles = new Vector3 (0, radi, 0);
 		transform.Translate (transform.forward * (tgtDis.z * speed * Time.deltaTime));
-		myPos = transform.position;
 		if (i >= 1f) {
 			i = 0;
 			state = "move";
@@ -216,7 +214,7 @@ public class Red : MonoBehaviour
 		return dis;
 	}
 
-	private IEnumerator attack ()
+	private IEnumerator attack (byte power)
 	{
 		while (state == "fight") {
 			try {
@@ -240,7 +238,7 @@ public class Red : MonoBehaviour
 		if (tgt.layer == 10) {
 			tgt.GetComponent<Blue> ().atEnemys.Remove (gameObject);
 			tgt = obj;
-			tgtDis = distance (tgt.transform.position, myPos);
+			tgtDis = distance (tgt.transform.position, transform.position);
 			tgtDis = tgtDis.normalized;
 		}
 
@@ -254,7 +252,8 @@ public class Red : MonoBehaviour
 		if (tgt.layer == 10)
 			tgt.GetComponent<Blue> ().atEnemys.Remove (gameObject);
 		try {
-			tgt.GetComponent<LineRenderer > ().SetVertexCount (tgt.GetComponent<Blue> ().atEnemys.Count + 2);
+			tgt.GetComponent<LineRenderer > ().SetVertexCount (tgt.GetComponent<Blue
+				> ().atEnemys.Count + 2);
 		} catch {
 
 		}

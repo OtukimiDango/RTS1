@@ -1,4 +1,5 @@
-﻿using UnityEngine;
+﻿
+using UnityEngine;
 using System.Collections;
 using System.Collections.Generic;
 
@@ -18,10 +19,10 @@ public class EyeCol : MonoBehaviour {
 			}
 		} else if (gameObject.transform.parent.CompareTag("Enemy") && col.gameObject.layer == 8) {
 			if (col.gameObject.transform.parent.CompareTag("StopEnemy")) {
-				
-					gameObject.transform.parent.GetComponent<Red> ().frontAlly = col.gameObject;
-					gameObject.transform.parent.GetComponent<Red> ().detourReady ();
-				
+
+				gameObject.transform.parent.GetComponent<Red> ().frontAlly = col.gameObject;
+				gameObject.transform.parent.GetComponent<Red> ().detourReady ();
+
 			} else if (col.gameObject.transform.parent.CompareTag("Enemy")) {
 				gameObject.transform.parent.GetComponent<Red> ().frontAlly = col.gameObject;
 				col.gameObject.transform.parent.GetComponent<Red> ().behindAlly.Add(gameObject.transform.parent.gameObject);

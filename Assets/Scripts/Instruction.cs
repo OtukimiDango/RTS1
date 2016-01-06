@@ -5,8 +5,6 @@ using UnityEngine.UI;
 public class Instruction : MonoBehaviour
 {
 	private static GameObject Playercamera;
-	private static GameObject playerc;
-	private static Vector3 cameraPos;
 	public static string mouseState;
 	public static GameObject saveChara;
 	public LayerMask mask;
@@ -21,11 +19,8 @@ public class Instruction : MonoBehaviour
 		saveChara = GameObject.Find ("RedSoldier0");
 		mouseState = "normal";
 		Playercamera = gameObject.transform.parent.gameObject;
-		playerc = gameObject;
 
-		cameraPos = Playercamera.transform.position;
 	}
-
 	// Update is called once per frame
 	void Update ()
 	{
@@ -42,10 +37,10 @@ public class Instruction : MonoBehaviour
 			RaycastHit hit;
 			if (Physics.Raycast (ray, out hit, Mathf.Infinity)) {//rayがあたった先がキャラクターでなければ
 				try{
-				if (hit.collider.gameObject.layer != 9
-				    && hit.collider.gameObject.layer != 10
-				    && hit.collider.gameObject.tag != "charabody")
-					clickCharacter (saveChara.transform.FindChild ("TouchCol").gameObject);
+					if (hit.collider.gameObject.layer != 9
+						&& hit.collider.gameObject.layer != 10
+						&& hit.collider.gameObject.tag != "charabody")
+						clickCharacter (saveChara.transform.FindChild ("TouchCol").gameObject);
 				}catch{
 					clickCharacter (saveChara.transform.FindChild ("TouchCol").gameObject);
 				}
@@ -54,7 +49,7 @@ public class Instruction : MonoBehaviour
 				if (hit.collider.gameObject.transform.parent.gameObject == saveChara)
 					clickCharacter (saveChara.transform.FindChild ("TouchCol").gameObject);
 				else if (hit.collider.gameObject.transform.parent.gameObject.layer == 9 && saveChara.layer == 10
-				         || hit.collider.gameObject.transform.parent.gameObject.layer == 10 && saveChara.layer == 9) {
+					|| hit.collider.gameObject.transform.parent.gameObject.layer == 10 && saveChara.layer == 9) {
 					GameObject cSerch;
 					if (hit.collider.gameObject.transform.parent.gameObject.layer == 10)
 						cSerch = hit.collider.gameObject.transform.parent.gameObject.GetComponent<Blue> ().tgt;
@@ -74,7 +69,7 @@ public class Instruction : MonoBehaviour
 					} else if (saveChara.layer == 9) {
 						foreach (GameObject obj in saveChara.GetComponent<Red>().atEnemys)
 							obj.GetComponent<Light> ().color = Color.blue;
-						
+
 						if (hit.collider.gameObject.transform.parent.gameObject != saveChara.GetComponent<Red> ().tgt) {
 							saveChara.SendMessage ("changeAttack", hit.collider.gameObject.transform.parent.gameObject);
 							hit.collider.gameObject.transform.parent.gameObject.GetComponent<Light> ().color = Color.yellow;
@@ -82,19 +77,17 @@ public class Instruction : MonoBehaviour
 							hit.collider.gameObject.transform.parent.gameObject.GetComponent<Light> ().color = Color.red;
 					}
 					////////////////////////////
-					playerc.GetComponent<LineRenderer> ().enabled = false;
+					gameObject.GetComponent<LineRenderer> ().enabled = false;
 					rayMouse = false;
 				}
 			}
 		}
 
 		if (Input.GetKey ("d")) {
-			cameraPos.z += Time.deltaTime * 50;
-			Playercamera.transform.position = cameraPos;
+			Playercamera.transform.position = new Vector3 (Playercamera.transform.position.x,Playercamera.transform.position.y,Playercamera.transform.position.z+Time.deltaTime*50);
 		}
 		if (Input.GetKey ("a")) {
-			cameraPos.z -= Time.deltaTime * 50;
-			Playercamera.transform.position = cameraPos;
+			Playercamera.transform.position = new Vector3 (Playercamera.transform.position.x,Playercamera.transform.position.y,Playercamera.transform.position.z-Time.deltaTime*50);
 		}
 		if (rayMouse) {
 			Ray ray = Camera.main.ScreenPointToRay (Input.mousePosition);//毎フレーム画面にRayを飛ばす
@@ -102,30 +95,30 @@ public class Instruction : MonoBehaviour
 			if (Physics.Raycast (ray, out hit, Mathf.Infinity)) {//Rayがヒットしたら
 				if (hit.collider.gameObject != rayobj && rayobj != null) //ヒットしたオブジェクトが前回のオブジェクと出なければ　
 					rayobj.GetComponent<Light> ().enabled = false;//前回ヒットしたオブジェクトのライトをオフにする
-				
-				playerc.GetComponent<LineRenderer> ().SetPosition (0, writeobject.transform.position);//Lineを飛ばす地点１
-				playerc.GetComponent<LineRenderer> ().SetPosition (1, hit.point);//Lineを飛ばす地点２
+
+				gameObject.GetComponent<LineRenderer> ().SetPosition (0, writeobject.transform.position);//Lineを飛ばす地点１
+				gameObject.GetComponent<LineRenderer> ().SetPosition (1, hit.point);//Lineを飛ばす地点２
 			}
 			if (Physics.Raycast (ray, out hit, Mathf.Infinity, mask.value)) {//rayがキャラクターに当たる
 				try{
-				if (saveChara.layer == 10 && hit.collider.gameObject.transform.parent.gameObject.layer == 9
-				    || saveChara.layer == 9 && hit.collider.gameObject.transform.parent.gameObject.layer == 10) {
-					//rayが当たったキャラと以前当たったキャラが敵対していたら
-					GameObject cSerch;//rayが当たっとキャラクターのターゲット
-					if (hit.collider.gameObject.transform.parent.gameObject.layer == 9)
-						cSerch = hit.collider.gameObject.transform.parent.gameObject.GetComponent<Red> ().tgt;
-					else
-						cSerch = hit.collider.gameObject.transform.parent.gameObject.GetComponent<Blue> ().tgt;
-					
-					if (cSerch != saveChara) {
-						hit.collider.gameObject.transform.parent.gameObject.GetComponent<Light> ().enabled = true;//当たったキャラのライトをON
-						hit.collider.gameObject.transform.parent.gameObject.GetComponent<Light> ().color = Color.yellow;//黄色く光らせる
-						rayobj = hit.collider.gameObject.transform.parent.gameObject;//rayMouse内での判定用に保存
+					if (saveChara.layer == 10 && hit.collider.gameObject.transform.parent.gameObject.layer == 9
+						|| saveChara.layer == 9 && hit.collider.gameObject.transform.parent.gameObject.layer == 10) {
+						//rayが当たったキャラと以前当たったキャラが敵対していたら
+						GameObject cSerch;//rayが当たっとキャラクターのターゲット
+						if (hit.collider.gameObject.transform.parent.gameObject.layer == 9)
+							cSerch = hit.collider.gameObject.transform.parent.gameObject.GetComponent<Red> ().tgt;
+						else
+							cSerch = hit.collider.gameObject.transform.parent.gameObject.GetComponent<Blue> ().tgt;
+
+						if (cSerch != saveChara) {
+							hit.collider.gameObject.transform.parent.gameObject.GetComponent<Light> ().enabled = true;//当たったキャラのライトをON
+							hit.collider.gameObject.transform.parent.gameObject.GetComponent<Light> ().color = Color.yellow;//黄色く光らせる
+							rayobj = hit.collider.gameObject.transform.parent.gameObject;//rayMouse内での判定用に保存
+						}
+					} else {
+						if (saveChara == hit.collider.gameObject.transform.parent.gameObject)
+							return;
 					}
-				} else {
-					if (saveChara == hit.collider.gameObject.transform.parent.gameObject)
-						return;
-				}
 				}catch{
 					return;
 				}
@@ -133,12 +126,12 @@ public class Instruction : MonoBehaviour
 		}
 	}
 
-	private static void clickCharacter (GameObject clickChara)
+	private void clickCharacter (GameObject clickChara)
 	{
 		GameObject parent = clickChara.transform.parent.gameObject;//クリックしたオブジェクトの親オブジェクト
 		if (parent.gameObject.layer == 10 || parent.gameObject.layer == 9) { //上記オブジェクトがキャラクターであるならば
 			bool lineFlag = parent.GetComponent<LineRenderer> ().enabled;//クリックしたオブジェクトのラインのbool
-			playerc.GetComponent<LineRenderer> ().enabled = !lineFlag;//上記変数を反転した値をenableに代入
+			gameObject.GetComponent<LineRenderer> ().enabled = !lineFlag;//上記変数を反転した値をenableに代入
 			rayMouse = !lineFlag;//上記同様
 			if (saveChara != null) {//前回クリックしたキャラがいれば
 				saveChara.GetComponent<LineRenderer> ().enabled = false;//前回のキャラのラインを消す
@@ -146,28 +139,28 @@ public class Instruction : MonoBehaviour
 
 				if (saveChara.layer == 9) {//前回のキャラがエネミーであれば
 					try{
-					saveChara.GetComponent<Red> ().lightup = false;//ライトを消して
-					saveChara.GetComponent<Red> ().tgt.GetComponent<Light> ().enabled = false;
+						saveChara.GetComponent<Red> ().lightup = false;//ライトを消して
+						saveChara.GetComponent<Red> ().tgt.GetComponent<Light> ().enabled = false;
 					}catch{
 					}
 
-//					foreach (GameObject saveatEnemys in saveChara.GetComponent<Red>().atEnemys) //エネミーに注目する敵(自分)
-//						saveatEnemys.GetComponent<Light> ().enabled = false;//ライトを消す
+					//					foreach (GameObject saveatEnemys in saveChara.GetComponent<Red>().atEnemys) //エネミーに注目する敵(自分)
+					//						saveatEnemys.GetComponent<Light> ().enabled = false;//ライトを消す
 					saveChara.GetComponent<Red>().atEnemys.ForEach(i => i.GetComponent<Light>().enabled = false);
-					
+
 				} else if (saveChara.layer == 10) {
 					try{
-					saveChara.GetComponent<Blue> ().lightup = false;
-					saveChara.GetComponent<Blue> ().tgt.GetComponent<Light> ().enabled = false;
+						saveChara.GetComponent<Blue> ().lightup = false;
+						saveChara.GetComponent<Blue> ().tgt.GetComponent<Light> ().enabled = false;
 					}catch{
 					}
 
-//					foreach (GameObject saveatEnemys in saveChara.GetComponent<Blue>().atEnemys)
-//						saveatEnemys.GetComponent<Light> ().enabled = false;
+					//					foreach (GameObject saveatEnemys in saveChara.GetComponent<Blue>().atEnemys)
+					//						saveatEnemys.GetComponent<Light> ().enabled = false;
 					saveChara.GetComponent<Blue> ().atEnemys.ForEach (i=> i.GetComponent<Light> ().enabled = false);
 				}
 			}
-				
+
 			parent.GetComponent<LineRenderer> ().enabled = !lineFlag;
 			parent.GetComponent<Light> ().enabled = !lineFlag;
 
@@ -176,9 +169,9 @@ public class Instruction : MonoBehaviour
 				parent.GetComponent<Light> ().color = Color.blue;
 				if (parent.GetComponent<Blue> ().tgt != null && parent.GetComponent<Blue> ().tgt != GameObject.Find ("summonRed")) {
 					try{
-					parent.GetComponent<Blue> ().tgt.GetComponent<Light> ().enabled = !lineFlag;
-					if (parent.GetComponent<Blue> ().tgt == parent.GetComponent<Blue> ().attackObj)
-						parent.GetComponent<Blue> ().tgt.GetComponent<Light> ().color = Color.blue;
+						parent.GetComponent<Blue> ().tgt.GetComponent<Light> ().enabled = !lineFlag;
+						if (parent.GetComponent<Blue> ().tgt == parent.GetComponent<Blue> ().attackObj)
+							parent.GetComponent<Blue> ().tgt.GetComponent<Light> ().color = Color.blue;
 					}catch{
 					}
 				}
@@ -188,12 +181,12 @@ public class Instruction : MonoBehaviour
 				parent.GetComponent<Red> ().lightup = !lineFlag;
 				parent.GetComponent<Light> ().color = Color.red;
 				rayMouse = false;
-				playerc.GetComponent<LineRenderer> ().enabled = false;
+				gameObject.GetComponent<LineRenderer> ().enabled = false;
 				if (parent.GetComponent<Red> ().tgt != null && parent.GetComponent<Red> ().tgt != GameObject.Find ("summonBlue")) {
 					try{
-					parent.GetComponent<Red> ().tgt.GetComponent<Light> ().enabled = !lineFlag;
-					if (parent.GetComponent<Red> ().tgt == parent.GetComponent<Red> ().attackObj)
-						parent.GetComponent<Red> ().tgt.GetComponent<Light> ().color = Color.red;
+						parent.GetComponent<Red> ().tgt.GetComponent<Light> ().enabled = !lineFlag;
+						if (parent.GetComponent<Red> ().tgt == parent.GetComponent<Red> ().attackObj)
+							parent.GetComponent<Red> ().tgt.GetComponent<Light> ().color = Color.red;
 					}catch{
 					}
 				}
@@ -207,17 +200,20 @@ public class Instruction : MonoBehaviour
 	{
 		if (chara != saveChara)
 			return;
-		
-		playerc.GetComponent<LineRenderer> ().enabled = false;
+
+		Playercamera.transform.FindChild("Main Camera").gameObject.GetComponent<LineRenderer> ().enabled = false;
 		rayMouse = false;
 		if (chara.layer == 9) {
-//			foreach (GameObject lightDown in chara.GetComponent<Red>().atEnemys)
-//				lightDown.GetComponent<Light> ().enabled = false;
+			//			foreach (GameObject lightDown in chara.GetComponent<Red>().atEnemys)
+			//				lightDown.GetComponent<Light> ().enabled = false;
 			chara.GetComponent<Red>().atEnemys.ForEach(i=>i.GetComponent<Light>().enabled = false);
 		} else {
-//			foreach (GameObject lightDown in chara.GetComponent<Blue>().atEnemys)
-//				lightDown.GetComponent<Light> ().enabled = false;
+			//			foreach (GameObject lightDown in chara.GetComponent<Blue>().atEnemys)
+			//				lightDown.GetComponent<Light> ().enabled = false;
 			chara.GetComponent<Blue>().atEnemys.ForEach(i=>i.GetComponent<Light>().enabled = false);
 		}
+	}
+	void OnMouseDown(){
+		Debug.Log ("yes");
 	}
 }

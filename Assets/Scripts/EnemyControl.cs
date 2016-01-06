@@ -169,7 +169,6 @@ public class EnemyControl : MonoBehaviour
 	{
 		while (true) {
 			if (level != 4) {
-				Debug.Log ("true");
 				if (summonState == "NeedSoldier") {
 					if (summonActivater && sp > 9 && AllySoldier.Count < 10) {
 						StartCoroutine (summonServant ("RedSoldier", 5, 1f));

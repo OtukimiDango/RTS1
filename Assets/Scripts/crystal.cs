@@ -17,7 +17,7 @@ public class crystal : MonoBehaviour {
 		hpbar.transform.position = Camera.main.WorldToScreenPoint(gameObject.transform.position);
 		UIHP.targets.Add (gameObject.transform);//召喚したオブジェクトをHP表示するオブジェクトのリストに入れる
 	}
-	
+
 	// Update is called once per frame
 	void Update () {
 		if (HP <= 0) {
@@ -45,7 +45,6 @@ public class crystal : MonoBehaviour {
 			}catch{
 				nearEnemy.RemoveAt (0);
 			}
-			Debug.Log (nearEnemy.Count);
 			yield return new WaitForSeconds (1);
 		}
 	}

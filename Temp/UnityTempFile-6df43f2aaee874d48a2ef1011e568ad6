@@ -77,6 +77,7 @@
 -define:UNITY_EDITOR_64
 -define:UNITY_EDITOR_OSX
 'Assets/EnemyControl.cs'
+'Assets/Lens Flares/SortingLayer.cs'
 'Assets/Scripts/Blue.cs'
 'Assets/Scripts/EyeCol.cs'
 'Assets/Scripts/Instruction.cs'
@@ -86,7 +87,6 @@
 'Assets/Scripts/selectCharacter.cs'
 'Assets/Scripts/sin.cs'
 'Assets/Scripts/summonsServant.cs'
-'Assets/SortingLayer.cs'
 'Assets/UIHP.cs'
 'Assets/crystal.cs'
 -r:'/Applications/Unity/Unity.app/Contents/Frameworks/Mono/lib/mono/unity/System.Runtime.Serialization.dll'

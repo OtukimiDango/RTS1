@@ -1,21 +1,14 @@
 ﻿using UnityEngine;
 using System.Collections;
 using System.Collections.Generic;
-
 public class Blue : MonoBehaviour
 {
 	public GameObject tgt;
 //攻撃先
 	public Vector3 tgtDis;
 //攻撃先までの距離
-
 	public byte HP;
 //自分のHP
-	private Vector3 myPos;
-//自分の座標
-	private readonly byte speed = 10;
-//移動速度
-	private readonly byte power = 30;
 	public string state;
 //自分の状態
 	public GameObject frontAlly = null;
@@ -28,24 +21,22 @@ public class Blue : MonoBehaviour
 //迂回時の方向
 	public LineRenderer linerende;
 //ラインレンダラー
-	public bool detourbool = false;
 	public bool lightup = false;
 	public GameObject attackObj;
-	float dx ,dy, radian=1f,radi = 0f, i = 0;
+	float radian=1f,i = 0;
 
 
 	void Start ()
 	{
 		linerende = GetComponent<LineRenderer> ();//LineRendererコンポーネントを変数に
 		tgt = GameObject.Find ("redFirstCrystal");//移動先!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-		myPos = transform.position;//自分のポジションを入れる
 		if (transform.localScale == new Vector3 (6, 6, 6)) 
 			gameObject.name = ("BlueSoldier" + summonsServant.servantCount); //名前に味方召喚数の変数を付随させる
 		 else if (transform.localScale == new Vector3 (10, 10, 10))
 			gameObject.name = ("BlueWitch" + summonsServant.servantCount); //名前に味方召喚数の変数を付随させる
 		else if (transform.localScale == new Vector3 (8, 8, 8))
 			gameObject.name = ("BlueGuard" + summonsServant.servantCount); //名前に味方召喚数の変数を付随させる
-		tgtDis = distance (tgt.transform.position, myPos);//移動先の座標と自分の座標の差分を図り、変数にいれる
+		tgtDis = distance (tgt.transform.position, gameObject.transform.position);//移動先の座標と自分の座標の差分を図り、変数にいれる
 		tgtDis = tgtDis.normalized;
 		state = "move";//初期状態を移動にする
 		HP = 200;//初期体力は200
@@ -60,19 +51,19 @@ public class Blue : MonoBehaviour
 		switch (state) {//自分の状態を要素としswitch文
 		case "move"://移動中であれば
 			transform.LookAt (tgt.transform);//移動先に注目
-			myPos = myPos + (tgtDis * speed * Time.deltaTime);//移動先へ移動
-			myPos.y = transform.position.y;
-			transform.position = myPos;//変更された変数を自分のポジションへ代入
+			transform.position = new Vector3
+				(transform.position.x+(tgtDis.x * 10 * Time.deltaTime),
+				transform.position.y,
+				transform.position.z+(tgtDis.z * 10 * Time.deltaTime));
 			break;
 		case "detour"://迂回であれば
-			detour();
+			detour(10,radian);
 			break;
 		case "fight"://戦闘中であれば
 			try{
 				transform.LookAt (tgt.transform);//敵に注目
 			}catch{
 				tgt = GameObject.Find ("summonRed");
-				Debug.Log ("change");
 				state = "move";
 			}
 			break;
@@ -129,9 +120,11 @@ public class Blue : MonoBehaviour
 					tgt = col.gameObject;
 					attackObj = tgt;
 					state = "fight";
-					behindAlly.ForEach(i => i.GetComponent<Blue>().detourReady());
-					gameObject.tag = "StopPlayer";
-					StartCoroutine (attack ()); //攻撃
+					try{
+						behindAlly.ForEach (i => i.GetComponent<Blue> ().detourReady ());
+					}catch{
+					}					gameObject.tag = "StopPlayer";
+					StartCoroutine (attack (30)); //攻撃
 				}
 			}
 			break;
@@ -143,9 +136,11 @@ public class Blue : MonoBehaviour
 					tgt = col.gameObject;
 					attackObj = tgt;
 					state = "fight";
-					behindAlly.ForEach(i => i.GetComponent<Blue>().detourReady());
-					gameObject.tag = "StopPlayer";
-					StartCoroutine (attack ()); //攻撃
+					try{
+						behindAlly.ForEach (i => i.GetComponent<Blue> ().detourReady ());
+					}catch{
+					}					gameObject.tag = "StopPlayer";
+					StartCoroutine (attack (30)); //攻撃
 				}
 			}
 			break;
@@ -154,16 +149,18 @@ public class Blue : MonoBehaviour
 			attackObj = tgt;
 			state = "fight";
 			gameObject.tag = "StopPlayer";
-			StartCoroutine (attack ()); //攻撃
+			StartCoroutine (attack (30)); //攻撃
 			break;
 		case "redCrystal":
 			if(gameObject.CompareTag("Player") && state != "fight"){
 				tgt = col.gameObject;
 				attackObj = tgt;
 				state = "fight";
-				behindAlly.ForEach(i => i.GetComponent<Blue>().detourReady());
-				gameObject.tag = "StopPlayer";
-				StartCoroutine (attack ()); //攻撃
+				try{
+					behindAlly.ForEach (i => i.GetComponent<Blue> ().detourReady ());
+				}catch{
+				}				gameObject.tag = "StopPlayer";
+				StartCoroutine (attack (30)); //攻撃
 			}
 			break;
 		default :
@@ -180,29 +177,35 @@ public class Blue : MonoBehaviour
 		float detourDis = 0f;	
 		try{
 		if (right) {
-			if (frontAlly.transform.position.x <= myPos.x) {
+			if (frontAlly.transform.position.x <= gameObject.transform.position.x) {
 				detourDis = transform.localScale.x / 2 + (frontAlly.transform.localScale.x / 2 - (transform.position.x - frontAlly.transform.position.x));
-			}
+				}else{
+					detourDis = transform.localScale.x / 2 + (frontAlly.transform.localScale.x / 2 + (transform.position.x - frontAlly.transform.position.x));
+				}
 		} else {
-			detourDis =  transform.localScale.x/2-(-frontAlly.transform.localScale.x/2 - (transform.position.x - frontAlly.transform.position.x));
+				if (frontAlly.transform.position.x <= gameObject.transform.position.x) {
+			detourDis =  -transform.localScale.x/2+(-frontAlly.transform.localScale.x/2 + (transform.position.x - frontAlly.transform.position.x));
+				}else{
+					detourDis =  -transform.localScale.x/2+(-frontAlly.transform.localScale.x/2 - (transform.position.x - frontAlly.transform.position.x));
+
+				}
 		}
 		}catch{
 			return;
 		}
 			state = "detour";
-		dy = (frontAlly.transform.position.x + detourDis) - gameObject.transform.position.x;
-		dx = frontAlly.transform.position.z - gameObject.transform.position.z;
+		var dy = (frontAlly.transform.position.x + detourDis) - gameObject.transform.position.x;
+		var dx = frontAlly.transform.position.z - gameObject.transform.position.z;
 		radian = Mathf.Atan2 (dy, dx);
-			detour ();//迂回を開始する
+		detour (10,radian);//迂回を開始する
 	}
 
-	private void detour ()
+	private void detour (byte speed,float radian)
 	{
 		i += Time.deltaTime;
-		radi = (radian * Mathf.Rad2Deg) * i;
+		var radi = (radian * Mathf.Rad2Deg) * i;
 		gameObject.transform.eulerAngles = new Vector3(0, radi, 0);
 		transform.Translate (transform.forward * (tgtDis.z * speed * Time.deltaTime));
-		myPos = transform.position;
 		if (i >= 1f) {
 			i = 0;
 			state = "move";
@@ -217,7 +220,7 @@ public class Blue : MonoBehaviour
 		return dis;
 	}
 
-	private IEnumerator attack ()
+	private IEnumerator attack (byte power)
 	{
 		while (state == "fight") {
 			try{
@@ -249,7 +252,7 @@ public class Blue : MonoBehaviour
 			state = "move";
 			tag = "Player";
 		}
-		tgtDis = distance (tgt.transform.position, myPos);
+		tgtDis = distance (tgt.transform.position, gameObject.transform.position);
 		tgtDis = tgtDis.normalized;
 	}
 
