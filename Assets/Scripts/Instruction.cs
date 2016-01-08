@@ -40,17 +40,13 @@ public class Instruction : MonoBehaviour
 			RaycastHit hit;
 			if (Physics.Raycast (ray, out hit, Mathf.Infinity, maskTerrain.value)) {
 				if (Mathf.Abs( hit.point.x - squadPos1.x) >= 5f || Mathf.Abs(hit.point.z - squadPos1.z) >= 5f) {
-					try {
-						Debug.Log(serchBlock.hitAlly.Count);
+					if(serchBlock.hitAlly.Count != 0)
+					serchBlock.hitAlly.ForEach (i => i.GetComponent<Light>().enabled = true);//対象全てを光らせる。LightComponent仕様変更時に要変更
 						Destroy (GameObject.Find ("SerchBlock(Clone)"));
-					} catch {
-					}
-				} else {
-					Debug.Log(serchBlock.hitAlly.Count);
-					Destroy (GameObject.Find ("SerchBlock(Clone)"));
 
+				} else {
+					Destroy (GameObject.Find ("SerchBlock(Clone)"));
 				}
-					
 			}
 
 			if (Physics.Raycast (ray, out hit, Mathf.Infinity, mask.value)) {//Rayがキャラクターに当たると
@@ -244,12 +240,8 @@ public class Instruction : MonoBehaviour
 		Playercamera.transform.FindChild("Main Camera").gameObject.GetComponent<LineRenderer> ().enabled = false;
 		rayMouse = false;
 		if (chara.layer == 9) {
-			//			foreach (GameObject lightDown in chara.GetComponent<Red>().atEnemys)
-			//				lightDown.GetComponent<Light> ().enabled = false;
 			chara.GetComponent<Red>().atEnemys.ForEach(i=>i.GetComponent<Light>().enabled = false);
 		} else {
-			//			foreach (GameObject lightDown in chara.GetComponent<Blue>().atEnemys)
-			//				lightDown.GetComponent<Light> ().enabled = false;
 			chara.GetComponent<Blue>().atEnemys.ForEach(i=>i.GetComponent<Light>().enabled = false);
 		}
 	}
