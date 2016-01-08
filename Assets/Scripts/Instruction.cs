@@ -9,7 +9,8 @@ public class Instruction : MonoBehaviour
 	public static GameObject saveChara;
 	public LayerMask mask;
 	public LayerMask maskTerrain;
-	public GameObject writeobject;
+	public GameObject lineObject;
+	public Vector3 squadPos1;
 
 
 	public static GameObject rayobj;
@@ -26,40 +27,34 @@ public class Instruction : MonoBehaviour
 	// Update is called once per frame
 	void Update ()
 	{
-		Vector3 squadPos1 = new Vector3(0,0,0);
-		bool serch = false;
-
 		if (Input.GetMouseButtonDown (0) && !rayMouse) {
 			Ray ray = Camera.main.ScreenPointToRay (Input.mousePosition);//マウスのポジションにrayを飛ばす
 			RaycastHit hit;
 			if (Physics.Raycast (ray, out hit, Mathf.Infinity, maskTerrain.value)) {
 				squadPos1 = hit.point;
-				serch = true;
 				Instantiate ((GameObject)Resources.Load("SerchBlock"),hit.point,Quaternion.identity);
 			}
 		}
 		if (Input.GetMouseButtonUp (0) && !rayMouse) {//クリックしたときLine展開中でなければ
-			
 			Ray ray = Camera.main.ScreenPointToRay (Input.mousePosition);//マウスのポジションにrayを飛ばす
 			RaycastHit hit;
+			if (Physics.Raycast (ray, out hit, Mathf.Infinity, maskTerrain.value)) {
+				if (Mathf.Abs( hit.point.x - squadPos1.x) >= 5f || Mathf.Abs(hit.point.z - squadPos1.z) >= 5f) {
+					try {
+						Debug.Log(serchBlock.hitAlly.Count);
+						Destroy (GameObject.Find ("SerchBlock(Clone)"));
+					} catch {
+					}
+				} else {
+					Debug.Log(serchBlock.hitAlly.Count);
+					Destroy (GameObject.Find ("SerchBlock(Clone)"));
 
-			if (Physics.Raycast (ray, out hit, Mathf.Infinity, maskTerrain.value) && serch) {
-				Debug.Log ("1");
-				if (Mathf.Abs (hit.point.x) - Mathf.Abs (squadPos1.x) >= 5f || Mathf.Abs (hit.point.z) - Mathf.Abs (squadPos1.z) >= 5f) {
-					Debug.Log ("2");
-					Destroy (GameObject.Find("SerchBlock(Clone)"));
-					serch = false;
-					return;
 				}
-				Debug.Log ("3");
-				serch = false;
-				Destroy (GameObject.Find("SerchBlock(Clone)"));
-
-				return;
+					
 			}
 
 			if (Physics.Raycast (ray, out hit, Mathf.Infinity, mask.value)) {//Rayがキャラクターに当たると
-				writeobject = hit.collider.gameObject;//オブジェクト代入
+				lineObject = hit.collider.gameObject;//オブジェクト代入
 
 				clickCharacter (hit.collider.gameObject);//Method実
 			}
@@ -115,13 +110,13 @@ public class Instruction : MonoBehaviour
 		}
 		if(Input.GetMouseButton(0)){
 			if (!rayMouse) {
-				
+
 				GameObject cube = GameObject.Find ("SerchBlock(Clone)");
 				Ray ray = Camera.main.ScreenPointToRay (Input.mousePosition);//マウスのポジションにrayを飛ばす
 				RaycastHit hit;
 
 				if (Physics.Raycast (ray, out hit, Mathf.Infinity, maskTerrain.value)) {
-					cube.transform.position = new Vector3 ((Mathf.Abs(hit.point.x)-Mathf.Abs(squadPos1.x))/2f,3f,(Mathf.Abs(hit.point.z)-Mathf.Abs(squadPos1.z))/2f);
+					cube.transform.position = new Vector3 (((Mathf.Abs(hit.point.x)-Mathf.Abs(squadPos1.x))/2f)+squadPos1.x,3f,((Mathf.Abs(hit.point.z)-Mathf.Abs(squadPos1.z))/2f)+squadPos1.z);
 					cube.transform.localScale = new Vector3 (Mathf.Abs (hit.point.x) - Mathf.Abs (squadPos1.x), 1f, Mathf.Abs (hit.point.z) - Mathf.Abs (squadPos1.z));
 				}
 
@@ -141,7 +136,7 @@ public class Instruction : MonoBehaviour
 				if (hit.collider.gameObject != rayobj && rayobj != null) //ヒットしたオブジェクトが前回のオブジェクと出なければ　
 					rayobj.GetComponent<Light> ().enabled = false;//前回ヒットしたオブジェクトのライトをオフにする
 
-				gameObject.GetComponent<LineRenderer> ().SetPosition (0, writeobject.transform.position);//Lineを飛ばす地点１
+				gameObject.GetComponent<LineRenderer> ().SetPosition (0, lineObject.transform.position);//Lineを飛ばす地点１
 				gameObject.GetComponent<LineRenderer> ().SetPosition (1, hit.point);//Lineを飛ばす地点２
 			}
 			if (Physics.Raycast (ray, out hit, Mathf.Infinity, mask.value)) {//rayがキャラクターに当たる
@@ -257,8 +252,5 @@ public class Instruction : MonoBehaviour
 			//				lightDown.GetComponent<Light> ().enabled = false;
 			chara.GetComponent<Blue>().atEnemys.ForEach(i=>i.GetComponent<Light>().enabled = false);
 		}
-	}
-	void OnMouseDown(){
-		Debug.Log ("yes");
 	}
 }

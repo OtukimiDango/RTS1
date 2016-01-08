@@ -50,7 +50,11 @@ public class Blue : MonoBehaviour
 	{
 		switch (state) {//自分の状態を要素としswitch文
 		case "move"://移動中であれば
+			try{
 			transform.LookAt (tgt.transform);//移動先に注目
+			}catch{
+				tgt = GameObject.Find ("redFirstCrystal");
+			}
 			transform.position = new Vector3
 				(transform.position.x+(tgtDis.x * 10 * Time.deltaTime),
 				transform.position.y,
@@ -111,8 +115,8 @@ public class Blue : MonoBehaviour
 		}catch{
 			return;
 		}
-		switch (col.gameObject.tag) {
-		case "Enemy":
+		switch (col.gameObject.layer) {
+		case 9:
 			if (gameObject.tag == ("Player") && state != "fight") {
 				Red script = col.gameObject.GetComponent<Red> ();
 				if (script.atEnemys.Count < 3) {
@@ -123,35 +127,20 @@ public class Blue : MonoBehaviour
 					try{
 						behindAlly.ForEach (i => i.GetComponent<Blue> ().detourReady ());
 					}catch{
-					}					gameObject.tag = "StopPlayer";
+					}					
+					gameObject.tag = "StopPlayer";
 					StartCoroutine (attack (30)); //攻撃
 				}
 			}
 			break;
-		case "StopEnemy":
-			if (gameObject.tag == ("Player") && state != "fight") {
-				Red script = col.gameObject.GetComponent<Red> ();
-				if (script.atEnemys.Count < 3) {
-					script.atEnemys.Add (gameObject);
-					tgt = col.gameObject;
-					attackObj = tgt;
-					state = "fight";
-					try{
-						behindAlly.ForEach (i => i.GetComponent<Blue> ().detourReady ());
-					}catch{
-					}					gameObject.tag = "StopPlayer";
-					StartCoroutine (attack (30)); //攻撃
-				}
-			}
-			break;
-		case "summonBlue":
+		case 15:
 			tgt = col.gameObject;
 			attackObj = tgt;
 			state = "fight";
 			gameObject.tag = "StopPlayer";
 			StartCoroutine (attack (30)); //攻撃
 			break;
-		case "redCrystal":
+		case 14:
 			if(gameObject.CompareTag("Player") && state != "fight"){
 				tgt = col.gameObject;
 				attackObj = tgt;
@@ -159,7 +148,8 @@ public class Blue : MonoBehaviour
 				try{
 					behindAlly.ForEach (i => i.GetComponent<Blue> ().detourReady ());
 				}catch{
-				}				gameObject.tag = "StopPlayer";
+				}				
+				gameObject.tag = "StopPlayer";
 				StartCoroutine (attack (30)); //攻撃
 			}
 			break;

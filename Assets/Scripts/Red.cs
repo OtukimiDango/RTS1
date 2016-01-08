@@ -113,8 +113,8 @@ public class Red : MonoBehaviour
 			return;
 		}
 
-		switch (col.gameObject.tag) {
-		case "Player":
+		switch (col.gameObject.layer) {
+		case 10:
 			if (gameObject.CompareTag ("Enemy") && state != "fight") {//戦闘中でなければ
 				Blue script = col.gameObject.GetComponent<Blue> ();//敵チームスクリプト取得
 				if (script.atEnemys.Count < 3) {//敵が3人に狙われていなければ
@@ -131,27 +131,12 @@ public class Red : MonoBehaviour
 				}
 			}
 			break;
-		case "StopPlayer":
-			if (gameObject.CompareTag ("Enemy") && state != "fight") {
-				Blue script = col.gameObject.GetComponent<Blue> ();
-				if (script.atEnemys.Count < 3) {
-					script.atEnemys.Add (gameObject);
-					tgt = col.gameObject;
-					attackObj = tgt;
-					state = "fight";
-					try{
-						behindAlly.ForEach (i => i.GetComponent<Red> ().detourReady ());
-					}catch{
-					}					gameObject.tag = "StopEnemy";
-					StartCoroutine (attack (30)); //攻撃
-				}
-			}
-			break;
-		case "summonBlue":
+
+		case 16:
 			state = "fight";
 			gameObject.tag = "StopEnemy";
 			break;
-		case "blueCrystal":
+		case 13:
 			if (gameObject.CompareTag ("Enemy") && state != "fight") {
 				tgt = col.gameObject;
 				attackObj = tgt;
