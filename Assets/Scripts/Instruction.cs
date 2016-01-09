@@ -31,11 +31,10 @@ public class Instruction : MonoBehaviour
 		if (Input.GetMouseButtonDown (0) && !rayMouse) {
 			
 			int layermask = (1 << LayerMask.NameToLayer ("Terrain"));
-
 			if (Physics.Raycast (ray, out hit, Mathf.Infinity, layermask)) {
 				squadPos1 = hit.point;
 				serchBlock.hitAlly.Clear ();
-				Instantiate ((GameObject)Resources.Load("SerchBlock"),hit.point,Quaternion.identity);
+				Instantiate ((GameObject)Resources.Load ("SerchBlock"), hit.point, Quaternion.identity);
 			}
 		}
 		if (Input.GetMouseButtonUp (0) && !rayMouse) {//クリックしたときLine展開中でなければ
@@ -43,80 +42,66 @@ public class Instruction : MonoBehaviour
 			int layermask = (1 << LayerMask.NameToLayer ("Terrain"));
 
 			if (Physics.Raycast (ray, out hit, Mathf.Infinity, layermask)) {
-				if (Mathf.Abs( hit.point.x - squadPos1.x) >= 5f && serchBlock.hitAlly.Count != 0|| Mathf.Abs(hit.point.z - squadPos1.z) >= 5f && serchBlock.hitAlly.Count != 0) {
+				if (Mathf.Abs (hit.point.x - squadPos1.x) >= 5f && serchBlock.hitAlly.Count != 0 || Mathf.Abs (hit.point.z - squadPos1.z) >= 5f && serchBlock.hitAlly.Count != 0) {
 					gameObject.GetComponent<LineRenderer> ().enabled = true;
 					rayMouse = true;
 					Empty.allys = serchBlock.hitAlly;
 					GameObject ob = new GameObject ("Empty");
 					ob.AddComponent<Empty> ();
-					StartCoroutine(firstRay(true,ob));
-					serchBlock.hitAlly.ForEach (i => i.GetComponent<Light>().enabled = true);//対象全てを光らせる。LightComponent仕様変更時に要変更
+					StartCoroutine (firstRay (true, ob));
+					serchBlock.hitAlly.ForEach (i => i.GetComponent<Light> ().enabled = true);//対象全てを光らせる。LightComponent仕様変更時に要変更
 					Destroy (GameObject.Find ("SerchBlock(Clone)"));
 
 				} else {
 					Destroy (GameObject.Find ("SerchBlock(Clone)"));
 				}
 			}
-			int mask = (1 << LayerMask.NameToLayer("touchChara"));
+			int mask = (1 << LayerMask.NameToLayer ("touchChara"));
 			if (Physics.Raycast (ray, out hit, Mathf.Infinity, mask)) {//Rayがキャラクターに当たると
 				clickCharacter (hit.collider.gameObject);//Method実
 			}
 		} else if (Input.GetMouseButtonUp (0) && rayMouse) {
 
 			if (Physics.Raycast (ray, out hit, Mathf.Infinity)) {//rayがあたった先がキャラクターでなければ
-				try{
+				try {
 					if (hit.collider.gameObject.layer != 9
-						&& hit.collider.gameObject.layer != 10
-						&& hit.collider.gameObject.tag != "charabody")
+					    && hit.collider.gameObject.layer != 10
+					    && hit.collider.gameObject.tag != "charabody")
 						clickCharacter (saveChara.transform.FindChild ("TouchCol").gameObject);
-				}catch{
-					foreach(GameObject i in serchBlock.hitAlly){
+				} catch {
+					foreach (GameObject i in serchBlock.hitAlly) {
 						i.GetComponent<Light> ().enabled = false;
 						gameObject.GetComponent<LineRenderer> ().enabled = false;
 						rayMouse = false;
 					}
-					Destroy (GameObject.Find("Empty"));
+					Destroy (GameObject.Find ("Empty"));
 				}
 			}
-			int mask = (1 << LayerMask.NameToLayer("touchChara"));
+			int mask = (1 << LayerMask.NameToLayer ("touchChara"));
 			if (Physics.Raycast (ray, out hit, Mathf.Infinity, mask)) {
 				if (hit.collider.gameObject.transform.parent.gameObject == saveChara)
 					clickCharacter (saveChara.transform.FindChild ("TouchCol").gameObject);
 				else if (hit.collider.gameObject.transform.parent.gameObject.layer == 9 && saveChara.layer == 10
-					|| hit.collider.gameObject.transform.parent.gameObject.layer == 10 && saveChara.layer == 9) {
+				         || hit.collider.gameObject.transform.parent.gameObject.layer == 10 && saveChara.layer == 9) {
 					GameObject cSerch;
-					if (hit.collider.gameObject.transform.parent.gameObject.layer == 10)
-						cSerch = hit.collider.gameObject.transform.parent.gameObject.GetComponent<Blue> ().tgt;
-					else
-						cSerch = hit.collider.gameObject.transform.parent.gameObject.GetComponent<Red> ().tgt;
+						cSerch = hit.collider.gameObject.transform.parent.gameObject.GetComponent<Warrior> ().tgt;
 
 
 					////////////////////////
-					if (saveChara.layer == 10) {
-						foreach (GameObject obj in saveChara.GetComponent<Blue>().atEnemys)
+						foreach (GameObject obj in saveChara.GetComponent<Warrior>().atEnemys)
 							obj.GetComponent<Light> ().color = Color.red;
-						if (hit.collider.gameObject.transform.parent.gameObject != saveChara.GetComponent<Blue> ().tgt) {
+						if (hit.collider.gameObject.transform.parent.gameObject != saveChara.GetComponent<Warrior> ().tgt) {
 							saveChara.SendMessage ("changeAttack", hit.collider.gameObject.transform.parent.gameObject);
 							hit.collider.gameObject.transform.parent.gameObject.GetComponent<Light> ().color = Color.yellow;
-						} else if (cSerch == saveChara.GetComponent<Blue> ().tgt)
+						} else if (cSerch == saveChara.GetComponent<Warrior> ().tgt)
 							hit.collider.gameObject.transform.parent.gameObject.GetComponent<Light> ().color = Color.blue;
-					} else if (saveChara.layer == 9) {
-						foreach (GameObject obj in saveChara.GetComponent<Red>().atEnemys)
-							obj.GetComponent<Light> ().color = Color.blue;
-
-						if (hit.collider.gameObject.transform.parent.gameObject != saveChara.GetComponent<Red> ().tgt) {
-							saveChara.SendMessage ("changeAttack", hit.collider.gameObject.transform.parent.gameObject);
-							hit.collider.gameObject.transform.parent.gameObject.GetComponent<Light> ().color = Color.yellow;
-						} else if (cSerch == saveChara.GetComponent<Blue> ().tgt)
-							hit.collider.gameObject.transform.parent.gameObject.GetComponent<Light> ().color = Color.red;
-					}
 					////////////////////////////
 					gameObject.GetComponent<LineRenderer> ().enabled = false;
 					rayMouse = false;
 				}
 			}
 		}
-		if(Input.GetMouseButton(0)){
+		if (Input.GetMouseButton (0)) {
 			if (!rayMouse) {
 
 				GameObject cube = GameObject.Find ("SerchBlock(Clone)");
@@ -124,7 +109,7 @@ public class Instruction : MonoBehaviour
 				int layermask = (1 << LayerMask.NameToLayer ("Terrain"));
 
 				if (Physics.Raycast (ray, out hit, Mathf.Infinity, layermask)) {
-					cube.transform.position = new Vector3 (((Mathf.Abs(hit.point.x)-Mathf.Abs(squadPos1.x))/2f)+squadPos1.x,3f,((Mathf.Abs(hit.point.z)-Mathf.Abs(squadPos1.z))/2f)+squadPos1.z);
+					cube.transform.position = new Vector3 (((Mathf.Abs (hit.point.x) - Mathf.Abs (squadPos1.x)) / 2f) + squadPos1.x, 3f, ((Mathf.Abs (hit.point.z) - Mathf.Abs (squadPos1.z)) / 2f) + squadPos1.z);
 					cube.transform.localScale = new Vector3 (Mathf.Abs (hit.point.x) - Mathf.Abs (squadPos1.x), 1f, Mathf.Abs (hit.point.z) - Mathf.Abs (squadPos1.z));
 				}
 
@@ -132,39 +117,38 @@ public class Instruction : MonoBehaviour
 		}
 
 		if (Input.GetKey ("d")) {
-			Playercamera.transform.position = new Vector3 (Playercamera.transform.position.x,Playercamera.transform.position.y,Playercamera.transform.position.z+Time.deltaTime*50);
+			Playercamera.transform.position = new Vector3 (Playercamera.transform.position.x, Playercamera.transform.position.y, Playercamera.transform.position.z + Time.deltaTime * 50);
 		}
 		if (Input.GetKey ("a")) {
-			Playercamera.transform.position = new Vector3 (Playercamera.transform.position.x,Playercamera.transform.position.y,Playercamera.transform.position.z-Time.deltaTime*50);
+			Playercamera.transform.position = new Vector3 (Playercamera.transform.position.x, Playercamera.transform.position.y, Playercamera.transform.position.z - Time.deltaTime * 50);
 		}
 
 	}
 
-	public IEnumerator firstRay(bool area,GameObject lineObj){
+	public IEnumerator firstRay (bool area, GameObject lineObj)
+	{
 		while (rayMouse) {
 			Ray ray = Camera.main.ScreenPointToRay (Input.mousePosition);//毎フレーム画面にRayを飛ばす
 			RaycastHit hit;
 			int layermask = (1 << LayerMask.NameToLayer ("Terrain"));
-			if (Physics.Raycast (ray, out hit, Mathf.Infinity,layermask)) {//Rayがヒットしたら
+			if (Physics.Raycast (ray, out hit, Mathf.Infinity, layermask)) {//Rayがヒットしたら
 				if (hit.collider.gameObject != rayobj && rayobj != null) //ヒットしたオブジェクトが前回のオブジェクと出なければ　
 				rayobj.GetComponent<Light> ().enabled = false;//前回ヒットしたオブジェクトのライトをオフにする
 
-				var pos = new Vector3 (hit.point.x,3,hit.point.z);
+				var pos = new Vector3 (hit.point.x, 3, hit.point.z);
 				gameObject.GetComponent<LineRenderer> ().SetPosition (0, lineObj.transform.position);//Lineを飛ばす地点１
 				gameObject.GetComponent<LineRenderer> ().SetPosition (1, pos);//Lineを飛ばす地点２
 
 			}
-			int mask = (1 << LayerMask.NameToLayer("touchChara"));
+			int mask = (1 << LayerMask.NameToLayer ("touchChara"));
 			if (Physics.Raycast (ray, out hit, Mathf.Infinity, mask) && area == false) {//rayがキャラクターに当たる
 				try {
 					if (saveChara.layer == 10 && hit.collider.gameObject.transform.parent.gameObject.layer == 9
 					    || saveChara.layer == 9 && hit.collider.gameObject.transform.parent.gameObject.layer == 10) {
 						//rayが当たったキャラと以前当たったキャラが敵対していたら
 						GameObject cSerch;//rayが当たっとキャラクターのターゲット
-						if (hit.collider.gameObject.transform.parent.gameObject.layer == 9)
-							cSerch = hit.collider.gameObject.transform.parent.gameObject.GetComponent<Red> ().tgt;
-						else
-							cSerch = hit.collider.gameObject.transform.parent.gameObject.GetComponent<Blue> ().tgt;
+	
+							cSerch = hit.collider.gameObject.transform.parent.gameObject.GetComponent<Warrior> ().tgt;
 
 						if (cSerch != saveChara) {
 							hit.collider.gameObject.transform.parent.gameObject.GetComponent<Light> ().enabled = true;//当たったキャラのライトをON
@@ -187,61 +171,34 @@ public class Instruction : MonoBehaviour
 			gameObject.GetComponent<LineRenderer> ().enabled = !lineFlag;//上記変数を反転した値をenableに代入
 			rayMouse = !lineFlag;//上記同様
 			if (rayMouse) {
-				StartCoroutine( firstRay (false, clickChara));
+				StartCoroutine (firstRay (false, clickChara));
 			}
 			if (saveChara != null) {//前回クリックしたキャラがいれば
 				saveChara.GetComponent<LineRenderer> ().enabled = false;//前回のキャラのラインを消す
 				saveChara.GetComponent<Light> ().enabled = false;//前回のキャラのライトを消す
 
-				if (saveChara.layer == 9) {//前回のキャラがエネミーであれば
-					try{
-						saveChara.GetComponent<Red> ().lightup = false;//ライトを消して
-						saveChara.GetComponent<Red> ().tgt.GetComponent<Light> ().enabled = false;
-					}catch{
+					try {
+						saveChara.GetComponent<Warrior> ().lightup = false;
+						saveChara.GetComponent<Warrior> ().tgt.GetComponent<Light> ().enabled = false;
+					} catch {
 					}
-					saveChara.GetComponent<Red>().atEnemys.ForEach(i => i.GetComponent<Light>().enabled = false);
-
-				} else if (saveChara.layer == 10) {
-					try{
-						saveChara.GetComponent<Blue> ().lightup = false;
-						saveChara.GetComponent<Blue> ().tgt.GetComponent<Light> ().enabled = false;
-					}catch{
-					}
-					saveChara.GetComponent<Blue> ().atEnemys.ForEach (i=> i.GetComponent<Light> ().enabled = false);
-				}
+					saveChara.GetComponent<Warrior> ().atEnemys.ForEach (i => i.GetComponent<Light> ().enabled = false);
 			}
 
 			parent.GetComponent<LineRenderer> ().enabled = !lineFlag;
 			parent.GetComponent<Light> ().enabled = !lineFlag;
 
-			if (parent.layer == 10) {//クリックしたのがプレイヤーであれば
-				parent.GetComponent<Blue> ().lightup = !lineFlag;
+				parent.GetComponent<Warrior> ().lightup = !lineFlag;
 				parent.GetComponent<Light> ().color = Color.blue;
-				if (parent.GetComponent<Blue> ().tgt != null && parent.GetComponent<Blue> ().tgt != GameObject.Find ("summonRed")) {
-					try{
-						parent.GetComponent<Blue> ().tgt.GetComponent<Light> ().enabled = !lineFlag;
-						if (parent.GetComponent<Blue> ().tgt == parent.GetComponent<Blue> ().attackObj)
-							parent.GetComponent<Blue> ().tgt.GetComponent<Light> ().color = Color.blue;
-					}catch{
+				if (parent.GetComponent<Warrior> ().tgt != null && parent.GetComponent<Warrior> ().tgt != GameObject.Find ("summonRed")) {
+					try {
+						parent.GetComponent<Warrior> ().tgt.GetComponent<Light> ().enabled = !lineFlag;
+						if (parent.GetComponent<Warrior> ().tgt == parent.GetComponent<Warrior> ().attackObj)
+							parent.GetComponent<Warrior> ().tgt.GetComponent<Light> ().color = Color.blue;
+					} catch {
 					}
 				}
-
-
-			} else if (parent.layer == 9) {//クリックしたのエネミーであれば
-				parent.GetComponent<Red> ().lightup = !lineFlag;
-				parent.GetComponent<Light> ().color = Color.red;
-				rayMouse = false;
-				gameObject.GetComponent<LineRenderer> ().enabled = false;
-				if (parent.GetComponent<Red> ().tgt != null && parent.GetComponent<Red> ().tgt != GameObject.Find ("summonBlue")) {
-					try{
-						parent.GetComponent<Red> ().tgt.GetComponent<Light> ().enabled = !lineFlag;
-						if (parent.GetComponent<Red> ().tgt == parent.GetComponent<Red> ().attackObj)
-							parent.GetComponent<Red> ().tgt.GetComponent<Light> ().color = Color.red;
-					}catch{
-					}
-				}
-
-			}
+					
 			saveChara = parent;
 		}
 	}
@@ -251,12 +208,9 @@ public class Instruction : MonoBehaviour
 		if (chara != saveChara)
 			return;
 
-		Playercamera.transform.FindChild("Main Camera").gameObject.GetComponent<LineRenderer> ().enabled = false;
+		Playercamera.transform.FindChild ("Main Camera").gameObject.GetComponent<LineRenderer> ().enabled = false;
 		rayMouse = false;
-		if (chara.layer == 9) {
-			chara.GetComponent<Red>().atEnemys.ForEach(i=>i.GetComponent<Light>().enabled = false);
-		} else {
-			chara.GetComponent<Blue>().atEnemys.ForEach(i=>i.GetComponent<Light>().enabled = false);
-		}
+
+			chara.GetComponent<Warrior> ().atEnemys.ForEach (i => i.GetComponent<Light> ().enabled = false);
 	}
 }

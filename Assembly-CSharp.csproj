@@ -45,15 +45,14 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-     <Compile Include="Assets\Scripts\Blue.cs" />
      <Compile Include="Assets\Scripts\Empty.cs" />
      <Compile Include="Assets\Scripts\EnemyControl.cs" />
      <Compile Include="Assets\Scripts\EyeCol.cs" />
      <Compile Include="Assets\Scripts\Instruction.cs" />
      <Compile Include="Assets\Scripts\Measure.cs" />
-     <Compile Include="Assets\Scripts\Red.cs" />
      <Compile Include="Assets\Scripts\SortingLayer.cs" />
      <Compile Include="Assets\Scripts\UIHP.cs" />
+     <Compile Include="Assets\Scripts\Warrior.cs" />
      <Compile Include="Assets\Scripts\crystal.cs" />
      <Compile Include="Assets\Scripts\nextStage.cs" />
      <Compile Include="Assets\Scripts\selectCharacter.cs" />

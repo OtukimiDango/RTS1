@@ -7,35 +7,25 @@ public class EyeCol : MonoBehaviour {
 
 	void OnTriggerEnter (Collider col)
 	{
-		if (gameObject.transform.parent.CompareTag("Player") && col.gameObject.layer == 8) {
-			if(col.gameObject.transform.parent.CompareTag("StopPlayer")){
-				Debug.Log(gameObject+" &&"+col.gameObject);
-				gameObject.transform.parent.GetComponent<Blue> ().frontAlly = col.gameObject;
-				gameObject.transform.parent.GetComponent<Blue> ().detourReady ();
-			} else if (col.gameObject.transform.parent.CompareTag("Player")) {
-				Debug.Log (gameObject.transform.parent+" & "+col.gameObject);
-				gameObject.transform.parent.GetComponent<Blue> ().frontAlly = col.gameObject;
-				col.gameObject.transform.parent.GetComponent<Blue> ().behindAlly.Add(gameObject.transform.parent.gameObject);
-			}
-		} else if (gameObject.transform.parent.CompareTag("Enemy") && col.gameObject.layer == 8) {
-			if (col.gameObject.transform.parent.CompareTag("StopEnemy")) {
+		string mask = col.GetComponent<Warrior>().otherName("myTag",false);
+		string notMask = col.GetComponent<Warrior>().otherName("myTag",true);
+		string stopMask = col.GetComponent<Warrior>().otherName("myStopTag",false);
 
-				gameObject.transform.parent.GetComponent<Red> ().frontAlly = col.gameObject;
-				gameObject.transform.parent.GetComponent<Red> ().detourReady ();
-
-			} else if (col.gameObject.transform.parent.CompareTag("Enemy")) {
-				gameObject.transform.parent.GetComponent<Red> ().frontAlly = col.gameObject;
-				col.gameObject.transform.parent.GetComponent<Red> ().behindAlly.Add(gameObject.transform.parent.gameObject);
+		if (gameObject.transform.parent.CompareTag (mask) && col.gameObject.layer == LayerMask.NameToLayer (notMask)) {
+			Debug.Log (col.gameObject);
+			if (col.gameObject.transform.parent.CompareTag (stopMask)) {
+				gameObject.transform.parent.GetComponent<Warrior> ().frontAlly = col.gameObject;
+				gameObject.transform.parent.GetComponent<Warrior> ().detourReady ();
+			} else if (col.gameObject.transform.parent.CompareTag (mask)) {
+				gameObject.transform.parent.GetComponent<Warrior> ().frontAlly = col.gameObject;
+				col.gameObject.transform.parent.GetComponent<Warrior> ().behindAlly.Add (gameObject.transform.parent.gameObject);
 			}
 		}
 	}
 	void OnTriggerExit(Collider col){
 		if (col.gameObject.layer == gameObject.transform.parent.gameObject.layer) {
-			try{
-				col.gameObject.GetComponent<Red>().behindAlly.Remove(gameObject.transform.parent.gameObject);
-			}catch{
-				col.gameObject.GetComponent<Blue> ().behindAlly.Remove (gameObject.transform.parent.gameObject);
-			}
+
+				col.gameObject.GetComponent<Warrior> ().behindAlly.Remove (gameObject.transform.parent.gameObject);
 		}
 	}
 }
