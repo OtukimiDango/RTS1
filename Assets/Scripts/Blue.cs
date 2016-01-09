@@ -106,6 +106,7 @@ public class Blue : MonoBehaviour
 		}
 	}
 
+
 	void OnTriggerEnter (Collider col)
 	{
 		try{

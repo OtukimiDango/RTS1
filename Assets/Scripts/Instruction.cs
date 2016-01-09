@@ -8,7 +8,6 @@ public class Instruction : MonoBehaviour
 	private static GameObject Playercamera;
 	public static string mouseState;
 	public static GameObject saveChara;
-	public LayerMask mask;
 	public Vector3 squadPos1;
 
 
@@ -26,45 +25,44 @@ public class Instruction : MonoBehaviour
 	// Update is called once per frame
 	void Update ()
 	{
+		Ray ray = Camera.main.ScreenPointToRay (Input.mousePosition);//マウスのポジションにrayを飛ばす
+		RaycastHit hit;
+
 		if (Input.GetMouseButtonDown (0) && !rayMouse) {
-			Ray ray = Camera.main.ScreenPointToRay (Input.mousePosition);//マウスのポジションにrayを飛ばす
-			RaycastHit hit;
+			
 			int layermask = (1 << LayerMask.NameToLayer ("Terrain"));
 
 			if (Physics.Raycast (ray, out hit, Mathf.Infinity, layermask)) {
 				squadPos1 = hit.point;
 				serchBlock.hitAlly.Clear ();
-				gameObject.GetComponent<LineRenderer> ().enabled = true;
 				Instantiate ((GameObject)Resources.Load("SerchBlock"),hit.point,Quaternion.identity);
 			}
 		}
 		if (Input.GetMouseButtonUp (0) && !rayMouse) {//クリックしたときLine展開中でなければ
-			Ray ray = Camera.main.ScreenPointToRay (Input.mousePosition);//マウスのポジションにrayを飛ばす
-			RaycastHit hit;
+			
 			int layermask = (1 << LayerMask.NameToLayer ("Terrain"));
 
 			if (Physics.Raycast (ray, out hit, Mathf.Infinity, layermask)) {
-				if (Mathf.Abs( hit.point.x - squadPos1.x) >= 5f || Mathf.Abs(hit.point.z - squadPos1.z) >= 5f && serchBlock.hitAlly.Count != 0) {
+				if (Mathf.Abs( hit.point.x - squadPos1.x) >= 5f && serchBlock.hitAlly.Count != 0|| Mathf.Abs(hit.point.z - squadPos1.z) >= 5f && serchBlock.hitAlly.Count != 0) {
+					gameObject.GetComponent<LineRenderer> ().enabled = true;
 					rayMouse = true;
-					GameObject ob = new GameObject ("Empty");
 					Empty.allys = serchBlock.hitAlly;
+					GameObject ob = new GameObject ("Empty");
 					ob.AddComponent<Empty> ();
 					StartCoroutine(firstRay(true,ob));
-					serchBlock.hitAlly.ForEach (i => clickCharacter(i));//対象全てを光らせる。LightComponent仕様変更時に要変更
+					serchBlock.hitAlly.ForEach (i => i.GetComponent<Light>().enabled = true);//対象全てを光らせる。LightComponent仕様変更時に要変更
 					Destroy (GameObject.Find ("SerchBlock(Clone)"));
 
 				} else {
-					rayMouse = false;
 					Destroy (GameObject.Find ("SerchBlock(Clone)"));
 				}
 			}
-
-			if (Physics.Raycast (ray, out hit, Mathf.Infinity, mask.value)) {//Rayがキャラクターに当たると
+			int mask = (1 << LayerMask.NameToLayer("touchChara"));
+			if (Physics.Raycast (ray, out hit, Mathf.Infinity, mask)) {//Rayがキャラクターに当たると
 				clickCharacter (hit.collider.gameObject);//Method実
 			}
 		} else if (Input.GetMouseButtonUp (0) && rayMouse) {
-			Ray ray = Camera.main.ScreenPointToRay (Input.mousePosition);
-			RaycastHit hit;
+
 			if (Physics.Raycast (ray, out hit, Mathf.Infinity)) {//rayがあたった先がキャラクターでなければ
 				try{
 					if (hit.collider.gameObject.layer != 9
@@ -72,10 +70,16 @@ public class Instruction : MonoBehaviour
 						&& hit.collider.gameObject.tag != "charabody")
 						clickCharacter (saveChara.transform.FindChild ("TouchCol").gameObject);
 				}catch{
-					clickCharacter (saveChara.transform.FindChild ("TouchCol").gameObject);//afkoajfkasmfmgfdigagmesopotamia
+					foreach(GameObject i in serchBlock.hitAlly){
+						i.GetComponent<Light> ().enabled = false;
+						gameObject.GetComponent<LineRenderer> ().enabled = false;
+						rayMouse = false;
+					}
+					Destroy (GameObject.Find("Empty"));
 				}
 			}
-			if (Physics.Raycast (ray, out hit, Mathf.Infinity, mask.value)) {
+			int mask = (1 << LayerMask.NameToLayer("touchChara"));
+			if (Physics.Raycast (ray, out hit, Mathf.Infinity, mask)) {
 				if (hit.collider.gameObject.transform.parent.gameObject == saveChara)
 					clickCharacter (saveChara.transform.FindChild ("TouchCol").gameObject);
 				else if (hit.collider.gameObject.transform.parent.gameObject.layer == 9 && saveChara.layer == 10
@@ -116,8 +120,7 @@ public class Instruction : MonoBehaviour
 			if (!rayMouse) {
 
 				GameObject cube = GameObject.Find ("SerchBlock(Clone)");
-				Ray ray = Camera.main.ScreenPointToRay (Input.mousePosition);//マウスのポジションにrayを飛ばす
-				RaycastHit hit;
+
 				int layermask = (1 << LayerMask.NameToLayer ("Terrain"));
 
 				if (Physics.Raycast (ray, out hit, Mathf.Infinity, layermask)) {
@@ -151,7 +154,8 @@ public class Instruction : MonoBehaviour
 				gameObject.GetComponent<LineRenderer> ().SetPosition (1, pos);//Lineを飛ばす地点２
 
 			}
-			if (Physics.Raycast (ray, out hit, Mathf.Infinity, mask.value) && area == false) {//rayがキャラクターに当たる
+			int mask = (1 << LayerMask.NameToLayer("touchChara"));
+			if (Physics.Raycast (ray, out hit, Mathf.Infinity, mask) && area == false) {//rayがキャラクターに当たる
 				try {
 					if (saveChara.layer == 10 && hit.collider.gameObject.transform.parent.gameObject.layer == 9
 					    || saveChara.layer == 9 && hit.collider.gameObject.transform.parent.gameObject.layer == 10) {
@@ -169,7 +173,6 @@ public class Instruction : MonoBehaviour
 						}
 					}
 				} catch {
-					yield return null;
 				}
 			}
 			yield return null;
@@ -196,9 +199,6 @@ public class Instruction : MonoBehaviour
 						saveChara.GetComponent<Red> ().tgt.GetComponent<Light> ().enabled = false;
 					}catch{
 					}
-
-					//					foreach (GameObject saveatEnemys in saveChara.GetComponent<Red>().atEnemys) //エネミーに注目する敵(自分)
-					//						saveatEnemys.GetComponent<Light> ().enabled = false;//ライトを消す
 					saveChara.GetComponent<Red>().atEnemys.ForEach(i => i.GetComponent<Light>().enabled = false);
 
 				} else if (saveChara.layer == 10) {
@@ -207,9 +207,6 @@ public class Instruction : MonoBehaviour
 						saveChara.GetComponent<Blue> ().tgt.GetComponent<Light> ().enabled = false;
 					}catch{
 					}
-
-					//					foreach (GameObject saveatEnemys in saveChara.GetComponent<Blue>().atEnemys)
-					//						saveatEnemys.GetComponent<Light> ().enabled = false;
 					saveChara.GetComponent<Blue> ().atEnemys.ForEach (i=> i.GetComponent<Light> ().enabled = false);
 				}
 			}
