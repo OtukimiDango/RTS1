@@ -84,16 +84,16 @@ public class Instruction : MonoBehaviour
 				else if (hit.collider.gameObject.transform.parent.gameObject.layer == 9 && saveChara.layer == 10
 				         || hit.collider.gameObject.transform.parent.gameObject.layer == 10 && saveChara.layer == 9) {
 					GameObject cSerch;
-						cSerch = hit.collider.gameObject.transform.parent.gameObject.GetComponent<Warrior> ().tgt;
+						cSerch = hit.collider.gameObject.transform.parent.gameObject.GetComponent<Soldier> ().tgt;
 
 
 					////////////////////////
-						foreach (GameObject obj in saveChara.GetComponent<Warrior>().atEnemys)
+						foreach (GameObject obj in saveChara.GetComponent<Soldier>().atEnemys)
 							obj.GetComponent<Light> ().color = Color.red;
-						if (hit.collider.gameObject.transform.parent.gameObject != saveChara.GetComponent<Warrior> ().tgt) {
+						if (hit.collider.gameObject.transform.parent.gameObject != saveChara.GetComponent<Soldier> ().tgt) {
 							saveChara.SendMessage ("changeAttack", hit.collider.gameObject.transform.parent.gameObject);
 							hit.collider.gameObject.transform.parent.gameObject.GetComponent<Light> ().color = Color.yellow;
-						} else if (cSerch == saveChara.GetComponent<Warrior> ().tgt)
+						} else if (cSerch == saveChara.GetComponent<Soldier> ().tgt)
 							hit.collider.gameObject.transform.parent.gameObject.GetComponent<Light> ().color = Color.blue;
 					////////////////////////////
 					gameObject.GetComponent<LineRenderer> ().enabled = false;
@@ -148,7 +148,7 @@ public class Instruction : MonoBehaviour
 						//rayが当たったキャラと以前当たったキャラが敵対していたら
 						GameObject cSerch;//rayが当たっとキャラクターのターゲット
 	
-							cSerch = hit.collider.gameObject.transform.parent.gameObject.GetComponent<Warrior> ().tgt;
+							cSerch = hit.collider.gameObject.transform.parent.gameObject.GetComponent<Soldier> ().tgt;
 
 						if (cSerch != saveChara) {
 							hit.collider.gameObject.transform.parent.gameObject.GetComponent<Light> ().enabled = true;//当たったキャラのライトをON
@@ -178,23 +178,23 @@ public class Instruction : MonoBehaviour
 				saveChara.GetComponent<Light> ().enabled = false;//前回のキャラのライトを消す
 
 					try {
-						saveChara.GetComponent<Warrior> ().lightup = false;
-						saveChara.GetComponent<Warrior> ().tgt.GetComponent<Light> ().enabled = false;
+						saveChara.GetComponent<Soldier> ().lightup = false;
+						saveChara.GetComponent<Soldier> ().tgt.GetComponent<Light> ().enabled = false;
 					} catch {
 					}
-					saveChara.GetComponent<Warrior> ().atEnemys.ForEach (i => i.GetComponent<Light> ().enabled = false);
+					saveChara.GetComponent<Soldier> ().atEnemys.ForEach (i => i.GetComponent<Light> ().enabled = false);
 			}
 
 			parent.GetComponent<LineRenderer> ().enabled = !lineFlag;
 			parent.GetComponent<Light> ().enabled = !lineFlag;
 
-				parent.GetComponent<Warrior> ().lightup = !lineFlag;
+				parent.GetComponent<Soldier> ().lightup = !lineFlag;
 				parent.GetComponent<Light> ().color = Color.blue;
-				if (parent.GetComponent<Warrior> ().tgt != null && parent.GetComponent<Warrior> ().tgt != GameObject.Find ("summonRed")) {
+				if (parent.GetComponent<Soldier> ().tgt != null && parent.GetComponent<Soldier> ().tgt != GameObject.Find ("summonRed")) {
 					try {
-						parent.GetComponent<Warrior> ().tgt.GetComponent<Light> ().enabled = !lineFlag;
-						if (parent.GetComponent<Warrior> ().tgt == parent.GetComponent<Warrior> ().attackObj)
-							parent.GetComponent<Warrior> ().tgt.GetComponent<Light> ().color = Color.blue;
+						parent.GetComponent<Soldier> ().tgt.GetComponent<Light> ().enabled = !lineFlag;
+						if (parent.GetComponent<Soldier> ().tgt == parent.GetComponent<Soldier> ().attackObj)
+							parent.GetComponent<Soldier> ().tgt.GetComponent<Light> ().color = Color.blue;
 					} catch {
 					}
 				}
@@ -211,6 +211,6 @@ public class Instruction : MonoBehaviour
 		Playercamera.transform.FindChild ("Main Camera").gameObject.GetComponent<LineRenderer> ().enabled = false;
 		rayMouse = false;
 
-			chara.GetComponent<Warrior> ().atEnemys.ForEach (i => i.GetComponent<Light> ().enabled = false);
+			chara.GetComponent<Soldier> ().atEnemys.ForEach (i => i.GetComponent<Light> ().enabled = false);
 	}
 }

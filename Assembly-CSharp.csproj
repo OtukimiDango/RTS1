@@ -50,9 +50,9 @@
      <Compile Include="Assets\Scripts\EyeCol.cs" />
      <Compile Include="Assets\Scripts\Instruction.cs" />
      <Compile Include="Assets\Scripts\Measure.cs" />
+     <Compile Include="Assets\Scripts\Soldier.cs" />
      <Compile Include="Assets\Scripts\SortingLayer.cs" />
      <Compile Include="Assets\Scripts\UIHP.cs" />
-     <Compile Include="Assets\Scripts\Warrior.cs" />
      <Compile Include="Assets\Scripts\crystal.cs" />
      <Compile Include="Assets\Scripts\nextStage.cs" />
      <Compile Include="Assets\Scripts\selectCharacter.cs" />

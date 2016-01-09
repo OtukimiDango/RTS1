@@ -5,7 +5,7 @@ public class crystal : MonoBehaviour {
 	public int HP;
 	private readonly byte power = 90;
 	public List<GameObject> nearEnemy = new List<GameObject>();
-	public Warrior script;
+	public Soldier script;
 	// Use this for initialization
 	void Start () {
 		HP = 2000;
@@ -49,7 +49,7 @@ public class crystal : MonoBehaviour {
 		}
 	}
 	public void enemyScript(GameObject e){
-		script = e.GetComponent<Warrior> ();
+		script = e.GetComponent<Soldier> ();
 	}
 	public virtual void Death(){
 		Destroy(GameObject.Find (gameObject.name + "hp(Clone)"));

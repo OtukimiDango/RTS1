@@ -2,7 +2,7 @@
 using System.Collections;
 using System.Collections.Generic;
 
-public class Warrior: MonoBehaviour
+public class Soldier: MonoBehaviour
 {
 	public GameObject tgt;
 	//攻撃先s
@@ -12,8 +12,6 @@ public class Warrior: MonoBehaviour
 	//自分のHP
 	public string state;
 	//自分の状態
-	public GameObject frontAlly = null;
-	//前方の味方
 	public static List<GameObject> allys = new List<GameObject> ();
 	//味方のリスト
 	public List<GameObject> atEnemys = new List<GameObject> (), behindAlly = new List<GameObject> ();
@@ -125,7 +123,7 @@ public class Warrior: MonoBehaviour
 
 		switch (need) {
 		case"tgtName":
-			s = team + "FirstCrystal";
+			s = team == "Red"? "BlueFirstCrystal":"RedFirstCrystal";
 			break;
 		case"myName":
 			if (transform.localScale == new Vector3 (6, 6, 6)) {
@@ -178,16 +176,14 @@ public class Warrior: MonoBehaviour
 			return;
 		}
 		if (col.gameObject.layer == LayerMask.NameToLayer (otherName ("myTag", true)) && state != "fight") {
-			Warrior script = col.gameObject.GetComponent<Warrior> ();
+			Soldier script = col.gameObject.GetComponent<Soldier> ();
 			if (script.atEnemys.Count < 3) {
 				script.atEnemys.Add (gameObject);
 				tgt = col.gameObject;
 				attackObj = tgt;
 				state = "fight";
-				try {
-					behindAlly.ForEach (i => i.GetComponent<Warrior> ().detourReady ());
-				} catch {
-				}					
+				behindAlly.ForEach (i => i.GetComponent<Soldier> ().detourReady (gameObject));
+				behindAlly.Clear ();
 				tag = otherName ("myStopTag", false);
 				StartCoroutine (attack (30)); //攻撃
 			}
@@ -197,10 +193,8 @@ public class Warrior: MonoBehaviour
 				tgt = col.gameObject;
 				attackObj = tgt;
 				state = "fight";
-				try {
-					behindAlly.ForEach (i => i.GetComponent<Warrior> ().detourReady ());
-				} catch {
-				}				
+				behindAlly.ForEach (i => i.GetComponent<Soldier> ().detourReady (gameObject));
+				behindAlly.Clear ();
 				tag = otherName ("myStopTag", false);
 				StartCoroutine (attack (30)); //攻撃
 			}
@@ -211,21 +205,25 @@ public class Warrior: MonoBehaviour
 		}
 	}
 
-	public void detourReady ()
+	public void detourReady (GameObject front)
 	{
-		float detourDis = 0f;	
+		float detourDis = 0f;
+		float frScale = front.transform.localScale.x / 2;
+		float myScale = transform.localScale.x / 2;
+		float frPos = front.transform.position.x;
+		float myPos = transform.position.x;
 		try {
 			if (right) {
-				if (frontAlly.transform.position.x <= gameObject.transform.position.x) {
-					detourDis = transform.localScale.x / 2 + (frontAlly.transform.localScale.x / 2 - (transform.position.x - frontAlly.transform.position.x));
+				if (frPos <= myPos) {//自分のほうが右にいる場合
+					detourDis = myScale  + frScale - (myPos - frPos - 3);
 				} else {
-					detourDis = transform.localScale.x / 2 + (frontAlly.transform.localScale.x / 2 + (transform.position.x - frontAlly.transform.position.x));
+					detourDis = myScale  + frScale + (frPos - myPos + 3);
 				}
 			} else {
-				if (frontAlly.transform.position.x <= gameObject.transform.position.x) {
-					detourDis = -transform.localScale.x / 2 + (-frontAlly.transform.localScale.x / 2 + (transform.position.x - frontAlly.transform.position.x));
+				if (frPos <= myPos) {
+					detourDis = -myScale  + -frScale + (frPos - myPos - 3);
 				} else {
-					detourDis = -transform.localScale.x / 2 + (-frontAlly.transform.localScale.x / 2 - (transform.position.x - frontAlly.transform.position.x));
+					detourDis = -myScale  + -frScale + (myPos - frPos - 3);
 
 				}
 			}
@@ -233,18 +231,18 @@ public class Warrior: MonoBehaviour
 			return;
 		}
 		state = "detour";
-		var dy = (frontAlly.transform.position.x + detourDis) - gameObject.transform.position.x;
-		var dx = frontAlly.transform.position.z - gameObject.transform.position.z;
-		radian = Mathf.Atan2 (dy, dx);
+		var dy = (myPos + detourDis) - myPos;
+		var dx = front.transform.position.z - gameObject.transform.position.z;
+		radian = Mathf.Atan2 (detourDis, dx)*Mathf.Rad2Deg;
 		detour (10, radian);//迂回を開始する
 	}
 
 	private void detour (byte speed, float radian)
 	{
 		i += Time.deltaTime;
-		var radi = (radian * Mathf.Rad2Deg) * i;
-		gameObject.transform.eulerAngles = new Vector3 (0, radi, 0);
-		transform.Translate (transform.forward * (tgtDis.z * speed * Time.deltaTime));
+		var rot = transform.rotation;
+		transform.rotation = Quaternion.Slerp(rot,Quaternion.Euler(rot.x,radian,rot.z),i);
+		transform.Translate (transform.forward * (tgtDis.z * 10 * Time.deltaTime));
 		if (i >= 1f) {
 			i = 0;
 			state = "move";
@@ -263,7 +261,7 @@ public class Warrior: MonoBehaviour
 	{
 		while (state == "fight") {
 			try {
-				tgt.GetComponent<Warrior> ().HP -= power;
+				tgt.GetComponent<Soldier> ().HP -= power;
 			} catch {
 				tgt.GetComponent<crystal> ().HP -= power;
 			}
@@ -281,8 +279,7 @@ public class Warrior: MonoBehaviour
 		} catch {
 		}
 		if (tgt.layer == 1<<LayerMask.NameToLayer(otherName("myTag",true)))
-			tgt.GetComponent<Warrior
-> ().atEnemys.Remove (gameObject);
+			tgt.GetComponent<Soldier> ().atEnemys.Remove (gameObject);
 			tgt = obj;
 		if (atEnemys.Find (delegate(GameObject ob) {
 			return ob.name == tgt.name;
@@ -299,24 +296,31 @@ public class Warrior: MonoBehaviour
 	private void Death ()
 	{
 		lightup = false;
-		if (gameObject == Instruction.rayobj)
+		if (gameObject == Instruction.rayobj) {
 			Instruction.rayobj = null;
-		if (tgt.layer == 1<<LayerMask.NameToLayer(otherName("myTag",true)))
-			tgt.GetComponent<Warrior> ().atEnemys.Remove (gameObject);
+		}
+		if (tgt.layer == 1 << LayerMask.NameToLayer (otherName ("myTag", true))) {
+			tgt.GetComponent<Soldier> ().atEnemys.Remove (gameObject);
+		}
 		try {
-			tgt.GetComponent<LineRenderer > ().SetVertexCount (tgt.GetComponent<Warrior> ().atEnemys.Count + 2);
+			tgt.GetComponent<LineRenderer > ().SetVertexCount (tgt.GetComponent<Soldier> ().atEnemys.Count + 2);
 		} catch {
 
 		}
 		Instruction.charaDestroy (gameObject);
 		foreach (GameObject enemy in atEnemys) {//自分を狙っている敵
-			Warrior script = enemy.GetComponent<Warrior> ();//敵のスクリプトを入手
+			try{
+			Soldier script = enemy.GetComponent<Soldier> ();//敵のスクリプトを入手
+				script.atEnemys.Remove(gameObject);
 			if (script.atEnemys.Count == 0) {//敵を狙っている味方がいなければ
 				script.state = "move";//敵の状態をmove
 				script.tgt = GameObject.Find ("summonBlue");//敵のターゲットを自陣に
 				enemy.tag = otherName("myTag",true);//敵のタグを一般に
 			} else
 				script.tgt = script.atEnemys [0];
+			}catch{
+				Debug.Log (gameObject.name+"   "+enemy.name);
+			}
 		}
 		if (Instruction.saveChara == gameObject)
 			Instruction.saveChara = null;

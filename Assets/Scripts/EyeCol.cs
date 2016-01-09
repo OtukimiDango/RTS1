@@ -7,25 +7,24 @@ public class EyeCol : MonoBehaviour {
 
 	void OnTriggerEnter (Collider col)
 	{
-		string mask = col.GetComponent<Warrior>().otherName("myTag",false);
-		string notMask = col.GetComponent<Warrior>().otherName("myTag",true);
-		string stopMask = col.GetComponent<Warrior>().otherName("myStopTag",false);
-
-		if (gameObject.transform.parent.CompareTag (mask) && col.gameObject.layer == LayerMask.NameToLayer (notMask)) {
+		string mask = col.transform.parent.GetComponent<Soldier>().otherName("myTag",false);
+//		string notMask = col.GetComponent<Soldier>().otherName("myTag",true);
+		string stopMask = col.transform.parent.GetComponent<Soldier>().otherName("myStopTag",false);
+		if (gameObject.transform.parent.CompareTag (mask) && col.gameObject.layer == 8 && col.gameObject.transform.parent.gameObject.layer == LayerMask.NameToLayer(mask)) {
 			Debug.Log (col.gameObject);
 			if (col.gameObject.transform.parent.CompareTag (stopMask)) {
-				gameObject.transform.parent.GetComponent<Warrior> ().frontAlly = col.gameObject;
-				gameObject.transform.parent.GetComponent<Warrior> ().detourReady ();
+				gameObject.transform.parent.GetComponent<Soldier> ().detourReady (col.gameObject.transform.parent.gameObject);
+				Debug.Log (gameObject.transform.parent.name+" send from"+col.gameObject.transform.name);
 			} else if (col.gameObject.transform.parent.CompareTag (mask)) {
-				gameObject.transform.parent.GetComponent<Warrior> ().frontAlly = col.gameObject;
-				col.gameObject.transform.parent.GetComponent<Warrior> ().behindAlly.Add (gameObject.transform.parent.gameObject);
+				col.gameObject.transform.parent.GetComponent<Soldier> ().behindAlly.Add (gameObject.transform.parent.gameObject);
+				Debug.Log (gameObject.transform.parent.name+" send from"+col.gameObject.transform.name);
 			}
 		}
 	}
 	void OnTriggerExit(Collider col){
 		if (col.gameObject.layer == gameObject.transform.parent.gameObject.layer) {
 
-				col.gameObject.GetComponent<Warrior> ().behindAlly.Remove (gameObject.transform.parent.gameObject);
+				col.gameObject.GetComponent<Soldier> ().behindAlly.Remove (gameObject.transform.parent.gameObject);
 		}
 	}
 }
