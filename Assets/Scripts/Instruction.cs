@@ -29,7 +29,7 @@ public class Instruction : MonoBehaviour
 		RaycastHit hit;
 
 		if (Input.GetMouseButtonDown (0) && !rayMouse) {
-			
+
 			int layermask = (1 << LayerMask.NameToLayer ("Terrain"));
 			if (Physics.Raycast (ray, out hit, Mathf.Infinity, layermask)) {
 				squadPos1 = hit.point;
@@ -38,7 +38,7 @@ public class Instruction : MonoBehaviour
 			}
 		}
 		if (Input.GetMouseButtonUp (0) && !rayMouse) {//クリックしたときLine展開中でなければ
-			
+
 			int layermask = (1 << LayerMask.NameToLayer ("Terrain"));
 
 			if (Physics.Raycast (ray, out hit, Mathf.Infinity, layermask)) {
@@ -62,22 +62,30 @@ public class Instruction : MonoBehaviour
 				clickCharacter (hit.collider.gameObject.transform.parent.gameObject);//Method実
 			}
 		} else if (Input.GetMouseButtonUp (0) && rayMouse) {
-
-			if (Physics.Raycast (ray, out hit, Mathf.Infinity)) {//rayがあたった先がキャラクターでなければ
+			int maskTerrain = (1 << LayerMask.NameToLayer ("Terrain"));
+			if (Physics.Raycast (ray, out hit, Mathf.Infinity,maskTerrain)) {//rayがあたった先がキャラクターでなければ
 				try {
-					float tryPos = GameObject.Find ("Empty").transform.position.x;
+					Vector3 pos = GameObject.Find("Empty").transform.position;//emptyがない場合エラー
+					float ang = Mathf.Atan2(hit.point.x - pos.x,hit.point.z - pos.z)*Mathf.Rad2Deg;
+					Vector3 dis = Soldier.distance(hit.point,pos);
+					foreach(GameObject ob in serchBlock.hitAlly){
+						Soldier script = ob.GetComponent<Soldier>();
+						ob.transform.rotation = GameObject.Find("Empty").transform.rotation;
+						ob.transform.rotation = Quaternion.Slerp(transform.rotation,Quaternion.Euler(0,ang,0),1);
+						script.StopAllCoroutines();
+						script.StartCoroutine(script.move(dis,false));
+
+					}
 					Destroy (GameObject.Find ("Empty"));
+
 					foreach (GameObject i in serchBlock.hitAlly) {
 						i.GetComponent<Light> ().enabled = false;
 						gameObject.GetComponent<LineRenderer> ().enabled = false;
 						rayMouse = false;
 					}
+
 				} catch {
-					if (hit.collider.gameObject.layer != 9
-					    && hit.collider.gameObject.layer != 10
-					    && hit.collider.gameObject.tag != "charabody")
-						clickCharacter (saveChara);
-					//選択を取り消し
+						clickCharacter (saveChara);//選択を取り消し
 				}
 			}
 			int mask = (1 << LayerMask.NameToLayer ("touchChara"));
@@ -85,7 +93,7 @@ public class Instruction : MonoBehaviour
 				if (hit.collider.gameObject.transform.parent.gameObject == saveChara)
 					clickCharacter (saveChara);
 				else if (hit.collider.gameObject.transform.parent.gameObject.layer == 9 && saveChara.layer == 10
-				         || hit.collider.gameObject.transform.parent.gameObject.layer == 10 && saveChara.layer == 9) {
+					|| hit.collider.gameObject.transform.parent.gameObject.layer == 10 && saveChara.layer == 9) {
 					GameObject cSerch;
 					cSerch = hit.collider.gameObject.transform.parent.gameObject.GetComponent<Soldier> ().tgt;
 
@@ -136,7 +144,7 @@ public class Instruction : MonoBehaviour
 			int layermask = (1 << LayerMask.NameToLayer ("Terrain"));
 			if (Physics.Raycast (ray, out hit, Mathf.Infinity, layermask)) {//Rayがヒットしたら
 				if (hit.collider.gameObject != rayobj && rayobj != null) //ヒットしたオブジェクトが前回のオブジェクと出なければ　
-				rayobj.GetComponent<Light> ().enabled = false;//前回ヒットしたオブジェクトのライトをオフにする
+					rayobj.GetComponent<Light> ().enabled = false;//前回ヒットしたオブジェクトのライトをオフにする
 
 				var pos = new Vector3 (hit.point.x, 3, hit.point.z);
 				gameObject.GetComponent<LineRenderer> ().SetPosition (0, lineObj.transform.position);//Lineを飛ばす地点１
@@ -147,10 +155,10 @@ public class Instruction : MonoBehaviour
 			if (Physics.Raycast (ray, out hit, Mathf.Infinity, mask) && area == false) {//rayがキャラクターに当たる
 				try {
 					if (saveChara.layer == 10 && hit.collider.gameObject.transform.parent.gameObject.layer == 9
-					    || saveChara.layer == 9 && hit.collider.gameObject.transform.parent.gameObject.layer == 10) {
+						|| saveChara.layer == 9 && hit.collider.gameObject.transform.parent.gameObject.layer == 10) {
 						//rayが当たったキャラと以前当たったキャラが敵対していたら
 						GameObject cSerch;//rayが当たっとキャラクターのターゲット
-	
+
 						cSerch = hit.collider.gameObject.transform.parent.gameObject.GetComponent<Soldier> ().tgt;
 
 						if (cSerch != saveChara) {
@@ -208,7 +216,7 @@ public class Instruction : MonoBehaviour
 			} catch {
 			}
 		}
-					
+
 		saveChara = chara;
 	}
 

@@ -13,7 +13,7 @@ public class EyeCol : MonoBehaviour {
 		if (gameObject.transform.parent.CompareTag (mask) && col.gameObject.layer == 8 && col.gameObject.transform.parent.gameObject.layer == LayerMask.NameToLayer(mask)) {
 			Debug.Log (col.gameObject);
 			if (col.gameObject.transform.parent.CompareTag (stopMask)) {
-				gameObject.transform.parent.GetComponent<Soldier> ().detourReady (col.gameObject.transform.parent.gameObject);
+				gameObject.transform.parent.GetComponent<Soldier> ().keepAway (col.gameObject.transform.parent.gameObject,10);
 				Debug.Log (gameObject.transform.parent.name+" send from"+col.gameObject.transform.name);
 			} else if (col.gameObject.transform.parent.CompareTag (mask)) {
 				col.gameObject.transform.parent.GetComponent<Soldier> ().behindAlly.Add (gameObject.transform.parent.gameObject);
