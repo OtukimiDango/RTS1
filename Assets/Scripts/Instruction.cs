@@ -17,7 +17,7 @@ public class Instruction : MonoBehaviour
 	void Start ()
 	{
 		rayobj = GameObject.Find ("summonRed");
-		saveChara = GameObject.Find ("RedSoldier0");
+		saveChara = GameObject.Find ("RedWarrior0");
 		mouseState = "normal";
 		Playercamera = gameObject.transform.parent.gameObject;
 
@@ -48,7 +48,8 @@ public class Instruction : MonoBehaviour
 					Empty.allys = serchBlock.hitAlly;
 					GameObject ob = new GameObject ("Empty");
 					ob.AddComponent<Empty> ();
-					StartCoroutine (firstRay (true, ob));
+					clickCharacter (ob);
+					StartCoroutine (firstLine (true, ob));
 					serchBlock.hitAlly.ForEach (i => i.GetComponent<Light> ().enabled = true);//対象全てを光らせる。LightComponent仕様変更時に要変更
 					Destroy (GameObject.Find ("SerchBlock(Clone)"));
 
@@ -58,43 +59,45 @@ public class Instruction : MonoBehaviour
 			}
 			int mask = (1 << LayerMask.NameToLayer ("touchChara"));
 			if (Physics.Raycast (ray, out hit, Mathf.Infinity, mask)) {//Rayがキャラクターに当たると
-				clickCharacter (hit.collider.gameObject);//Method実
+				clickCharacter (hit.collider.gameObject.transform.parent.gameObject);//Method実
 			}
 		} else if (Input.GetMouseButtonUp (0) && rayMouse) {
 
 			if (Physics.Raycast (ray, out hit, Mathf.Infinity)) {//rayがあたった先がキャラクターでなければ
 				try {
-					if (hit.collider.gameObject.layer != 9
-					    && hit.collider.gameObject.layer != 10
-					    && hit.collider.gameObject.tag != "charabody")
-						clickCharacter (saveChara.transform.FindChild ("TouchCol").gameObject);
-				} catch {
+					float tryPos = GameObject.Find ("Empty").transform.position.x;
+					Destroy (GameObject.Find ("Empty"));
 					foreach (GameObject i in serchBlock.hitAlly) {
 						i.GetComponent<Light> ().enabled = false;
 						gameObject.GetComponent<LineRenderer> ().enabled = false;
 						rayMouse = false;
 					}
-					Destroy (GameObject.Find ("Empty"));
+				} catch {
+					if (hit.collider.gameObject.layer != 9
+					    && hit.collider.gameObject.layer != 10
+					    && hit.collider.gameObject.tag != "charabody")
+						clickCharacter (saveChara);
+					//選択を取り消し
 				}
 			}
 			int mask = (1 << LayerMask.NameToLayer ("touchChara"));
 			if (Physics.Raycast (ray, out hit, Mathf.Infinity, mask)) {
 				if (hit.collider.gameObject.transform.parent.gameObject == saveChara)
-					clickCharacter (saveChara.transform.FindChild ("TouchCol").gameObject);
+					clickCharacter (saveChara);
 				else if (hit.collider.gameObject.transform.parent.gameObject.layer == 9 && saveChara.layer == 10
 				         || hit.collider.gameObject.transform.parent.gameObject.layer == 10 && saveChara.layer == 9) {
 					GameObject cSerch;
-						cSerch = hit.collider.gameObject.transform.parent.gameObject.GetComponent<Soldier> ().tgt;
+					cSerch = hit.collider.gameObject.transform.parent.gameObject.GetComponent<Soldier> ().tgt;
 
 
 					////////////////////////
-						foreach (GameObject obj in saveChara.GetComponent<Soldier>().atEnemys)
-							obj.GetComponent<Light> ().color = Color.red;
-						if (hit.collider.gameObject.transform.parent.gameObject != saveChara.GetComponent<Soldier> ().tgt) {
-							saveChara.SendMessage ("changeAttack", hit.collider.gameObject.transform.parent.gameObject);
-							hit.collider.gameObject.transform.parent.gameObject.GetComponent<Light> ().color = Color.yellow;
-						} else if (cSerch == saveChara.GetComponent<Soldier> ().tgt)
-							hit.collider.gameObject.transform.parent.gameObject.GetComponent<Light> ().color = Color.blue;
+					foreach (GameObject obj in saveChara.GetComponent<Soldier>().atEnemys)
+						obj.GetComponent<Light> ().color = Soldier.color(obj.GetComponent<Soldier>().Name("myTag",true));//敵対色
+					if (hit.collider.gameObject.transform.parent.gameObject != saveChara.GetComponent<Soldier> ().tgt) {
+						saveChara.SendMessage ("changeAttack", hit.collider.gameObject.transform.parent.gameObject);
+						hit.collider.gameObject.transform.parent.gameObject.GetComponent<Light> ().color = Color.yellow;
+					} else if (cSerch == saveChara.GetComponent<Soldier> ().tgt)
+						hit.collider.gameObject.transform.parent.gameObject.GetComponent<Light> ().color = Soldier.color(hit.collider.transform.parent.GetComponent<Soldier>().Name("myTag",true));//戦闘色
 					////////////////////////////
 					gameObject.GetComponent<LineRenderer> ().enabled = false;
 					rayMouse = false;
@@ -125,7 +128,7 @@ public class Instruction : MonoBehaviour
 
 	}
 
-	public IEnumerator firstRay (bool area, GameObject lineObj)
+	public IEnumerator firstLine (bool area, GameObject lineObj)
 	{
 		while (rayMouse) {
 			Ray ray = Camera.main.ScreenPointToRay (Input.mousePosition);//毎フレーム画面にRayを飛ばす
@@ -148,7 +151,7 @@ public class Instruction : MonoBehaviour
 						//rayが当たったキャラと以前当たったキャラが敵対していたら
 						GameObject cSerch;//rayが当たっとキャラクターのターゲット
 	
-							cSerch = hit.collider.gameObject.transform.parent.gameObject.GetComponent<Soldier> ().tgt;
+						cSerch = hit.collider.gameObject.transform.parent.gameObject.GetComponent<Soldier> ().tgt;
 
 						if (cSerch != saveChara) {
 							hit.collider.gameObject.transform.parent.gameObject.GetComponent<Light> ().enabled = true;//当たったキャラのライトをON
@@ -163,44 +166,50 @@ public class Instruction : MonoBehaviour
 		}
 	}
 
-	private void clickCharacter (GameObject clickChara)
+	private void clickCharacter (GameObject chara)
 	{
-		GameObject parent = clickChara.transform.parent.gameObject;//クリックしたオブジェクトの親オブジェクト
-		if (parent.gameObject.layer == 10 || parent.gameObject.layer == 9) { //上記オブジェクトがキャラクターであるならば
-			bool lineFlag = parent.GetComponent<LineRenderer> ().enabled;//クリックしたオブジェクトのラインのbool
-			gameObject.GetComponent<LineRenderer> ().enabled = !lineFlag;//上記変数を反転した値をenableに代入
-			rayMouse = !lineFlag;//上記同様
-			if (rayMouse) {
-				StartCoroutine (firstRay (false, clickChara));
-			}
-			if (saveChara != null) {//前回クリックしたキャラがいれば
-				saveChara.GetComponent<LineRenderer> ().enabled = false;//前回のキャラのラインを消す
-				saveChara.GetComponent<Light> ().enabled = false;//前回のキャラのライトを消す
-
-					try {
-						saveChara.GetComponent<Soldier> ().lightup = false;
-						saveChara.GetComponent<Soldier> ().tgt.GetComponent<Light> ().enabled = false;
-					} catch {
-					}
-					saveChara.GetComponent<Soldier> ().atEnemys.ForEach (i => i.GetComponent<Light> ().enabled = false);
-			}
-
-			parent.GetComponent<LineRenderer> ().enabled = !lineFlag;
-			parent.GetComponent<Light> ().enabled = !lineFlag;
-
-				parent.GetComponent<Soldier> ().lightup = !lineFlag;
-				parent.GetComponent<Light> ().color = Color.blue;
-				if (parent.GetComponent<Soldier> ().tgt != null && parent.GetComponent<Soldier> ().tgt != GameObject.Find ("summonRed")) {
-					try {
-						parent.GetComponent<Soldier> ().tgt.GetComponent<Light> ().enabled = !lineFlag;
-						if (parent.GetComponent<Soldier> ().tgt == parent.GetComponent<Soldier> ().attackObj)
-							parent.GetComponent<Soldier> ().tgt.GetComponent<Light> ().color = Color.blue;
-					} catch {
-					}
-				}
-					
-			saveChara = parent;
+		if(chara.name == "Empty"){
+			saveChara = chara;
+			return;
 		}
+		Soldier script = chara.GetComponent<Soldier> ();
+
+		bool lineFlag = chara.GetComponent<LineRenderer> ().enabled;//クリックしたオブジェクトのラインのbool
+		gameObject.GetComponent<LineRenderer> ().enabled = !lineFlag;//上記変数を反転した値をenableに代入
+		rayMouse = !lineFlag;//反転した値をenableに代入
+
+
+		if (rayMouse && script.Name ("myTag", false) == "Player") {//クリックしたのがプレイヤー側なら
+			StartCoroutine (firstLine (false, chara));//tgt指定Line表示
+		}
+
+		if (saveChara != null && saveChara.name != "Empty") {//前回クリックしたキャラがいれば
+			Soldier S_script = saveChara.GetComponent<Soldier> ();
+			saveChara.GetComponent<LineRenderer> ().enabled = false;//前回のキャラのラインを消す
+			saveChara.GetComponent<Light> ().enabled = false;//前回のキャラのライトを消す
+
+			try {
+				S_script.lightup = false;
+				S_script.tgt.GetComponent<Light> ().enabled = false;
+			} catch {
+			}
+			S_script.atEnemys.ForEach (i => i.GetComponent<Light> ().enabled = false);
+		}
+		chara.GetComponent<LineRenderer> ().enabled = !lineFlag;
+		chara.GetComponent<Light> ().enabled = !lineFlag;
+		script.lightup = !lineFlag;
+		chara.GetComponent<Light> ().color = Soldier.color(script.Name("myTag",false));
+
+		if (script.tgt != null && script.tgt != GameObject.Find(script.Name("tgtName",false))) {
+			try {
+				script.tgt.GetComponent<Light> ().enabled = !lineFlag;
+				if (script.tgt == script.attackObj)
+					script.tgt.GetComponent<Light> ().color = Soldier.color(script.Name("myTag",false));
+			} catch {
+			}
+		}
+					
+		saveChara = chara;
 	}
 
 	public static void charaDestroy (GameObject chara)
@@ -211,6 +220,6 @@ public class Instruction : MonoBehaviour
 		Playercamera.transform.FindChild ("Main Camera").gameObject.GetComponent<LineRenderer> ().enabled = false;
 		rayMouse = false;
 
-			chara.GetComponent<Soldier> ().atEnemys.ForEach (i => i.GetComponent<Light> ().enabled = false);
+		chara.GetComponent<Soldier> ().atEnemys.ForEach (i => i.GetComponent<Light> ().enabled = false);
 	}
 }

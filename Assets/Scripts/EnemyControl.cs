@@ -15,14 +15,14 @@ public class EnemyControl : MonoBehaviour
 	private	static 	Transform spawnPoint;
 	public	static 	IEnumerator coroutine;
 	public static 	List<GameObject> AllEnemy = new List<GameObject> ();
-	public static	List<GameObject> AllySoldier = new List<GameObject> ();
+	public static	List<GameObject> AllyWarrior = new List<GameObject> ();
 	public static	List<GameObject> AllyWitch = new List<GameObject> ();
 	public static 	List<GameObject> AllyGuard = new List<GameObject> ();
 	public static	Queue<int> RecordCount = new Queue<int> ();
-	public static	List<GameObject> EnemySoldier = new List<GameObject> ();
+	public static	List<GameObject> EnemyWarrior = new List<GameObject> ();
 	public static	List<GameObject> EnemyWitch = new List<GameObject> ();
 	public static 	List<GameObject> EnemyGuard = new List<GameObject> ();
-	private	static	string	summonState = "NeedSoldier";
+	private	static	string	summonState = "NeedWarrior";
 	private static byte level = 1;
 	// Use this for initialization
 	void Start ()
@@ -62,8 +62,8 @@ public class EnemyControl : MonoBehaviour
 		hpbar.transform.position = Camera.main.WorldToScreenPoint (summonPosition);
 
 		switch (s) {
-		case ("RedSoldier"):
-			AllySoldier.Add (sa);
+		case ("RedWarrior"):
+			AllyWarrior.Add (sa);
 			break;
 		case ("RedWitch"):
 			AllyWitch.Add (sa);
@@ -109,14 +109,14 @@ public class EnemyControl : MonoBehaviour
 		while (true) {
 			yield return new WaitForSeconds (level);//状況に応じてサボる
 
-			int soldier = AllySoldier.Count;
+			int warrior = AllyWarrior.Count;
 			int witch = AllyWitch.Count;
 			int guard = AllyGuard.Count;
-			int ans = Mathf.Min (soldier, witch);
+			int ans = Mathf.Min (warrior, witch);
 			int ans2 = Mathf.Min (ans, guard);
 
-			if (ans2 == soldier) {
-				summonState = "NeedSoldier";
+			if (ans2 == warrior) {
+				summonState = "NeedWarrior";
 			} else if (ans2 == witch) {
 				summonState = "NeedWitch";
 			} else if (ans2 == guard) {
@@ -124,7 +124,7 @@ public class EnemyControl : MonoBehaviour
 			}
 
 			AllEnemy.Clear ();
-			EnemySoldier.Clear ();
+			EnemyWarrior.Clear ();
 			EnemyWitch.Clear ();
 			EnemyGuard.Clear ();
 
@@ -134,7 +134,7 @@ public class EnemyControl : MonoBehaviour
 			foreach (GameObject ec in AllEnemy) {
 				switch ((int)ec.transform.localScale.x) {
 				case(6):
-					EnemySoldier.Add (ec);
+					EnemyWarrior.Add (ec);
 					break;
 				case(8):
 					EnemyGuard.Add (ec);
@@ -153,10 +153,10 @@ public class EnemyControl : MonoBehaviour
 				}
 			}//上昇率が120%以上になるとレベル上昇して召喚間隔と思考回転間隔が短くなる
 			try{
-				if(AllyGuard.Count+AllyWitch.Count+AllySoldier.Count>AllEnemy.Count	&& AllyGuard.Count+AllyWitch.Count+AllySoldier.Count/AllEnemy.Count >= 1.2f){
+				if(AllyGuard.Count+AllyWitch.Count+AllyWarrior.Count>AllEnemy.Count	&& AllyGuard.Count+AllyWitch.Count+AllyWarrior.Count/AllEnemy.Count >= 1.2f){
 				level = 4;
 				}//自分の味方の数が敵の数より1.2倍なら召喚しない
-				else if(AllyGuard.Count+AllyWitch.Count+AllySoldier.Count<AllEnemy.Count	&& AllEnemy.Count/AllyGuard.Count+AllyWitch.Count+AllySoldier.Count >= 1.5f){
+				else if(AllyGuard.Count+AllyWitch.Count+AllyWarrior.Count<AllEnemy.Count	&& AllEnemy.Count/AllyGuard.Count+AllyWitch.Count+AllyWarrior.Count >= 1.5f){
 					level = 1;
 				}
 			}catch{
@@ -169,9 +169,9 @@ public class EnemyControl : MonoBehaviour
 	{
 		while (true) {
 			if (level != 4) {
-				if (summonState == "NeedSoldier") {
-					if (summonActivater && sp > 9 && AllySoldier.Count < 10) {
-						StartCoroutine (summonServant ("RedSoldier", 5, 1f));
+				if (summonState == "NeedWarrior") {
+					if (summonActivater && sp > 9 && AllyWarrior.Count < 10) {
+						StartCoroutine (summonServant ("RedWarrior", 5, 1f));
 					}
 				} else if (summonState == "NeedWitch") {
 					if (summonActivater && sp > 9 && AllyWitch.Count < 10) {

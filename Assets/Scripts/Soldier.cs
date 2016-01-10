@@ -28,13 +28,13 @@ public class Soldier: MonoBehaviour
 	void Start ()
 	{
 		linerende = GetComponent<LineRenderer> ();//LineRendererコンポーネントを変数に
-		tgt = GameObject.Find (otherName ("tgtName", false));//移動先!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+		tgt = GameObject.Find (Name ("tgtName", false));//移動先!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 		if (transform.localScale == new Vector3 (6, 6, 6))
-			gameObject.name = (otherName ("myName", false)); //名前に味方召喚数の変数を付随させる
+			gameObject.name = (Name ("myName", false)); //名前に味方召喚数の変数を付随させる
 		 else if (transform.localScale == new Vector3 (10, 10, 10))
-			gameObject.name = (otherName ("myName", false)); //名前に味方召喚数の変数を付随させる
+			gameObject.name = (Name ("myName", false)); //名前に味方召喚数の変数を付随させる
 		else if (transform.localScale == new Vector3 (8, 8, 8))
-			gameObject.name = (otherName ("myName", false)); //名前に味方召喚数の変数を付随させる
+			gameObject.name = (Name ("myName", false)); //名前に味方召喚数の変数を付随させる
 		tgtDis = distance (tgt.transform.position, gameObject.transform.position);//移動先の座標と自分の座標の差分を図り、変数にいれる
 		tgtDis = tgtDis.normalized;
 		state = "move";//初期状態を移動にする
@@ -52,11 +52,11 @@ public class Soldier: MonoBehaviour
 			try {
 				transform.LookAt (tgt.transform);//移動先に注目
 			} catch {
-				tgt = GameObject.Find (otherName ("tgtName", false));
+				tgt = GameObject.Find (Name ("tgtName", false));
 			}
 			transform.position = new Vector3 (transform.position.x + (tgtDis.x * 10 * Time.deltaTime),
-				transform.position.y,
-				transform.position.z + (tgtDis.z * 50 * Time.deltaTime));
+												transform.position.y,
+												transform.position.z + (tgtDis.z * 10 * Time.deltaTime));
 			break;
 		case "detour"://迂回であれば
 			detour (10, radian);
@@ -65,7 +65,7 @@ public class Soldier: MonoBehaviour
 			try {
 				transform.LookAt (tgt.transform);//敵に注目
 			} catch {
-				tgt = GameObject.Find (otherName ("tgtName", false));
+				tgt = GameObject.Find (Name ("tgtName", false));
 				state = "move";
 			}
 			break;
@@ -84,19 +84,20 @@ public class Soldier: MonoBehaviour
 					tgt.GetComponent<Light> ().enabled = true;
 				if (attackObj != tgt && tgt.GetComponent<Light> ().color != Color.yellow) {
 					tgt.GetComponent<Light> ().color = Color.yellow;
-				} else if (attackObj == tgt && tgt.GetComponent<Light> ().color == Color.red && atEnemys.Count == 0) {
-					tgt.GetComponent<Light> ().color = Color.blue;
+				} else if (attackObj == tgt && tgt.GetComponent<Light> ().color == color(Name("myTag",true))  && atEnemys.Count == 0) {
+					tgt.GetComponent<Light> ().color = color(Name("myTag",false));
 				}
 			} catch {
 			}
-			if (gameObject.GetComponent<Light> ().color != Color.blue)
-				gameObject.GetComponent<Light> ().color = Color.blue;
+			if (gameObject.GetComponent<Light> ().color != color(Name("myTag",false)))
+				gameObject.GetComponent<Light> ().color = color(Name("myTag",false));
 			for (int i = 0; i < atEnemys.Count; i++) {
 				if (atEnemys [i].GetComponent<Light> ().enabled == false) {
 					atEnemys [i].GetComponent<Light> ().enabled = true;
-					atEnemys [i].GetComponent<Light> ().color = Color.red;
-					if (atEnemys [i].name == tgt.name)
-						atEnemys [i].GetComponent<Light> ().color = Color.blue;
+					atEnemys [i].GetComponent<Light> ().color = color(Name("myTag",true));
+					if (atEnemys [i].name == tgt.name) {
+						atEnemys [i].GetComponent<Light> ().color = color(Name("myTag",false));
+					}
 				}
 				linerende.SetVertexCount (2 + ((i + 1) * 2));
 				linerende.SetPosition (2 + ((i + 1) * 2 - 2), transform.position);
@@ -105,7 +106,17 @@ public class Soldier: MonoBehaviour
 		}
 	}
 
-	public string otherName (string need, bool not)
+	public static Color color(string name){
+		Color c;
+		if (name == "Player") {
+			c = Color.blue;
+		} else {
+			c = Color.red;
+		}
+		return c;
+	}
+
+	public string Name (string need, bool not)
 	{
 		
 		int mask = LayerMask.NameToLayer ("Enemy");
@@ -122,12 +133,12 @@ public class Soldier: MonoBehaviour
 		}
 
 		switch (need) {
-		case"tgtName":
+		case"tgtName"://※※※※※※※※※※※進行状況によって対象を変化させる必要あり※※※※※※※※※※※※※※※※
 			s = team == "Red"? "BlueFirstCrystal":"RedFirstCrystal";
 			break;
 		case"myName":
 			if (transform.localScale == new Vector3 (6, 6, 6)) {
-				s = team + "Soldier" + teamCount;
+				s = team + "Warrior" + teamCount;
 			} else if (transform.localScale == new Vector3 (10, 10, 10)) {
 				s = team + "Witch" + teamCount;
 			} else if (transform.localScale == new Vector3 (8, 8, 8)) {
@@ -169,13 +180,13 @@ public class Soldier: MonoBehaviour
 	void OnTriggerEnter (Collider col)
 	{
 		try {
-			if (tgt.layer == LayerMask.NameToLayer (otherName ("myTag", true)) && tgt != col.gameObject) {
+			if (tgt.layer == LayerMask.NameToLayer (Name ("myTag", true)) && tgt != col.gameObject) {
 				return;
 			}
 		} catch {
 			return;
 		}
-		if (col.gameObject.layer == LayerMask.NameToLayer (otherName ("myTag", true)) && state != "fight") {
+		if (col.gameObject.layer == LayerMask.NameToLayer (Name ("myTag", true)) && state != "fight") {
 			Soldier script = col.gameObject.GetComponent<Soldier> ();
 			if (script.atEnemys.Count < 3) {
 				script.atEnemys.Add (gameObject);
@@ -184,23 +195,23 @@ public class Soldier: MonoBehaviour
 				state = "fight";
 				behindAlly.ForEach (i => i.GetComponent<Soldier> ().detourReady (gameObject));
 				behindAlly.Clear ();
-				tag = otherName ("myStopTag", false);
+				tag = Name ("myStopTag", false);
 				StartCoroutine (attack (30)); //攻撃
 			}
-		} else if (col.gameObject.layer == LayerMask.NameToLayer (otherName ("tgtLayer", false)) || col.gameObject.layer == 1 << 2 + LayerMask.NameToLayer (otherName ("tgtLayer", false))) {
+		} else if (col.gameObject.layer == LayerMask.NameToLayer (Name ("tgtLayer", false)) || col.gameObject.layer == 1 << 2 + LayerMask.NameToLayer (Name ("tgtLayer", false))) {
 
-			if (gameObject.CompareTag (otherName ("myTag", false)) && state != "fight") {
+			if (gameObject.CompareTag (Name ("myTag", false)) && state != "fight") {
 				tgt = col.gameObject;
 				attackObj = tgt;
 				state = "fight";
 				behindAlly.ForEach (i => i.GetComponent<Soldier> ().detourReady (gameObject));
 				behindAlly.Clear ();
-				tag = otherName ("myStopTag", false);
+				tag = Name ("myStopTag", false);
 				StartCoroutine (attack (30)); //攻撃
 			}
 		}
 		if (col.gameObject == tgt) {
-			col.gameObject.GetComponent<Light> ().color = Color.blue;
+			col.gameObject.GetComponent<Light> ().color = color(Name("myTag",false));
 	
 		}
 	}
@@ -246,7 +257,7 @@ public class Soldier: MonoBehaviour
 		if (i >= 1f) {
 			i = 0;
 			state = "move";
-			gameObject.tag = otherName ("myTag", false);
+			gameObject.tag = Name ("myTag", false);
 		}
 	}
 
@@ -278,7 +289,7 @@ public class Soldier: MonoBehaviour
 				tgt.GetComponent<Light> ().enabled = false;
 		} catch {
 		}
-		if (tgt.layer == 1<<LayerMask.NameToLayer(otherName("myTag",true)))
+		if (tgt.layer == 1<<LayerMask.NameToLayer(Name("myTag",true)))
 			tgt.GetComponent<Soldier> ().atEnemys.Remove (gameObject);
 			tgt = obj;
 		if (atEnemys.Find (delegate(GameObject ob) {
@@ -287,7 +298,7 @@ public class Soldier: MonoBehaviour
 			attackObj = tgt;
 		else {
 			state = "move";
-			tag = otherName ("myTag", false);
+			tag = Name ("myTag", false);
 		}
 		tgtDis = distance (tgt.transform.position, gameObject.transform.position);
 		tgtDis = tgtDis.normalized;
@@ -299,7 +310,7 @@ public class Soldier: MonoBehaviour
 		if (gameObject == Instruction.rayobj) {
 			Instruction.rayobj = null;
 		}
-		if (tgt.layer == 1 << LayerMask.NameToLayer (otherName ("myTag", true))) {
+		if (tgt.layer == 1 << LayerMask.NameToLayer (Name ("myTag", true))) {
 			tgt.GetComponent<Soldier> ().atEnemys.Remove (gameObject);
 		}
 		try {
@@ -315,7 +326,7 @@ public class Soldier: MonoBehaviour
 			if (script.atEnemys.Count == 0) {//敵を狙っている味方がいなければ
 				script.state = "move";//敵の状態をmove
 				script.tgt = GameObject.Find ("summonBlue");//敵のターゲットを自陣に
-				enemy.tag = otherName("myTag",true);//敵のタグを一般に
+				enemy.tag = Name("myTag",true);//敵のタグを一般に
 			} else
 				script.tgt = script.atEnemys [0];
 			}catch{

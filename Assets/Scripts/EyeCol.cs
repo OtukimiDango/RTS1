@@ -7,9 +7,9 @@ public class EyeCol : MonoBehaviour {
 
 	void OnTriggerEnter (Collider col)
 	{
-		string mask = col.transform.parent.GetComponent<Soldier>().otherName("myTag",false);
+		string mask = col.transform.parent.GetComponent<Soldier>().Name("myTag",false);
 //		string notMask = col.GetComponent<Soldier>().otherName("myTag",true);
-		string stopMask = col.transform.parent.GetComponent<Soldier>().otherName("myStopTag",false);
+		string stopMask = col.transform.parent.GetComponent<Soldier>().Name("myStopTag",false);
 		if (gameObject.transform.parent.CompareTag (mask) && col.gameObject.layer == 8 && col.gameObject.transform.parent.gameObject.layer == LayerMask.NameToLayer(mask)) {
 			Debug.Log (col.gameObject);
 			if (col.gameObject.transform.parent.CompareTag (stopMask)) {

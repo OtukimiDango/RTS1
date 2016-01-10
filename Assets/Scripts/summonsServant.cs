@@ -27,7 +27,7 @@ public class summonsServant : MonoBehaviour {
 	// Update is called once per frame
 	void Update () {
 		if(Input.GetKeyDown(KeyCode.Alpha1) && summonSpace && sp > 9 && soldierCount < 10){
-			StartCoroutine(summonServant("BlueSoldier",10,1f));
+			StartCoroutine(summonServant("BlueWarrior",10,1f));
 			soldierCount++;
 		}
 		if(Input.GetKeyDown(KeyCode.Alpha2) && summonSpace && sp > 19 && witchCount < 10){
