@@ -8,7 +8,7 @@ public class EnemyControl : MonoBehaviour
 
 	private	bool	summonActivater = true;
 
-	public	static	int sp = 50;
+	public	static	int sp = 500;
 
 	public	sbyte	UpSp = 1;
 

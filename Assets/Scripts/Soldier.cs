@@ -16,7 +16,6 @@ public class Soldier: MonoBehaviour
 	//迂回時の方向
 	public bool lightup = false;
 	public GameObject attackObj;
-	float radian = 1f, i = 0;
 
 
 	void Start ()
@@ -103,9 +102,7 @@ public class Soldier: MonoBehaviour
 		
 		float remDis = Mathf.Abs (dis.x) + Mathf.Abs (dis.z);
 		dis = dis.normalized;
-		Debug.Log (remDis);
 		while (remDis > 0 && state == "move") {
-			
 			if (auto) {
 				try {
 					transform.LookAt (tgt.transform);//移動先に注目
@@ -120,7 +117,7 @@ public class Soldier: MonoBehaviour
 			gameObject.transform.position = new Vector3 (transform.position.x + speedX, transform.position.y, transform.position.z + speedZ);
 			remDis -= Mathf.Abs (speedX) + Mathf.Abs (speedZ);
 			if (remDis < 1) {
-				tgt = GameObject.Find (Name("tgtName",false));
+				tgt = GameObject.Find (Name ("tgtName", false));
 				changeAttack (tgt);
 			}
 			yield return null;
@@ -224,7 +221,8 @@ public class Soldier: MonoBehaviour
 				tgt = col.gameObject;
 				attackObj = tgt;
 				state = "fight";
-				behindAlly.ForEach (i => i.GetComponent<Soldier> ().keepAway (gameObject,10));
+				//behindAlly.ForEach (i=> i.GetComponent<Soldier>().StopAllCoroutines());
+				behindAlly.ForEach (i => i.GetComponent<Soldier> ().StartCoroutine( i.GetComponent<Soldier>().keepAway (gameObject,10)));
 				behindAlly.Clear ();
 				tag = Name ("myStopTag", false);
 				StartCoroutine (attack (30)); //攻撃
@@ -235,7 +233,8 @@ public class Soldier: MonoBehaviour
 				tgt = col.gameObject;
 				attackObj = tgt;
 				state = "fight";
-				behindAlly.ForEach (i => i.GetComponent<Soldier> ().keepAway (gameObject,10));
+				//behindAlly.ForEach (i=> i.GetComponent<Soldier>().StopAllCoroutines());
+				behindAlly.ForEach (i => i.GetComponent<Soldier> ().StartCoroutine( i.GetComponent<Soldier>().keepAway (gameObject,10)));
 				behindAlly.Clear ();
 				tag = Name ("myStopTag", false);
 				StartCoroutine (attack (30)); //攻撃
@@ -250,7 +249,7 @@ public class Soldier: MonoBehaviour
 	//====================================================================================
 	//避けるメソッド
 	//====================================================================================
-	public void keepAway (GameObject front,int speed)
+	public IEnumerator keepAway (GameObject front,int speed)
 	{
 		float detourDis = 0f;
 		float frScale = front.transform.localScale.x / 2;
@@ -280,23 +279,29 @@ public class Soldier: MonoBehaviour
 		//z軸とx軸の二点から角度を求める　Y/Z
 		//____________________________________________________________________________________
 		state = "detour";
-		var dx = front.transform.position.z - gameObject.transform.position.z;
-		radian = Mathf.Atan2 (detourDis, dx) * Mathf.Rad2Deg;
+		float dx = front.transform.position.z - gameObject.transform.position.z;
+		float radian = Mathf.Atan2 (detourDis, dx) * Mathf.Rad2Deg;
+		Vector3 dis = distance (front.transform.position,transform.position);
+		dis = dis.normalized;
 
 		//____________________________________________________________________________________
 		//避ける
 		//____________________________________________________________________________________
-		for (float a = 0; a<1; a+= Time.deltaTime) {//回転する
-			transform.rotation = Quaternion.Slerp (rot, Quaternion.Euler (rot.x, radian, rot.z), i);
-			transform.Translate (transform.forward * (distance (tgt.transform.position, gameObject.transform.position).z * speed * Time.deltaTime));
-
+		for(float t = 0;t<1;t+=Time.deltaTime){
+			if(transform.position.x>307||
+				transform.position.x < 207){
+				yield break;
+			}
+			transform.rotation = Quaternion.Slerp (rot, Quaternion.Euler (rot.x, radian, rot.z), t);
+			transform.Translate (transform.forward *(dis.z * speed * Time.deltaTime));
+			yield return null;
 		}
 		//____________________________________________________________________________________
 		//避け終わったら状態を移動中にする
 		//____________________________________________________________________________________
 		state = "move";
-		StartCoroutine (move (distance (tgt.transform.position, gameObject.transform.position), true));
 		gameObject.tag = Name ("myTag", false);
+		changeAttack(GameObject.Find( Name ("tgtName", false)));
 	}
 
 	public static Vector3 distance (Vector3 target, Vector3 me)
@@ -338,13 +343,13 @@ public class Soldier: MonoBehaviour
 		tgt = obj;
 		if (atEnemys.Find (delegate(GameObject ob) {
 			return ob.name == tgt.name;
-		}))
+		})){
 			attackObj = tgt;//Atenemyだけでなく、TriggerEnter中も探す必要あり
-		else {
+		}else {
 			state = "move";
 			tag = Name ("myTag", false);
-			StopAllCoroutines ();
-			StartCoroutine(move (tgt.transform.position,true));
+			//StopAllCoroutines ();
+			StartCoroutine(move (distance(tgt.transform.position,transform.position),true));
 		}
 	}
 
