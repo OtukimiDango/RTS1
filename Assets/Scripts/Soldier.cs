@@ -99,7 +99,6 @@ public class Soldier: MonoBehaviour
 	//====================================================================================
 	public IEnumerator move (Vector3 dis, bool auto)
 	{
-		
 		float remDis = Mathf.Abs (dis.x) + Mathf.Abs (dis.z);
 		dis = dis.normalized;
 		while (remDis > 0 && state == "move") {
@@ -117,8 +116,7 @@ public class Soldier: MonoBehaviour
 			gameObject.transform.position = new Vector3 (transform.position.x + speedX, transform.position.y, transform.position.z + speedZ);
 			remDis -= Mathf.Abs (speedX) + Mathf.Abs (speedZ);
 			if (remDis < 1) {
-				tgt = GameObject.Find (Name ("tgtName", false));
-				changeAttack (tgt);
+					changeAttack (tgt);
 			}
 			yield return null;
 		}
@@ -348,7 +346,7 @@ public class Soldier: MonoBehaviour
 		}else {
 			state = "move";
 			tag = Name ("myTag", false);
-			//StopAllCoroutines ();
+			StopAllCoroutines ();
 			StartCoroutine(move (distance(tgt.transform.position,transform.position),true));
 		}
 	}
@@ -358,12 +356,12 @@ public class Soldier: MonoBehaviour
 	//====================================================================================
 	private void Death ()
 	{
-		lightup = false;
+		lightup = false;//光を消す
 		if (gameObject == Instruction.rayobj) {
-			Instruction.rayobj = null;
+			Instruction.rayobj = null;//選択取り消し
 		}
-		if (tgt.layer == 1 << LayerMask.NameToLayer (Name ("myTag", true))) {
-			tgt.GetComponent<Soldier> ().atEnemys.Remove (gameObject);
+		if (tgt.layer == LayerMask.NameToLayer (Name ("myTag", true))) {
+			tgt.GetComponent<Soldier> ().atEnemys.Remove (gameObject);//敵のリストから自分を消す
 		}
 		try {
 			tgt.GetComponent<LineRenderer > ().SetVertexCount (tgt.GetComponent<Soldier> ().atEnemys.Count + 2);
@@ -383,7 +381,6 @@ public class Soldier: MonoBehaviour
 				} else
 					script.tgt = script.atEnemys [0];
 			} catch {
-				Debug.Log (gameObject.name + "   " + enemy.name);
 			}
 		}
 		if (Instruction.saveChara == gameObject)
