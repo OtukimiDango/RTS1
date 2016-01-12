@@ -1,0 +1,23 @@
+Microsoft Visual Studio Solution File, Format Version 11.00
+# Visual Studio 2008
+
+Project("{26450634-A31D-1878-9E03-B0CD022BD690}") = "CrystalServant", "Assembly-CSharp.csproj", "{26CFD1EF-75F2-5538-5E09-7050290C1C6F}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{26CFD1EF-75F2-5538-5E09-7050290C1C6F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{26CFD1EF-75F2-5538-5E09-7050290C1C6F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{26CFD1EF-75F2-5538-5E09-7050290C1C6F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{26CFD1EF-75F2-5538-5E09-7050290C1C6F}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(MonoDevelopProperties) = preSolution
+		StartupItem = Assembly-CSharp.csproj
+	EndGlobalSection
+EndGlobal
