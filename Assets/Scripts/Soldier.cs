@@ -41,12 +41,7 @@ public class Soldier: MonoBehaviour
 	void Update ()
 	{
 		switch (state) {//自分の状態を要素としswitch文
-		case "move"://移動中であれば
-			
-			break;
-		case "detour"://迂回であれば
-			//keepAway (10, radian);//※※※※※※※※※※※※※※※※※※※※※※※※※※※※※
-			break;
+
 		case "fight"://戦闘中であれば
 			try {
 				transform.LookAt (tgt.transform);//敵に注目
@@ -90,6 +85,9 @@ public class Soldier: MonoBehaviour
 				linerende.SetVertexCount (2 + ((i + 1) * 2));
 				linerende.SetPosition (2 + ((i + 1) * 2 - 2), transform.position);
 				linerende.SetPosition (2 + ((i + 1) * 2 - 1), atEnemys [i].transform.position);
+				//i=1 4,2,3
+				//i=2 6,4,5
+				//i=3 8,6,7
 			}
 		}
 	}
@@ -99,6 +97,7 @@ public class Soldier: MonoBehaviour
 	//====================================================================================
 	public IEnumerator move (Vector3 dis, bool auto)
 	{
+		
 		float remDis = Mathf.Abs (dis.x) + Mathf.Abs (dis.z);
 		dis = dis.normalized;
 		while (remDis > 0 && state == "move") {
@@ -116,7 +115,8 @@ public class Soldier: MonoBehaviour
 			gameObject.transform.position = new Vector3 (transform.position.x + speedX, transform.position.y, transform.position.z + speedZ);
 			remDis -= Mathf.Abs (speedX) + Mathf.Abs (speedZ);
 			if (remDis < 1) {
-					changeAttack (tgt);
+				tgt = GameObject.Find (Name ("tgtName", false));
+				changeAttack (tgt);
 			}
 			yield return null;
 		}
@@ -205,33 +205,31 @@ public class Soldier: MonoBehaviour
 	//====================================================================================
 	void OnTriggerEnter (Collider col)
 	{
-		try {
 			if (tgt.layer == LayerMask.NameToLayer (Name ("myTag", true)) && tgt != col.gameObject) {
+				//プレイヤーの指示による攻撃対象とは違うオブジェクトであればreturn
 				return;
 			}
-		} catch {
-			return;
-		}
 		if (col.gameObject.layer == LayerMask.NameToLayer (Name ("myTag", true)) && state != "fight") {
+			//移動中にぶつかったら
 			Soldier script = col.gameObject.GetComponent<Soldier> ();
 			if (script.atEnemys.Count < 3) {
-				script.atEnemys.Add (gameObject);
-				tgt = col.gameObject;
-				attackObj = tgt;
-				state = "fight";
-				//behindAlly.ForEach (i=> i.GetComponent<Soldier>().StopAllCoroutines());
+				//敵を狙う味方の数が３人未満であれば
+				script.atEnemys.Add (gameObject);//自分を敵のリストに追加
+				tgt = col.gameObject;//攻撃対象に選択
+				attackObj = tgt;//攻撃開始対象
+				state = "fight";//状態を攻撃中に変更
 				behindAlly.ForEach (i => i.GetComponent<Soldier> ().StartCoroutine( i.GetComponent<Soldier>().keepAway (gameObject,10)));
-				behindAlly.Clear ();
-				tag = Name ("myStopTag", false);
-				StartCoroutine (attack (30)); //攻撃
+				//自分の背後にいる味方をKeepAwaYさせる
+				behindAlly.Clear ();//背後のリストを真っ白にする
+				tag = Name ("myStopTag", false);//自分のタグを停止中にする
+				StartCoroutine (attack (30)); //威力３０で攻撃開始
 			}
-		} else if (col.gameObject.layer == LayerMask.NameToLayer (Name ("tgtLayer", false)) || col.gameObject.layer == 1 << 2 + LayerMask.NameToLayer (Name ("tgtLayer", false))) {
-
+		} else if (col.gameObject.layer == LayerMask.NameToLayer (Name ("tgtLayer", false)) || col.gameObject.layer == 2 + LayerMask.NameToLayer (Name ("tgtLayer", false))) {
+			//タワーにぶつかったら
 			if (gameObject.CompareTag (Name ("myTag", false)) && state != "fight") {
 				tgt = col.gameObject;
 				attackObj = tgt;
 				state = "fight";
-				//behindAlly.ForEach (i=> i.GetComponent<Soldier>().StopAllCoroutines());
 				behindAlly.ForEach (i => i.GetComponent<Soldier> ().StartCoroutine( i.GetComponent<Soldier>().keepAway (gameObject,10)));
 				behindAlly.Clear ();
 				tag = Name ("myStopTag", false);
@@ -239,6 +237,7 @@ public class Soldier: MonoBehaviour
 			}
 		}
 		if (col.gameObject == tgt) {
+			//衝突対象が攻撃対象であればに攻撃対象色
 			col.gameObject.GetComponent<Light> ().color = color (Name ("myTag", false));
 	
 		}
@@ -288,6 +287,15 @@ public class Soldier: MonoBehaviour
 		for(float t = 0;t<1;t+=Time.deltaTime){
 			if(transform.position.x>307||
 				transform.position.x < 207){
+				transform.LookAt (tgt.transform);
+				RaycastHit hit;
+				if(Physics.Raycast( transform.position,Vector3.forward,out hit, 10 ))
+				{
+					tag = Name("myStopTag",false);
+					Debug.Log ("try stop...");
+					goto EndCoroutine;
+					Debug.Log ("miss");
+				}
 				yield break;
 			}
 			transform.rotation = Quaternion.Slerp (rot, Quaternion.Euler (rot.x, radian, rot.z), t);
@@ -300,6 +308,7 @@ public class Soldier: MonoBehaviour
 		state = "move";
 		gameObject.tag = Name ("myTag", false);
 		changeAttack(GameObject.Find( Name ("tgtName", false)));
+		EndCoroutine:;
 	}
 
 	public static Vector3 distance (Vector3 target, Vector3 me)
@@ -356,12 +365,12 @@ public class Soldier: MonoBehaviour
 	//====================================================================================
 	private void Death ()
 	{
-		lightup = false;//光を消す
+		lightup = false;
 		if (gameObject == Instruction.rayobj) {
-			Instruction.rayobj = null;//選択取り消し
+			Instruction.rayobj = null;
 		}
 		if (tgt.layer == LayerMask.NameToLayer (Name ("myTag", true))) {
-			tgt.GetComponent<Soldier> ().atEnemys.Remove (gameObject);//敵のリストから自分を消す
+			tgt.GetComponent<Soldier> ().atEnemys.Remove (gameObject);
 		}
 		try {
 			tgt.GetComponent<LineRenderer > ().SetVertexCount (tgt.GetComponent<Soldier> ().atEnemys.Count + 2);
