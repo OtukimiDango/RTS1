@@ -47,9 +47,8 @@ public class Soldier: MonoBehaviour
 				transform.LookAt (tgt.transform);//敵に注目
 			} catch {
 				tgt = GameObject.Find (Name ("tgtName", false));
-				state = "move";
-				StartCoroutine (move (distance (tgt.transform.position, gameObject.transform.position), true));
-			}
+				changeAttack (tgt);
+				}
 			break;
 		default :
 			break;
@@ -345,6 +344,12 @@ public class Soldier: MonoBehaviour
 		source = gameObject.GetComponent<AudioSource>();
 		source.clip = ready;
 		source.Play ();
+		try{
+			GameObject m = gameObject.transform.FindChild("Magic").gameObject;
+			m.GetComponent<SpriteRenderer>().enabled = true;
+		}catch{
+
+		}
 		while (state == "fight") {
 			yield return new WaitForSeconds (3);
 			try {
@@ -380,6 +385,12 @@ public class Soldier: MonoBehaviour
 			state = "move";
 			tag = Name ("myTag", false);
 			StopAllCoroutines ();
+			try{
+				GameObject m = gameObject.transform.FindChild("Magic").gameObject;
+				m.GetComponent<SpriteRenderer>().enabled = false;
+			}catch{
+
+			}
 			StartCoroutine(move (distance(tgt.transform.position,transform.position),true));
 		}
 	}
@@ -406,10 +417,8 @@ public class Soldier: MonoBehaviour
 				Soldier script = enemy.GetComponent<Soldier> ();//敵のスクリプトを入手
 				script.atEnemys.Remove (gameObject);
 				if (script.atEnemys.Count == 0) {//敵を狙っている味方がいなければ
-					script.state = "move";//敵の状態をmove
 					script.tgt = GameObject.Find (Name("tgtName",true));//敵のターゲットを自陣に
-					script.StartCoroutine (script.move (distance (script.tgt.transform.position, script.gameObject.transform.position), true));
-					enemy.tag = Name ("myTag", true);//敵のタグを一般に
+					script.changeAttack(script.tgt);
 				} else
 					script.tgt = script.atEnemys [0];
 			} catch {

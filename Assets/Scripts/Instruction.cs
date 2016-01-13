@@ -34,6 +34,7 @@ public class Instruction : MonoBehaviour
 			if (Physics.Raycast (ray, out hit, Mathf.Infinity, layermask)) {
 				squadPos1 = hit.point;
 				serchBlock.hitAlly.Clear ();
+				Empty.allys.Clear ();
 				Instantiate ((GameObject)Resources.Load ("SerchBlock"), hit.point, Quaternion.identity);
 			}
 		}

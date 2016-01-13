@@ -5,9 +5,11 @@ using System.Collections.Generic;
 public class serchBlock : MonoBehaviour {
 	public static List<GameObject> hitAlly = new List<GameObject> ();
 	void OnTriggerEnter(Collider col){
-		hitAlly.Add (col.gameObject);
+		if(col.gameObject.transform.parent.gameObject.layer == 10)
+			hitAlly.Add (col.gameObject.transform.parent.gameObject);
 	}
 	void OnTriggerExit(Collider col){
-		hitAlly.Remove (col.gameObject);
+		if(col.transform.parent.gameObject.layer == 10)
+			hitAlly.Remove (col.transform.parent.gameObject);
 	}
 }
