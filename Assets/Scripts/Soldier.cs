@@ -16,20 +16,17 @@ public class Soldier: MonoBehaviour
 	//迂回時の方向
 	public bool lightup = false;
 	public GameObject attackObj;
-	public AudioClip audioclip;
-	public AudioSource source;
+
+	private AudioClip hit;
+	private AudioClip ready;
 
 
 	void Start ()
 	{
+		
 
 		tgt = GameObject.Find (Name ("tgtName", false));//移動先!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-		if (transform.localScale == new Vector3 (6, 6, 6))
-			gameObject.name = (Name ("myName", false)); //名前に味方召喚数の変数を付随させる
-		 else if (transform.localScale == new Vector3 (10, 10, 10))
-			gameObject.name = (Name ("myName", false)); //名前に味方召喚数の変数を付随させる
-		else if (transform.localScale == new Vector3 (8, 8, 8))
-			gameObject.name = (Name ("myName", false)); //名前に味方召喚数の変数を付随させる
+		gameObject.name = (Name ("myName", false)); //名前に味方召喚数の変数を付随させる
 		state = "move";//初期状態を移動にする
 		StartCoroutine (move (distance (tgt.transform.position, gameObject.transform.position), true));
 		HP = 200;//初期体力は200
@@ -169,10 +166,16 @@ public class Soldier: MonoBehaviour
 		case"myName":
 			if (transform.localScale == new Vector3 (6, 6, 6)) {
 				s = team + "Warrior" + teamCount;
+				hit = (AudioClip)Resources.Load("Sound/W_hit");
+				ready = (AudioClip)Resources.Load("Sound/W_ready");
 			} else if (transform.localScale == new Vector3 (10, 10, 10)) {
 				s = team + "Witch" + teamCount;
+				hit = (AudioClip)Resources.Load("Sound/W_hit");
+				ready = (AudioClip)Resources.Load("Sound/Wi_ready");
 			} else if (transform.localScale == new Vector3 (8, 8, 8)) {
 				s = team + "Guard" + teamCount;
+				hit = (AudioClip)Resources.Load("Sound/W_hit");
+				ready = (AudioClip)Resources.Load("Sound/Wi_ready");
 			}
 			break;
 		case"myTag":
@@ -340,18 +343,19 @@ public class Soldier: MonoBehaviour
 	{
 		AudioSource source;
 		source = gameObject.GetComponent<AudioSource>();
-		source.clip = audioclip;
-
+		source.clip = ready;
+		source.Play ();
 		while (state == "fight") {
+			yield return new WaitForSeconds (3);
 			try {
 				tgt.GetComponent<Soldier> ().HP -= power;
 			} catch {
 				tgt.GetComponent<crystal> ().HP -= power;
 			}
+			source.clip = hit;
 			source.Play ();
 			GameObject myHPBar = GameObject.Find (tgt.name + ("hp(Clone)"));
 			myHPBar.transform.localScale -= new Vector3 (0.15f, 0, 0);
-			yield return new WaitForSeconds (3);
 		}
 	}
 
@@ -419,4 +423,5 @@ public class Soldier: MonoBehaviour
 		Destroy (gameObject);
 
 	}
+
 }

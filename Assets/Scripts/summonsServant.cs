@@ -46,6 +46,11 @@ public class summonsServant : MonoBehaviour {
 		}
 	}
 	private IEnumerator summonServant(string s, int cost,float hpPlus){
+		
+		AudioSource[] source;
+		source =  GameObject.Find("Main Camera").GetComponents<AudioSource> ();
+		source[1].clip = (AudioClip)Resources.Load ("Sound/summon");
+
 		sp -= cost;//spからコストを引く
 		summonSpace = false;//召喚不可能にする
 		servantCount++;//召喚したサーヴァントの数をプラス
@@ -54,6 +59,7 @@ public class summonsServant : MonoBehaviour {
 		Vector3 summonPosition = spawnPoint.position;//召喚時の初期座標を変数に入れる
 		summonPosition.y = summonPosition.y + servant.transform.localScale.y/2;//初期座標y軸に召喚するオブジェクトの半径をプラス
 		Instantiate((GameObject)Resources.Load ("Servents/" + s),summonPosition,spawnPoint.rotation);//召喚
+		source[1].Play();
 		servant.name = (s+servantCount);//召喚するオブジェクトを召喚数を付随させた名前にする
 
 		GameObject hp = (GameObject)Resources.Load ("HPbar");//召喚したオブジェクトに付随させるHPを変数に入れる
