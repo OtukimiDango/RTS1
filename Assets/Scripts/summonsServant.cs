@@ -5,12 +5,13 @@ using UnityEngine.UI;
 
 public class summonsServant : MonoBehaviour {
 	public static int servantCount  = 0;
-
-	private bool summonSpace = true;
-
 	public static int sp = 500;
 
+	public static bool summonSpace = true;
+
 	public sbyte UpSp = 1;
+
+	private static DateTime startTime = DateTime.Now;
 
 	private static sbyte soldierCount = 0;
 	private static sbyte witchCount = 0;
@@ -46,13 +47,12 @@ public class summonsServant : MonoBehaviour {
 		}
 	}
 	private IEnumerator summonServant(string s, int cost,float hpPlus){
-		
+		summonSpace = false;
 		AudioSource[] source;
 		source =  GameObject.Find("Main Camera").GetComponents<AudioSource> ();
 		source[1].clip = (AudioClip)Resources.Load ("Sound/summon");
 
 		sp -= cost;//spからコストを引く
-		summonSpace = false;//召喚不可能にする
 		servantCount++;//召喚したサーヴァントの数をプラス
 		coroutine.MoveNext ();
 		GameObject servant = (GameObject)Resources.Load ("Servents/" + s);//召喚するオブジェクトを変数に入れる
@@ -70,13 +70,14 @@ public class summonsServant : MonoBehaviour {
 		hpbar.transform.position = Camera.main.WorldToScreenPoint(summonPosition);
 
 		yield return new WaitForSeconds(1);//2秒待つ
-		summonSpace = true;//召喚可能にする
+		summonSpace = true;
 
 	}
 	void OnGUI() {
 		GUI.Label (new Rect (0, 0, 100, 30), "sp : "+sp);
 		GUI.Label (new Rect (100, 0, 100, 30), "Servants : " + servantCount);
-		GUI.Label(new Rect(200,0,100,30),"Time : "+(int)Time.time);
+		GUI.Label(new Rect(200,0,100,30),(int)((TimeSpan)(DateTime.Now - startTime)).TotalMinutes+":"+
+			(int)((TimeSpan)(DateTime.Now - startTime)).TotalSeconds%60);
 	}
 	private IEnumerator gameTime(){
 		yield return new WaitForSeconds (30);//３０秒待つ

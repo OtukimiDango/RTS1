@@ -12,7 +12,7 @@ public class Soldier: MonoBehaviour
 	//自分の状態
 	public List<GameObject> atEnemys = new List<GameObject> (), behindAlly = new List<GameObject> ();
 	//自分に攻撃してる敵のリスト
-	private bool right;
+	private bool dir;
 	//迂回時の方向
 	public bool lightup = false;
 	public GameObject attackObj;
@@ -30,7 +30,7 @@ public class Soldier: MonoBehaviour
 		state = "move";//初期状態を移動にする
 		StartCoroutine (move (distance (tgt.transform.position, gameObject.transform.position), true));
 		HP = 200;//初期体力は200
-		right = Random.value > 0.5f ? true : false;//迂回時の左右方向を50%で分けてる
+		dir = Random.value > 0.5f ? true : false;//迂回時の左右方向を50%で分けてる
 		UIHP.targets.Add (gameObject.transform);//召喚したオブジェクトをHP表示するオブジェクトのリストに入れる
 
 	}
@@ -266,6 +266,14 @@ public class Soldier: MonoBehaviour
 	//====================================================================================
 	public IEnumerator keepAway (GameObject front,int speed)
 	{
+
+		RaycastHit hit;
+		if(Physics.Raycast( transform.position,dir?Vector3.right:Vector3.left,out hit, transform.localScale.x/2 + 5 ))
+		{
+			tag = Name("myStopTag",false);
+			yield break;
+		}
+
 		float detourDis = 0f;
 		float frScale = front.transform.localScale.x / 2;
 		float myScale = transform.localScale.x / 2;
@@ -276,7 +284,7 @@ public class Soldier: MonoBehaviour
 		//====================================================================================
 		//避ける先
 		//====================================================================================
-			if (right) {//右に避ける
+			if (dir) {//右に避ける
 				if (frPos <= myPos) {//自分のほうが右にいる場合
 					detourDis = myScale + frScale - (myPos - frPos - 3);
 				} else {
@@ -306,7 +314,7 @@ public class Soldier: MonoBehaviour
 			if(transform.position.x>307||
 				transform.position.x < 207){
 				transform.LookAt (tgt.transform);
-				RaycastHit hit;
+
 				if(Physics.Raycast( transform.position,Vector3.forward,out hit, 10 ))
 				{
 					tag = Name("myStopTag",false);
