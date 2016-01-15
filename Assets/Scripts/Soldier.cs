@@ -264,17 +264,24 @@ public class Soldier: MonoBehaviour
 	//====================================================================================
 	//避けるメソッド
 	//====================================================================================
+	/// <summary>
+	/// Keeps the away.ベジェ曲線
+	/// </summary>
+	/// <returns>The away.</returns>
+	/// <param name="front">Front.</param>
+	/// <param name="speed">Speed.</param>
 	public IEnumerator keepAway (GameObject front,int speed)
 	{
 
 		RaycastHit hit;
+
 		if(Physics.Raycast( transform.position,dir?Vector3.right:Vector3.left,out hit, transform.localScale.x/2 + 5 ))
 		{
 			tag = Name("myStopTag",false);
 			yield break;
 		}
 
-		float detourDis = 0f;
+		float AwayDis = 0f;
 		float frScale = front.transform.localScale.x / 2;
 		float myScale = transform.localScale.x / 2;
 		float frPos = front.transform.position.x;
@@ -286,15 +293,15 @@ public class Soldier: MonoBehaviour
 		//====================================================================================
 			if (dir) {//右に避ける
 				if (frPos <= myPos) {//自分のほうが右にいる場合
-					detourDis = myScale + frScale - (myPos - frPos - 3);
+					AwayDis = myScale + frScale - (myPos - frPos - 3);
 				} else {
-					detourDis = myScale + frScale + (frPos - myPos + 3);
+					AwayDis = myScale + frScale + (frPos - myPos + 3);
 				}
 			} else {//左に避ける
 				if (frPos <= myPos) {//自分のほうが左にいる場合
-					detourDis = -myScale + -frScale + (frPos - myPos - 3);
+					AwayDis = -myScale + -frScale + (frPos - myPos - 3);
 				} else {
-					detourDis = -myScale + -frScale + (myPos - frPos - 3);
+					AwayDis = -myScale + -frScale + (myPos - frPos - 3);
 
 				}
 			}
@@ -302,15 +309,11 @@ public class Soldier: MonoBehaviour
 		//z軸とx軸の二点から角度を求める　Y/Z
 		//____________________________________________________________________________________
 		state = "detour";
-		float dx = front.transform.position.z - gameObject.transform.position.z;
-		float radian = Mathf.Atan2 (detourDis, dx) * Mathf.Rad2Deg;
-		Vector3 dis = distance (front.transform.position,transform.position);
-		dis = dis.normalized;
-
+		Vector3 p = transform.position;
 		//____________________________________________________________________________________
 		//避ける
 		//____________________________________________________________________________________
-		for(float t = 0;t<1;t+=Time.deltaTime){
+		for(float t = 0;t<1;t+=Time.deltaTime){//速度に対応して変更する必要あり
 			if(transform.position.x>307||
 				transform.position.x < 207){
 				transform.LookAt (tgt.transform);
@@ -318,12 +321,13 @@ public class Soldier: MonoBehaviour
 				if(Physics.Raycast( transform.position,Vector3.forward,out hit, 10 ))
 				{
 					tag = Name("myStopTag",false);
-					goto EndCoroutine;
+					goto EndCoroutine;//要考察
 				}
-				yield break;
-			}
-			transform.rotation = Quaternion.Slerp (rot, Quaternion.Euler (rot.x, radian, rot.z), t);
-			transform.Translate (transform.forward *(dis.z * speed * Time.deltaTime));
+				break;
+			}//ベジェ曲線 一個前のバージョンはGithub参照
+			transform.position = new Vector3((1-t)*(1-t)*p.x + 2*(1-t)*t*frPos+ t*t*(p.x+AwayDis)
+											,transform.position.y
+											,(1-t)*(1-t)*p.z + 2*(1-t)*t*front.transform.position.z + t*t*front.transform.position.z);
 			yield return null;
 		}
 		//____________________________________________________________________________________
