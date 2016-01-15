@@ -11,8 +11,6 @@ public class summonsServant : MonoBehaviour {
 
 	public sbyte UpSp = 1;
 
-	private static DateTime startTime = DateTime.Now;
-
 	private static sbyte soldierCount = 0;
 	private static sbyte witchCount = 0;
 	private static sbyte guardCount = 0;
@@ -76,8 +74,6 @@ public class summonsServant : MonoBehaviour {
 	void OnGUI() {
 		GUI.Label (new Rect (0, 0, 100, 30), "sp : "+sp);
 		GUI.Label (new Rect (100, 0, 100, 30), "Servants : " + servantCount);
-		GUI.Label(new Rect(200,0,100,30),(int)((TimeSpan)(DateTime.Now - startTime)).TotalMinutes+":"+
-			(int)((TimeSpan)(DateTime.Now - startTime)).TotalSeconds%60);
 	}
 	private IEnumerator gameTime(){
 		yield return new WaitForSeconds (30);//３０秒待つ
