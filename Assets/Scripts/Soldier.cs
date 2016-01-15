@@ -57,7 +57,7 @@ public class Soldier: MonoBehaviour
 			Death ();//HPがゼロになっていたら死亡
 		}
 		
-		if (lightup) {
+		if (lightup) {//コルーチンにすべし
 			LineRenderer linerende = GetComponent<LineRenderer> ();//LineRendererコンポーネントを変数に
 			linerende.SetPosition (0, transform.position);
 			linerende.SetPosition (1, tgt.transform.position);
@@ -151,7 +151,7 @@ public class Soldier: MonoBehaviour
 			teamCount = EnemyControl.servantCount;
 		} else { 
 			team = "Blue";
-			teamCount = summonsServant.servantCount;
+			teamCount = GameManager.servantCount;
 		}
 
 		switch (need) {
@@ -436,7 +436,7 @@ public class Soldier: MonoBehaviour
 			Instruction.saveChara = null;
 		UIHP.targets.Remove (gameObject.transform);
 		Destroy (GameObject.Find (gameObject.name + "hp(Clone)"));
-		summonsServant.sp += 10;
+		GameManager.sp += 10;
 		Destroy (gameObject);
 
 	}
