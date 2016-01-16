@@ -19,12 +19,13 @@ public class Soldier: MonoBehaviour
 
 	private AudioClip hit;
 	private AudioClip ready;
+	private AudioSource source; 
 
 
 	void Start ()
 	{
 		
-
+		source = gameObject.GetComponent<AudioSource>();
 		tgt = GameObject.Find (Name ("tgtName", false));//移動先!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 		gameObject.name = (Name ("myName", false)); //名前に味方召喚数の変数を付随させる
 		state = "move";//初期状態を移動にする
@@ -167,14 +168,18 @@ public class Soldier: MonoBehaviour
 				s = team + "Warrior" + teamCount;
 				hit = (AudioClip)Resources.Load("Sound/W_hit");
 				ready = (AudioClip)Resources.Load("Sound/W_ready");
-			} else if (transform.localScale == new Vector3 (10, 10, 10)) {
+				source.clip = ready;
+				source.Play ();
+			} else if (transform.localScale == new Vector3 (6.05f, 6.05f, 6.05f)) {
 				s = team + "Witch" + teamCount;
 				hit = (AudioClip)Resources.Load("Sound/W_hit");
 				ready = (AudioClip)Resources.Load("Sound/Wi_ready");
-			} else if (transform.localScale == new Vector3 (8, 8, 8)) {
+			} else if (transform.localScale == new Vector3 (6.1f, 6.1f, 6.1f)) {
 				s = team + "Guard" + teamCount;
 				hit = (AudioClip)Resources.Load("Sound/W_hit");
-				ready = (AudioClip)Resources.Load("Sound/Wi_ready");
+				ready = (AudioClip)Resources.Load("Sound/W_ready");
+				source.clip = ready;
+				source.Play ();
 			}
 			break;
 		case"myTag":
@@ -275,10 +280,15 @@ public class Soldier: MonoBehaviour
 
 		RaycastHit hit;
 
-		if(Physics.Raycast( transform.position,dir?Vector3.right:Vector3.left,out hit, transform.localScale.x/2 + 5 ))
+		if(Physics.Raycast	(transform.position,dir?Vector3.right:Vector3.left,out hit, transform.localScale.x/2 + (dir?5:-5)))
 		{
-			tag = Name("myStopTag",false);
-			yield break;
+			if (Physics.Raycast (transform.position, dir?Vector3.left:Vector3.right, out hit, transform.localScale.x/2 + (dir?-5:5))) {
+
+				tag = Name ("myStopTag", false);
+				yield break;
+			} else {
+				dir = !dir;
+			}
 		}
 
 		float AwayDis = 0f;
@@ -291,9 +301,9 @@ public class Soldier: MonoBehaviour
 		//====================================================================================
 			if (dir) {//右に避ける
 				if (frPos <= myPos) {//自分のほうが右にいる場合
-					AwayDis = myScale + frScale - (myPos - frPos - 3);
+					AwayDis = myScale + frScale - (myPos - frPos - 2);
 				} else {
-					AwayDis = myScale + frScale + (frPos - myPos + 3);
+					AwayDis = myScale + frScale + (frPos - myPos + 2);
 				}
 			} else {//左に避ける
 				if (frPos <= myPos) {//自分のほうが左にいる場合
@@ -311,21 +321,25 @@ public class Soldier: MonoBehaviour
 		//____________________________________________________________________________________
 		//避ける
 		//____________________________________________________________________________________
-		for(float t = 0;t<1;t+=Time.deltaTime*0.5f){//速度に対応して変更する必要あり
+		for(float t = 0;t<1;t+=Time.deltaTime*0.3f){//速度に対応して変更する必要あり
 			if(transform.position.x>307||
 				transform.position.x < 207){
 				transform.LookAt (tgt.transform);
 
 				if(Physics.Raycast( transform.position,Vector3.forward,out hit, 10 ))
 				{
+					
 					tag = Name("myStopTag",false);
-					goto EndCoroutine;//要考察
+					yield break;
 				}
 				break;
 			}//ベジェ曲線 一個前のバージョンはGithub参照
-			transform.position = new Vector3((1-t)*(1-t)*p.x + 2*(1-t)*t*frPos+ t*t*(p.x+AwayDis)
+			try{
+				transform.position = new Vector3((1-t)*(1-t)*p.x + 2*(1-t)*t*(frPos+(dir?+3:-3))+ t*t*(p.x+AwayDis)
 											,transform.position.y
-											,(1-t)*(1-t)*p.z + 2*(1-t)*t*front.transform.position.z + t*t*front.transform.position.z);
+					,(1-t)*(1-t)*p.z + 2*(1-t)*t*(front.transform.position.z-3) + t*t*front.transform.position.z);
+			}catch{
+			}
 			yield return null;
 		}
 		//____________________________________________________________________________________
@@ -334,7 +348,6 @@ public class Soldier: MonoBehaviour
 		state = "move";
 		gameObject.tag = Name ("myTag", false);
 		changeAttack(GameObject.Find( Name ("tgtName", false)));
-		EndCoroutine:;
 	}
 
 	public static Vector3 distance (Vector3 target, Vector3 me)
@@ -350,16 +363,17 @@ public class Soldier: MonoBehaviour
 
 	private IEnumerator attack (int power)
 	{
-		AudioSource source;
-		source = gameObject.GetComponent<AudioSource>();
 		source.clip = ready;
-		source.Play ();
 		try{
 			GameObject m = gameObject.transform.FindChild("Magic").gameObject;
 			m.GetComponent<SpriteRenderer>().enabled = true;
+			source.Play ();
 		}catch{
-
+			goto through;
 		}
+		yield return new WaitForSeconds (1);
+		through:;
+		source.clip = hit;
 		while (state == "fight") {
 			yield return new WaitForSeconds (3);
 			try {
@@ -367,7 +381,6 @@ public class Soldier: MonoBehaviour
 			} catch {
 				tgt.GetComponent<crystal> ().HP -= power;
 			}
-			source.clip = hit;
 			source.Play ();
 			GameObject myHPBar = GameObject.Find (tgt.name + ("hp(Clone)"));
 			myHPBar.transform.localScale -= new Vector3 (0.15f, 0, 0);
