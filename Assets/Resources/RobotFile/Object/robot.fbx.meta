@@ -1,0 +1,194 @@
+fileFormatVersion: 2
+guid: 8d7ce85ae0678438d911d4070aa8380d
+timeCreated: 1452696413
+licenseType: Free
+ModelImporter:
+  serializedVersion: 19
+  fileIDToRecycleName:
+    100000: body1
+    100002: head1
+    100004: kansetsu
+    100006: left_arm
+    100008: left_reg
+    100010: parts
+    100012: right_arm
+    100014: right_reg
+    100016: //RootNode
+    100018: head_a
+    100020: heck
+    100022: koshi
+    100024: left_ashikubi
+    100026: left_ashinohira
+    100028: left_ashisaki
+    100030: left_down1
+    100032: left_down2
+    100034: left_down3
+    100036: left_down4
+    100038: left_down5
+    100040: left_hiji
+    100042: left_hiza
+    100044: left_kata
+    100046: left_momo
+    100048: left_tekubi
+    100050: left_up1
+    100052: left_up2
+    100054: left_up3
+    100056: left_up4
+    100058: left_up5
+    100060: mune
+    100062: right_ashikubi
+    100064: right_ashinohira
+    100066: right_ashisaki
+    100068: right_down1
+    100070: right_down2
+    100072: right_down3
+    100074: right_down4
+    100076: right_down5
+    100078: right_hiji
+    100080: right_hiza
+    100082: right_kata
+    100084: right_momo
+    100086: right_tekubi
+    100088: right_up1
+    100090: right_up2
+    100092: right_up3
+    100094: right_up4
+    100096: right_up5
+    400000: body1
+    400002: head1
+    400004: kansetsu
+    400006: left_arm
+    400008: left_reg
+    400010: parts
+    400012: right_arm
+    400014: right_reg
+    400016: //RootNode
+    400018: head_a
+    400020: heck
+    400022: koshi
+    400024: left_ashikubi
+    400026: left_ashinohira
+    400028: left_ashisaki
+    400030: left_down1
+    400032: left_down2
+    400034: left_down3
+    400036: left_down4
+    400038: left_down5
+    400040: left_hiji
+    400042: left_hiza
+    400044: left_kata
+    400046: left_momo
+    400048: left_tekubi
+    400050: left_up1
+    400052: left_up2
+    400054: left_up3
+    400056: left_up4
+    400058: left_up5
+    400060: mune
+    400062: right_ashikubi
+    400064: right_ashinohira
+    400066: right_ashisaki
+    400068: right_down1
+    400070: right_down2
+    400072: right_down3
+    400074: right_down4
+    400076: right_down5
+    400078: right_hiji
+    400080: right_hiza
+    400082: right_kata
+    400084: right_momo
+    400086: right_tekubi
+    400088: right_up1
+    400090: right_up2
+    400092: right_up3
+    400094: right_up4
+    400096: right_up5
+    2300000: body1
+    2300002: head1
+    2300004: left_arm
+    2300006: left_reg
+    2300008: right_arm
+    2300010: right_reg
+    3300000: body1
+    3300002: head1
+    3300004: left_arm
+    3300006: left_reg
+    3300008: right_arm
+    3300010: right_reg
+    4300000: body1
+    4300002: head1
+    4300004: right_arm
+    4300006: left_arm
+    4300008: left_reg
+    4300010: right_reg
+    9500000: //RootNode
+    13700000: body1
+    13700002: head1
+    13700004: left_arm
+    13700006: left_reg
+    13700008: right_arm
+    13700010: right_reg
+  materials:
+    importMaterials: 1
+    materialName: 0
+    materialSearch: 1
+  animations:
+    legacyGenerateAnimations: 4
+    bakeSimulation: 0
+    resampleRotations: 1
+    optimizeGameObjects: 0
+    motionNodeName: 
+    animationImportErrors: 
+    animationImportWarnings: 
+    animationRetargetingWarnings: 
+    animationDoRetargetingWarnings: 0
+    animationCompression: 1
+    animationRotationError: 0.5
+    animationPositionError: 0.5
+    animationScaleError: 0.5
+    animationWrapMode: 0
+    extraExposedTransformPaths: []
+    clipAnimations: []
+    isReadable: 1
+  meshes:
+    lODScreenPercentages: []
+    globalScale: 1
+    meshCompression: 0
+    addColliders: 0
+    importBlendShapes: 1
+    swapUVChannels: 0
+    generateSecondaryUV: 0
+    useFileUnits: 1
+    optimizeMeshForGPU: 1
+    keepQuads: 0
+    weldVertices: 1
+    secondaryUVAngleDistortion: 8
+    secondaryUVAreaDistortion: 15.000001
+    secondaryUVHardAngle: 88
+    secondaryUVPackMargin: 4
+    useFileScale: 1
+  tangentSpace:
+    normalSmoothAngle: 60
+    normalImportMode: 0
+    tangentImportMode: 3
+  importAnimation: 1
+  copyAvatar: 0
+  humanDescription:
+    human: []
+    skeleton: []
+    armTwist: 0.5
+    foreArmTwist: 0.5
+    upperLegTwist: 0.5
+    legTwist: 0.5
+    armStretch: 0.05
+    legStretch: 0.05
+    feetSpacing: 0
+    rootMotionBoneName: 
+    hasTranslationDoF: 0
+  lastHumanDescriptionAvatarSource: {instanceID: 0}
+  animationType: 2
+  humanoidOversampling: 1
+  additionalBone: 0
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 

@@ -286,8 +286,6 @@ public class Soldier: MonoBehaviour
 		float myScale = transform.localScale.x / 2;
 		float frPos = front.transform.position.x;
 		float myPos = transform.position.x;
-		var rot = transform.rotation;
-
 		//====================================================================================
 		//避ける先
 		//====================================================================================
@@ -313,7 +311,7 @@ public class Soldier: MonoBehaviour
 		//____________________________________________________________________________________
 		//避ける
 		//____________________________________________________________________________________
-		for(float t = 0;t<1;t+=Time.deltaTime){//速度に対応して変更する必要あり
+		for(float t = 0;t<1;t+=Time.deltaTime*0.5f){//速度に対応して変更する必要あり
 			if(transform.position.x>307||
 				transform.position.x < 207){
 				transform.LookAt (tgt.transform);
