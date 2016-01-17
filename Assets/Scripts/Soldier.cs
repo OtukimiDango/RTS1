@@ -423,17 +423,32 @@ public class Soldier: MonoBehaviour
 	//====================================================================================
 	private void Death ()
 	{
-		lightup = false;
+		char[] n = name.ToCharArray ();
+		if (n [0] == 'B') {
+			switch (n [6]) {// B 0 L 1 U 2 E 3 W 4 A 5 R 6
+			case 'r':
+				GameManager.WarriorCount--;
+				break;
+			case 't':
+				GameManager.WitchCount--;
+				break;
+			case 'a':
+				GameManager.GuardCount--;
+				break;
+			}
+		}
+//		lightup = false;
 		if (gameObject == Instruction.rayobj) {
 			Instruction.rayobj = null;
 		}
 		if (tgt.layer == LayerMask.NameToLayer (Name ("myTag", true))) {
 			tgt.GetComponent<Soldier> ().atEnemys.Remove (gameObject);
-		}
-		try {
 			tgt.GetComponent<LineRenderer > ().SetVertexCount (tgt.GetComponent<Soldier> ().atEnemys.Count + 2);
-		} catch {
 		}
+//		try {
+//			tgt.GetComponent<LineRenderer > ().SetVertexCount (tgt.GetComponent<Soldier> ().atEnemys.Count + 2);
+//		} catch {
+//		}
 		Instruction.charaDestroy (gameObject);
 		foreach (GameObject enemy in atEnemys) {//自分を狙っている敵
 			try {
