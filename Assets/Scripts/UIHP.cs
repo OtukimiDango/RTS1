@@ -14,7 +14,7 @@ public class UIHP : MonoBehaviour {
 		}
 		foreach (Transform tgt in targets) {
 			GameObject hp = GameObject.Find (tgt.name +"hp(Clone)");
-			Vector3 setPos = new Vector3 (tgt.position.x, tgt.position.y + tgt.localScale.y, tgt.position.z);
+			Vector3 setPos = new Vector3 (tgt.position.x, tgt.position.y + tgt.localScale.y+5, tgt.position.z);
 			hp.transform.position = Camera.main.WorldToScreenPoint (setPos);
 		}
 	}
