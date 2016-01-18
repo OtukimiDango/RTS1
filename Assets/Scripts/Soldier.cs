@@ -152,7 +152,7 @@ public class Soldier: MonoBehaviour
 			teamCount = EnemyControl.servantCount;
 		} else { 
 			team = "Blue";
-			teamCount = GameManager.servantCount;
+			teamCount = GameManager.ServantCount;
 		}
 
 		switch (need) {

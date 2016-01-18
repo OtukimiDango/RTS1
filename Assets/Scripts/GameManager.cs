@@ -6,7 +6,6 @@ public class GameManager : MonoBehaviour {
 	public static Text Timetext, SpText, ServantText,WarriorText,WitchText,GuardText;
 	private static DateTime startTime = DateTime.Now;
 
-	public static int servantCount = 0;
 	private	static int warriorCount = 0,witchCount = 0,guardCount = 0;
 	public static int sp = 500;
 	public static sbyte UpSp = 1;
@@ -16,6 +15,7 @@ public class GameManager : MonoBehaviour {
 		set{
 			warriorCount = value;
 			WarriorText.text = warriorCount.ToString ();
+			ServantText.text = ServantCount.ToString ();
 		}
 		get{
 			return warriorCount;
@@ -25,6 +25,7 @@ public class GameManager : MonoBehaviour {
 		set{
 			witchCount = value;
 			WitchText.text = witchCount.ToString ();
+			ServantText.text = ServantCount.ToString ();
 		}
 		get{
 			return witchCount;
@@ -34,9 +35,15 @@ public class GameManager : MonoBehaviour {
 		set{
 			guardCount = value;
 			GuardText.text = guardCount.ToString ();
+			ServantText.text = ServantCount.ToString ();
 		}
 		get{
 			return guardCount;
+		}
+	}
+	public static int ServantCount{
+		get{
+			return warriorCount + witchCount + guardCount;
 		}
 	}
 
@@ -58,7 +65,6 @@ public class GameManager : MonoBehaviour {
 			time = (TimeSpan)(DateTime.Now - startTime);
 			Timetext.text = time.Minutes.ToString ("D2")+":"+time.Seconds.ToString("D2");
 			SpText.text = sp.ToString();
-			ServantText.text = servantCount.ToString ();
 			yield return null;
 		}
 	}
