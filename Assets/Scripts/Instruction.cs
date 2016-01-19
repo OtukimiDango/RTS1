@@ -33,8 +33,6 @@ public class Instruction : MonoBehaviour
 			int layermask = (1 << LayerMask.NameToLayer ("Terrain"));
 			if (Physics.Raycast (ray, out hit, Mathf.Infinity, layermask)) {
 				squadPos1 = hit.point;
-				serchBlock.hitAlly.Clear ();
-				Empty.allys.Clear ();
 				Instantiate ((GameObject)Resources.Load ("SerchBlock"), hit.point, Quaternion.identity);
 			}
 		}
@@ -43,15 +41,16 @@ public class Instruction : MonoBehaviour
 			int terrain = (1 << LayerMask.NameToLayer ("Terrain"));
 
 			if (Physics.Raycast (ray, out hit, Mathf.Infinity, terrain)) {
-				if (Mathf.Abs (hit.point.x - squadPos1.x) >= 5f && serchBlock.hitAlly.Count != 0 || Mathf.Abs (hit.point.z - squadPos1.z) >= 5f && serchBlock.hitAlly.Count != 0) {
+				List<GameObject> list =  GameObject.Find("SerchBlock(Clone)").GetComponent<serchBlock>().hitAlly;
+				if (Mathf.Abs (hit.point.x - squadPos1.x) >= 5f &&list.Count != 0 || Mathf.Abs (hit.point.z - squadPos1.z) >= 5f && list.Count != 0) {
 					gameObject.GetComponent<LineRenderer> ().enabled = true;
 					rayMouse = true;
-					Empty.allys = serchBlock.hitAlly;
 					GameObject ob = new GameObject ("Empty");
 					ob.AddComponent<Empty> ();
+					ob.GetComponent<Empty>().allys = GameObject.Find("SerchBlock(Clone)").GetComponent<serchBlock>().hitAlly;
 					clickCharacter (ob);
 					StartCoroutine (firstLine (true, ob));
-					serchBlock.hitAlly.ForEach (i => i.GetComponent<Light> ().enabled = true);//対象全てを光らせる。LightComponent仕様変更時に要変更
+					list.ForEach (i => i.GetComponent<Light> ().enabled = true);//対象全てを光らせる。LightComponent仕様変更時に要変更
 					Destroy (GameObject.Find ("SerchBlock(Clone)"));
 				} else {
 					Destroy (GameObject.Find ("SerchBlock(Clone)"));
@@ -61,7 +60,7 @@ public class Instruction : MonoBehaviour
 			if (Physics.Raycast (ray, out hit, Mathf.Infinity, chara)) {//Rayがキャラクターに当たると
 				clickCharacter (hit.collider.gameObject.transform.parent.gameObject);//Method実
 			}
-		} else if (Input.GetMouseButtonUp (0) && rayMouse) {
+		} else if (Input.GetMouseButtonUp (0) && rayMouse) {//クリックした時にLINE展開中であれば
 			int terrain = (1 << LayerMask.NameToLayer ("Terrain"));
 			int chara = (1 << LayerMask.NameToLayer ("touchChara"));
 			if (Physics.Raycast (ray, out hit, Mathf.Infinity, chara)) {
@@ -89,9 +88,10 @@ public class Instruction : MonoBehaviour
 			if (Physics.Raycast (ray, out hit, Mathf.Infinity, terrain)) {//rayがあたった先がキャラクターでなけれ
 				try {
 					Vector3 pos = GameObject.Find ("Empty").transform.position;//emptyがない場合エラー
+					Debug.Log(pos);
 					float ang = Mathf.Atan2 (hit.point.x - pos.x, hit.point.z - pos.z) * Mathf.Rad2Deg;
 					Vector3 dis = Soldier.distance (hit.point, pos);
-					foreach (GameObject ob in serchBlock.hitAlly) {
+					foreach (GameObject ob in GameObject.Find("Empty").GetComponent<Empty>().allys) {
 						Soldier script = ob.GetComponent<Soldier> ();
 						ob.transform.rotation = GameObject.Find ("Empty").transform.rotation;
 						ob.transform.rotation = Quaternion.Slerp (transform.rotation, Quaternion.Euler (0, ang, 0), 1);
@@ -99,13 +99,14 @@ public class Instruction : MonoBehaviour
 						script.StartCoroutine (script.move (dis, false));
 
 					}
-					Destroy (GameObject.Find ("Empty"));
-
-					foreach (GameObject i in serchBlock.hitAlly) {
+					GameObject em = GameObject.Find("Empty");
+					em.AddComponent<LineRenderer>();
+					em.GetComponent<Empty>().StartCoroutine(em.GetComponent<Empty>().line(hit.point));
+					foreach (GameObject i in GameObject.Find("moveEmpty").GetComponent<Empty>().allys) {
 						i.GetComponent<Light> ().enabled = false;
-						gameObject.GetComponent<LineRenderer> ().enabled = false;
-						rayMouse = false;
 					}
+					gameObject.GetComponent<LineRenderer> ().enabled = false;
+					rayMouse = false;
 
 				} catch {
 					clickCharacter (saveChara);
@@ -147,7 +148,7 @@ public class Instruction : MonoBehaviour
 					rayobj.GetComponent<Light> ().enabled = false;//前回ヒットしたオブジェクトのライトをオフにする
 				}
 
-				var pos = new Vector3 (hit.point.x, 3, hit.point.z);
+				var pos = new Vector3 (hit.point.x, 0, hit.point.z);
 				gameObject.GetComponent<LineRenderer> ().SetPosition (0, lineObj.transform.position);//Lineを飛ばす地点１
 				gameObject.GetComponent<LineRenderer> ().SetPosition (1, pos);//Lineを飛ばす地点２
 
@@ -177,10 +178,10 @@ public class Instruction : MonoBehaviour
 
 	private void clickCharacter (GameObject chara)
 	{
-//		if (chara.name == "Empty") {
-//			saveChara = chara;
-//			return;
-//		}
+		if (chara.name == "Empty"||chara.name == "moveEmpty") {
+			saveChara = chara;
+			return;
+		}
 		Soldier script = chara.GetComponent<Soldier> ();
 		bool lineFlag = chara.GetComponent<LineRenderer> ().enabled;//クリックしたオブジェクトのラインのbool
 		gameObject.GetComponent<LineRenderer> ().enabled = !lineFlag;//上記変数を反転した値をenableに代入

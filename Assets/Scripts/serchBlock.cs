@@ -3,7 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 
 public class serchBlock : MonoBehaviour {
-	public static List<GameObject> hitAlly = new List<GameObject> ();
+	public List<GameObject> hitAlly = new List<GameObject> ();
 	void OnTriggerEnter(Collider col){
 		if(col.gameObject.transform.parent.gameObject.layer == 10)
 			hitAlly.Add (col.gameObject.transform.parent.gameObject);
