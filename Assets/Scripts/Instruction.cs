@@ -183,6 +183,7 @@ public class Instruction : MonoBehaviour
 			return;
 		}
 		Soldier script = chara.GetComponent<Soldier> ();
+		//例外処理
 		bool lineFlag = chara.GetComponent<LineRenderer> ().enabled;//クリックしたオブジェクトのラインのbool
 		gameObject.GetComponent<LineRenderer> ().enabled = !lineFlag;//上記変数を反転した値をenableに代入
 		rayMouse = !lineFlag;//反転した値をenableに代入
@@ -202,6 +203,7 @@ public class Instruction : MonoBehaviour
 			}
 			S_script.atEnemys.ForEach (i => i.GetComponent<Light> ().enabled = false);
 		}
+		//addcomponent
 		chara.GetComponent<LineRenderer> ().enabled = !lineFlag;
 		chara.GetComponent<Light> ().enabled = !lineFlag;
 		script.lightup = !lineFlag;
