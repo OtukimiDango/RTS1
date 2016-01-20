@@ -43,7 +43,7 @@ public class Instruction : MonoBehaviour
 			if (Physics.Raycast (ray, out hit, Mathf.Infinity, terrain)) {
 				List<GameObject> list =  GameObject.Find("SerchBlock(Clone)").GetComponent<serchBlock>().hitAlly;
 				if (Mathf.Abs (hit.point.x - squadPos1.x) >= 5f &&list.Count != 0 || Mathf.Abs (hit.point.z - squadPos1.z) >= 5f && list.Count != 0) {
-					gameObject.GetComponent<LineRenderer> ().enabled = true;
+					gameObject.GetComponent<LineRenderer> ().enabled = true;//addcomponent<line>();getcomponent setup();
 					rayMouse = true;
 					GameObject ob = new GameObject ("Empty");
 					ob.AddComponent<Empty> ();
@@ -80,7 +80,7 @@ public class Instruction : MonoBehaviour
 					} else if (Hetgt == saveChara.GetComponent<Soldier> ().tgt)
 						hit.collider.gameObject.transform.parent.gameObject.GetComponent<Light> ().color = Soldier.color (hit.collider.transform.parent.GetComponent<Soldier> ().Name ("myTag", true));//戦闘色
 					////////////////////////////
-					gameObject.GetComponent<LineRenderer> ().enabled = false;
+					gameObject.GetComponent<LineRenderer> ().enabled = false;//getcomponent<line>.enabled = false;
 					rayMouse = false;
 				}
 				return;
@@ -100,7 +100,7 @@ public class Instruction : MonoBehaviour
 
 					}
 					GameObject em = GameObject.Find("Empty");
-					em.AddComponent<LineRenderer>();
+					em.AddComponent<LineRenderer>();//add <line>
 					em.GetComponent<Empty>().StartCoroutine(em.GetComponent<Empty>().line(hit.point));
 					foreach (GameObject i in GameObject.Find("moveEmpty").GetComponent<Empty>().allys) {
 						i.GetComponent<Light> ().enabled = false;
@@ -191,7 +191,7 @@ public class Instruction : MonoBehaviour
 			StartCoroutine (firstLine (false, chara));//tgt指定Line表示
 		}
 
-		if (saveChara != null /*&& saveChara.name != "Empty"*/) {//前回クリックしたキャラがいれば
+		if (saveChara != null && saveChara.name != "Empty" && saveChara.name != "moveEmpty") {//前回クリックしたキャラがいれば
 			Soldier S_script = saveChara.GetComponent<Soldier> ();
 			saveChara.GetComponent<LineRenderer> ().enabled = false;//前回のキャラのラインを消す
 			saveChara.GetComponent<Light> ().enabled = false;//前回のキャラのライトを消す
@@ -204,6 +204,7 @@ public class Instruction : MonoBehaviour
 			S_script.atEnemys.ForEach (i => i.GetComponent<Light> ().enabled = false);
 		}
 		//addcomponent
+		//line lineob = new line(chara,Color.red,true,chara.GetComponent<Soldier>().atEnemys);
 		chara.GetComponent<LineRenderer> ().enabled = !lineFlag;
 		chara.GetComponent<Light> ().enabled = !lineFlag;
 		script.lightup = !lineFlag;

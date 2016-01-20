@@ -79,6 +79,7 @@
 'Assets/Scripts/SortingLayer.cs'
 'Assets/Scripts/UIHP.cs'
 'Assets/Scripts/crystal.cs'
+'Assets/Scripts/line.cs'
 'Assets/Scripts/nextStage.cs'
 'Assets/Scripts/selectCharacter.cs'
 'Assets/Scripts/serchBlock.cs'

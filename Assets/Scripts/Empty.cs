@@ -31,12 +31,12 @@ public class Empty : MonoBehaviour {
 		LineRenderer linerend = transform.GetComponent<LineRenderer> ();
 		while(Mathf.Abs(pos.x-point.x) > 0.5f && Mathf.Abs(pos.z-point.z) > 0.5f){
 			pos = transform.position;
-			linerend.SetPosition(0,pos);
-			linerend.SetPosition(1,point);
+			linerend.SetPosition(0,pos);//自分の座標
+			linerend.SetPosition(1,point);//point座標は固定
 			yield return null;
-		}
-		emptys.Remove (gameObject);
-		Destroy (gameObject);
+		}//目的地に着くとwhileを抜ける
+		emptys.Remove (gameObject);//staticリストから自分を外す
+		Destroy (gameObject);//自殺
 		yield return null;
 	}
 
