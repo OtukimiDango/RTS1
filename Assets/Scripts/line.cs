@@ -2,9 +2,10 @@
 using System.Collections;
 using UnityEngine.UI;
 using System.Collections.Generic;
+using System.Threading;
 
 public class line : MonoBehaviour {
-	public GameObject lineImage;
+	private GameObject lineImage = (GameObject)Resources.Load("lineImage");
 	private List<GameObject> lineob = new List<GameObject> ();
 	private Vector3 p1;
 	public bool mouseLine;
@@ -35,7 +36,7 @@ public class line : MonoBehaviour {
 	/// <param name="c">C.</param>
 	private void lineCons(int i,Color c){
 		p1 = transform.position;
-		lineob[i] = (GameObject)Instantiate (lineImage,new Vector3(p1.x,0.1f,p1.z),Quaternion.identity);
+		lineob.Add((GameObject)Instantiate (lineImage,new Vector3(p1.x,0.1f,p1.z),Quaternion.identity));
 		lineob[i].GetComponent<SpriteRenderer> ().color = c;
 		lineob[i].transform.Rotate (90,0,0);
 
@@ -45,13 +46,14 @@ public class line : MonoBehaviour {
 	/// </summary>
 	/// <param name="c">C.</param>
 	/// <param name="obs">Obs.</param>
-	public void setup(Color c,List<GameObject> obs){
-		for(int a = -1;a<obs.Count;a++){
-			lineCons (a + 1,c);
+	public void setup(Color c,GameObject tgt,List<GameObject> obs){
+		obs.Add (tgt);
+		for(int a = 0;a<obs.Count;a++){
+			lineCons (a,c);
 		}
 		if (c==Color.blue)
 			RayLine (true);
-		ObLine (obs);
+			StartCoroutine(ObLine (obs));
 	}
 	/// <summary>
 	/// Line初期設定　範囲指定用
@@ -69,7 +71,7 @@ public class line : MonoBehaviour {
 	/// <param name="pos">Position.</param>
 	public void setup(Color c,Vector3 pos){
 		lineCons (0,c);
-		dropLine (pos);
+		StartCoroutine(dropLine (pos));
 
 	}
 	/// <summary>
@@ -77,7 +79,7 @@ public class line : MonoBehaviour {
 	/// 引数はtrueで範囲移動時にライトアップさせない
 	/// </summary>
 	/// <param name="area">If set to <c>true</c> area.</param>
-	private void RayLine(bool area){//引数は範囲移動時は攻撃対象をライトアップさせないため
+	private IEnumerator RayLine(bool area){//引数は範囲移動時は攻撃対象をライトアップさせないため
 		lineob[0].GetComponent<SpriteRenderer>().color = Color.yellow;
 		int terrain = 1 << LayerMask.NameToLayer ("Terrain");
 		while (mouseLine) {
@@ -85,7 +87,7 @@ public class line : MonoBehaviour {
 			Ray ray = Camera.main.ScreenPointToRay (Input.mousePosition);
 			RaycastHit hit;
 			if (Physics.Raycast(ray, out hit,Mathf.Infinity,terrain)) {
-				LineParameter (hit.point,p1);
+				LineParameter (hit.point,p1,0);
 			}
 			int mask = (1 << LayerMask.NameToLayer ("touchChara"));
 			if (Physics.Raycast (ray, out hit, Mathf.Infinity, mask) && area == false) {//rayがキャラクターに当たる
@@ -104,22 +106,22 @@ public class line : MonoBehaviour {
 				} catch {
 				}
 			}
-			return;
+			yield return null;
 		}
 	}
 	/// <summary>
-	/// 兵士の状態確認用
-	/// 引数はラインの対象
+	/// 複数のラインを生成
 	/// </summary>
 	/// <param name="obs">Obs.</param>
-	private void ObLine(List<GameObject> obs){//キャラクターへのLine 引数は対象リスト
+	private IEnumerator ObLine(List<GameObject> obs){//キャラクターへのLine 引数は対象リスト
 		while (true) {
 			p1 = transform.position;
 			int i = 0;
 			foreach(GameObject ob in obs){
 				try{
 					Vector3 p0 = ob.transform.position;
-					LineParameter (p0,p1);
+					StartCoroutine( LineParameter (p0,p1,i));
+					//Debug.Log(p0);
 				}catch{
 					obs.Remove (ob);
 					lineob.RemoveAt(i);
@@ -127,16 +129,15 @@ public class line : MonoBehaviour {
 				i++;
 			}
 			i = 0;
-			return;
+			yield return null;
 		}
 	}
 	/// <summary>
-	/// 範囲指定後のライン表示用
-	/// 引数は指定座標
+	/// emptyから固定座標に向けてLineを出す。emptyのリストが空になるか固定座標にたどり着くかで消える。
 	/// </summary>
 	/// <returns>The line.</returns>
 	/// <param name="p0">P0.</param>
-	public void dropLine(Vector3 p0){
+	public IEnumerator dropLine(Vector3 p0){
 		Vector3 pos = transform.position;
 		try{
 			foreach(GameObject ob in Empty.emptys){
@@ -148,12 +149,12 @@ public class line : MonoBehaviour {
 		Empty.emptys.Add (gameObject);
 		while(Mathf.Abs(pos.x-p0.x) > 0.5f && Mathf.Abs(pos.z-p0.z) > 0.5f){
 			pos = transform.position;
-			LineParameter (p0,p1);
-			return;
+			LineParameter (p0,p1,0);
+			yield return null;
 		}//目的地に着くとwhileを抜ける
 		Empty.emptys.Remove (gameObject);//staticリストから自分を外す
 		Destroy (gameObject);//自殺
-		return;
+		yield return null;
 	}
 
 	/// <summary>
@@ -162,11 +163,12 @@ public class line : MonoBehaviour {
 	/// </summary>
 	/// <param name="p0">P0.</param>
 	/// <param name="p1">P1.</param>
-	public void LineParameter(Vector3 p0,Vector3 p1){
+	public IEnumerator LineParameter(Vector3 p0,Vector3 p1,int i){
 		float d = (Mathf.Abs (p0.x - p1.x) + Mathf.Abs (p0.z - p1.z));
 		float atan =  Mathf.Atan2 ((p0.x-p1.x),(p0.z - p1.z))*Mathf.Rad2Deg;
-		lineob[0].transform.rotation = Quaternion.Euler (90, atan, 0);
-		lineob[0].transform.localScale = new Vector3 (500f,d*70,0);
-		lineob[0].transform.position = new Vector3 ((p0.x+p1.x)/2,0.1f,(p0.z+p1.z)/2);
+		lineob[i].transform.rotation = Quaternion.Euler (90, atan, 0);
+		lineob[i].transform.localScale = new Vector3 (200f,d*100,0);
+		lineob[i].transform.position = new Vector3 ((p0.x+p1.x)/2,0.1f,(p0.z+p1.z)/2);
+		yield return null;
 	}
 }

@@ -39,7 +39,10 @@ public class Empty : MonoBehaviour {
 		Destroy (gameObject);//自殺
 		yield return null;
 	}
-
+	/// <summary>
+	/// 渡されたオブジェクトが自分とかぶっている場合に自分のリストから削除
+	/// </summary>
+	/// <param name="list">List.</param>
 	public void listSerch(List<GameObject> list){
 		HashSet<GameObject> hashAllys = new HashSet<GameObject> ();
 		allys.ForEach (i => hashAllys.Add(i));

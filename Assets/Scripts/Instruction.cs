@@ -201,7 +201,10 @@ public class Instruction : MonoBehaviour
 				S_script.tgt.GetComponent<Light> ().enabled = false;
 			} catch {
 			}
+			try{
 			S_script.atEnemys.ForEach (i => i.GetComponent<Light> ().enabled = false);
+			}catch{
+			}
 		}
 		//addcomponent
 		//line lineob = new line(chara,Color.red,true,chara.GetComponent<Soldier>().atEnemys);

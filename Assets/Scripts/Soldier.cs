@@ -59,36 +59,41 @@ public class Soldier: MonoBehaviour
 		}
 		
 		if (lightup) {//コルーチンにすべし
-			LineRenderer linerende = GetComponent<LineRenderer> ();//LineRendererコンポーネントを変数に
-			linerende.SetPosition (0, transform.position);
-			linerende.SetPosition (1, tgt.transform.position);
-			try {
-				if (tgt.GetComponent<Light> ().enabled == false)
-					tgt.GetComponent<Light> ().enabled = true;
-				if (attackObj != tgt && tgt.GetComponent<Light> ().color != Color.yellow) {
-					tgt.GetComponent<Light> ().color = Color.yellow;
-				} else if (attackObj == tgt && tgt.GetComponent<Light> ().color == color (Name ("myTag", true)) && atEnemys.Count == 0) {
-					tgt.GetComponent<Light> ().color = color (Name ("myTag", false));
-				}
-			} catch {
-			}
-			if (gameObject.GetComponent<Light> ().color != color (Name ("myTag", false)))
-				gameObject.GetComponent<Light> ().color = color (Name ("myTag", false));
-			for (int i = 0; i < atEnemys.Count; i++) {
-				if (atEnemys [i].GetComponent<Light> ().enabled == false) {
-					atEnemys [i].GetComponent<Light> ().enabled = true;
-					atEnemys [i].GetComponent<Light> ().color = color (Name ("myTag", true));
-					if (atEnemys [i].name == tgt.name) {
-						atEnemys [i].GetComponent<Light> ().color = color (Name ("myTag", false));
-					}
-				}
-				linerende.SetVertexCount (2 + ((i + 1) * 2));
-				linerende.SetPosition (2 + ((i + 1) * 2 - 2), transform.position);
-				linerende.SetPosition (2 + ((i + 1) * 2 - 1), atEnemys [i].transform.position);
-				//i=1 4,2,3
-				//i=2 6,4,5
-				//i=3 8,6,7
-			}
+			gameObject.AddComponent<line> ();
+			line linerenderer = gameObject.GetComponent<line> ();
+			linerenderer.setup (color (Name ("myTag", false)), tgt, atEnemys);
+			lightup = false;
+//			LineRenderer linerende = GetComponent<LineRenderer> ();//LineRendererコンポーネントを変数に
+//			linerende.SetPosition (0, transform.position);
+//			linerende.SetPosition (1, tgt.transform.position);
+//
+//			try {
+//				if (tgt.GetComponent<Light> ().enabled == false)
+//					tgt.GetComponent<Light> ().enabled = true;
+//				if (attackObj != tgt && tgt.GetComponent<Light> ().color != Color.yellow) {
+//					tgt.GetComponent<Light> ().color = Color.yellow;
+//				} else if (attackObj == tgt && tgt.GetComponent<Light> ().color == color (Name ("myTag", true)) && atEnemys.Count == 0) {
+//					tgt.GetComponent<Light> ().color = color (Name ("myTag", false));
+//				}
+//			} catch {
+//			}
+//			if (gameObject.GetComponent<Light> ().color != color (Name ("myTag", false)))
+//				gameObject.GetComponent<Light> ().color = color (Name ("myTag", false));
+//			for (int i = 0; i < atEnemys.Count; i++) {
+//				if (atEnemys [i].GetComponent<Light> ().enabled == false) {
+//					atEnemys [i].GetComponent<Light> ().enabled = true;
+//					atEnemys [i].GetComponent<Light> ().color = color (Name ("myTag", true));
+//					if (atEnemys [i].name == tgt.name) {
+//						atEnemys [i].GetComponent<Light> ().color = color (Name ("myTag", false));
+//					}
+//				}
+////				linerende.SetVertexCount (2 + ((i + 1) * 2));
+////				linerende.SetPosition (2 + ((i + 1) * 2 - 2), transform.position);
+////				linerende.SetPosition (2 + ((i + 1) * 2 - 1), atEnemys [i].transform.position);
+//				//i=1 4,2,3
+//				//i=2 6,4,5
+//				//i=3 8,6,7
+//			}
 		}
 	}
 
