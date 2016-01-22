@@ -10,15 +10,6 @@ public class line : MonoBehaviour {
 	private Vector3 p1;
 	public bool mouseLine;
 
-	public bool enable{
-		set{
-			if(value == false)
-				Destroy (this);
-		}
-		get{
-			return true;
-		}
-	}
 	public Color color{
 		set{
 			for(int i = -1; i < lineob.Count;i++){
@@ -36,7 +27,9 @@ public class line : MonoBehaviour {
 	/// <param name="c">C.</param>
 	private void lineCons(int i,Color c){
 		p1 = transform.position;
+		Debug.Log (lineob.Count);
 		lineob.Add((GameObject)Instantiate (lineImage,new Vector3(p1.x,0.1f,p1.z),Quaternion.identity));
+		Debug.Log (lineob.Count);
 		lineob[i].GetComponent<SpriteRenderer> ().color = c;
 		lineob[i].transform.Rotate (90,0,0);
 
@@ -51,18 +44,16 @@ public class line : MonoBehaviour {
 		for(int a = 0;a<obs.Count;a++){
 			lineCons (a,c);
 		}
-		if (c==Color.blue)
-			RayLine (true);
-			StartCoroutine(ObLine (obs));
+		StartCoroutine(ObLine (obs));
 	}
 	/// <summary>
-	/// Line初期設定　範囲指定用
+	/// Line初期設定　マウス
 	/// </summary>
 	/// <param name="c">C.</param>
 	/// <param name="mouse">If set to <c>true</c> mouse.</param>
-	public void setup(Color c){
+	public void setup(Color c,bool area,GameObject ob){
 		lineCons (0,c);
-		RayLine (true);
+		StartCoroutine(RayLine (area,ob));
 	}
 	/// <summary>
 	/// Line初期設定　範囲指定後用
@@ -79,15 +70,14 @@ public class line : MonoBehaviour {
 	/// 引数はtrueで範囲移動時にライトアップさせない
 	/// </summary>
 	/// <param name="area">If set to <c>true</c> area.</param>
-	private IEnumerator RayLine(bool area){//引数は範囲移動時は攻撃対象をライトアップさせないため
-		lineob[0].GetComponent<SpriteRenderer>().color = Color.yellow;
+	private IEnumerator RayLine(bool area,GameObject ob){//引数は範囲移動時は攻撃対象をライトアップさせないため
 		int terrain = 1 << LayerMask.NameToLayer ("Terrain");
-		while (mouseLine) {
-			p1 = transform.position;
+		while (true) {
+			p1 = ob.transform.position;
 			Ray ray = Camera.main.ScreenPointToRay (Input.mousePosition);
 			RaycastHit hit;
 			if (Physics.Raycast(ray, out hit,Mathf.Infinity,terrain)) {
-				LineParameter (hit.point,p1,0);
+				StartCoroutine(LineParameter (hit.point,p1,0));
 			}
 			int mask = (1 << LayerMask.NameToLayer ("touchChara"));
 			if (Physics.Raycast (ray, out hit, Mathf.Infinity, mask) && area == false) {//rayがキャラクターに当たる
@@ -138,7 +128,7 @@ public class line : MonoBehaviour {
 	/// <returns>The line.</returns>
 	/// <param name="p0">P0.</param>
 	public IEnumerator dropLine(Vector3 p0){
-		Vector3 pos = transform.position;
+		p1 = transform.position;
 		try{
 			foreach(GameObject ob in Empty.emptys){
 				ob.GetComponent<Empty> ().listSerch (gameObject.GetComponent<Empty>().allys);
@@ -147,9 +137,9 @@ public class line : MonoBehaviour {
 		}
 		name = "moveEmpty";
 		Empty.emptys.Add (gameObject);
-		while(Mathf.Abs(pos.x-p0.x) > 0.5f && Mathf.Abs(pos.z-p0.z) > 0.5f){
-			pos = transform.position;
-			LineParameter (p0,p1,0);
+		while(Mathf.Abs(p1.x-p0.x) > 0.5f && Mathf.Abs(p1.z-p0.z) > 0.5f){
+			p1 = transform.position;
+			StartCoroutine(LineParameter (p0,p1,0));
 			yield return null;
 		}//目的地に着くとwhileを抜ける
 		Empty.emptys.Remove (gameObject);//staticリストから自分を外す
@@ -164,11 +154,15 @@ public class line : MonoBehaviour {
 	/// <param name="p0">P0.</param>
 	/// <param name="p1">P1.</param>
 	public IEnumerator LineParameter(Vector3 p0,Vector3 p1,int i){
-		float d = (Mathf.Abs (p0.x - p1.x) + Mathf.Abs (p0.z - p1.z));
+		float d = Vector3.Distance (p0,p1);
 		float atan =  Mathf.Atan2 ((p0.x-p1.x),(p0.z - p1.z))*Mathf.Rad2Deg;
 		lineob[i].transform.rotation = Quaternion.Euler (90, atan, 0);
 		lineob[i].transform.localScale = new Vector3 (200f,d*100,0);
 		lineob[i].transform.position = new Vector3 ((p0.x+p1.x)/2,0.1f,(p0.z+p1.z)/2);
 		yield return null;
+	}
+
+	void OnDestroy(){
+		lineob.ForEach (i=>Destroy(i));
 	}
 }
