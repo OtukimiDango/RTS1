@@ -10,6 +10,7 @@ public class Empty : MonoBehaviour {
 	void Update () {
 		if(allys.Count == 0){
 			emptys.Remove (gameObject);
+			gameObject.GetComponent<line> ().enable = false;
 			Destroy (gameObject);
 			return;
 		}

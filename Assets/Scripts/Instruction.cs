@@ -41,10 +41,11 @@ public class Instruction : MonoBehaviour
 
 			if (Physics.Raycast (ray, out hit, Mathf.Infinity, terrain)) {
 				List<GameObject> list =  GameObject.Find("SerchBlock(Clone)").GetComponent<serchBlock>().hitAlly;
-				if (Mathf.Abs (hit.point.x - squadPos1.x) >= 5f &&list.Count != 0 || Mathf.Abs (hit.point.z - squadPos1.z) >= 5f && list.Count != 0) {
-					gameObject.GetComponent<LineRenderer> ().enabled = true;//addcomponent<line>();getcomponent setup();
+				if ((Mathf.Abs (hit.point.x - squadPos1.x) >= 5f|| Mathf.Abs (hit.point.z - squadPos1.z) >= 5f) && list.Count != 0) {
+					gameObject.AddComponent<line>();
 					rayMouse = true;
 					GameObject ob = new GameObject ("Empty");
+					gameObject.GetComponent<line> ().setup (Color.yellow,true,ob);
 					ob.AddComponent<Empty> ();
 					ob.GetComponent<Empty>().allys = GameObject.Find("SerchBlock(Clone)").GetComponent<serchBlock>().hitAlly;
 					clickCharacter (ob);
@@ -79,7 +80,7 @@ public class Instruction : MonoBehaviour
 					} else if (Hetgt == saveChara.GetComponent<Soldier> ().tgt)
 						hit.collider.gameObject.transform.parent.gameObject.GetComponent<Light> ().color = Soldier.color (hit.collider.transform.parent.GetComponent<Soldier> ().Name ("myTag", true));//戦闘色
 					////////////////////////////
-					gameObject.GetComponent<LineRenderer> ().enabled = false;//getcomponent<line>.enabled = false;
+					gameObject.GetComponent<line>().enable = false;
 					rayMouse = false;
 				}
 				return;
@@ -97,7 +98,7 @@ public class Instruction : MonoBehaviour
 						script.StartCoroutine (script.move (dis, false));
 
 					}
-					Destroy(gameObject.GetComponent<line> ());
+					gameObject.GetComponent<line>().enable = false;
 					GameObject em = GameObject.Find("Empty");
 					em.AddComponent<line>();//add <line>
 					em.GetComponent<line>().setup(Color.magenta,hit.point);
@@ -150,8 +151,12 @@ public class Instruction : MonoBehaviour
 		}
 		Soldier script = chara.GetComponent<Soldier> ();
 		//例外処理
-		bool lineFlag = chara.GetComponent<LineRenderer> ().enabled;//クリックしたオブジェクトのラインのbool
-		gameObject.GetComponent<LineRenderer> ().enabled = !lineFlag;//上記変数を反転した値をenableに代入
+		bool lineFlag = chara.GetComponent<line>()?true:false;
+		if (gameObject.GetComponent<line> ()) {
+			gameObject.GetComponent<line> ().enable = !lineFlag;//上記変数を反転した値をenableに代入
+		} else if(lineFlag == true){
+			gameObject.AddComponent<line> ();
+		}
 		rayMouse = !lineFlag;//反転した値をenableに代入
 		if (rayMouse && script.Name ("myTag", false) == "Player") {//クリックしたのがプレイヤー側なら
 			StartCoroutine (firstLine (false, chara));//tgt指定Line表示
@@ -159,11 +164,13 @@ public class Instruction : MonoBehaviour
 
 		if (saveChara != null && saveChara.name != "Empty" && saveChara.name != "moveEmpty") {//前回クリックしたキャラがいれば
 			Soldier S_script = saveChara.GetComponent<Soldier> ();
-			saveChara.GetComponent<LineRenderer> ().enabled = false;//前回のキャラのラインを消す
+			try{
+			saveChara.GetComponent<line> ().enable = false;//前回のキャラのラインを消す
+			}catch{}
 			saveChara.GetComponent<Light> ().enabled = false;//前回のキャラのライトを消す
 
 			try {
-				S_script.lightup = false;
+				//S_script.lightup = false;
 				S_script.tgt.GetComponent<Light> ().enabled = false;
 			} catch {
 			}
@@ -172,13 +179,12 @@ public class Instruction : MonoBehaviour
 			}catch{
 			}
 		}
-		//addcomponent
-		//line lineob = new line(chara,Color.red,true,chara.GetComponent<Soldier>().atEnemys);
-		chara.GetComponent<LineRenderer> ().enabled = !lineFlag;
+		if(!chara.GetComponent<line>())
+		chara.AddComponent<line> ();
+		chara.GetComponent<Soldier>().lightup();
+		chara.GetComponent<line> ().enable = !lineFlag;
 		chara.GetComponent<Light> ().enabled = !lineFlag;
-		script.lightup = !lineFlag;
 		chara.GetComponent<Light> ().color = Soldier.color (script.Name ("myTag", false));
-
 		if (script.tgt != null && script.tgt != GameObject.Find (script.Name ("tgtName", false))) {
 			try {
 				rayobj = null;
@@ -196,7 +202,8 @@ public class Instruction : MonoBehaviour
 		if (chara != saveChara)
 			return;
 
-		Playercamera.transform.FindChild ("Main Camera").gameObject.GetComponent<LineRenderer> ().enabled = false;
+		line linecomponent = Playercamera.transform.FindChild ("Main Camera").gameObject.GetComponent<line> ();
+		linecomponent.enable = false;
 		rayMouse = false;
 
 		chara.GetComponent<Soldier> ().atEnemys.ForEach (i => i.GetComponent<Light> ().enabled = false);

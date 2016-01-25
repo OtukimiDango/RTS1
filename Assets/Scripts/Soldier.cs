@@ -14,7 +14,7 @@ public class Soldier: MonoBehaviour
 	//自分に攻撃してる敵のリスト
 	private bool dir;
 	//迂回時の方向
-	public bool lightup = false;
+	//public bool lightup = false;
 	public GameObject attackObj;
 
 	private AudioClip hit;
@@ -57,12 +57,12 @@ public class Soldier: MonoBehaviour
 		if (HP < 0) {
 			Death ();//HPがゼロになっていたら死亡
 		}
-		
-		if (lightup) {//コルーチンにすべし
-			gameObject.AddComponent<line> ();
-			line linerenderer = gameObject.GetComponent<line> ();
-			linerenderer.setup (color (Name ("myTag", false)), tgt, atEnemys);
-			lightup = false;
+
+		if (false) {//コルーチンにすべし
+			//gameObject.AddComponent<line> ();
+			line lined = gameObject.GetComponent<line> ();
+			lined.setup (color (Name ("myTag", false)), tgt, atEnemys);
+			//lightup = false;
 //			LineRenderer linerende = GetComponent<LineRenderer> ();//LineRendererコンポーネントを変数に
 //			linerende.SetPosition (0, transform.position);
 //			linerende.SetPosition (1, tgt.transform.position);
@@ -95,6 +95,11 @@ public class Soldier: MonoBehaviour
 //				//i=3 8,6,7
 //			}
 		}
+	}
+
+	public void lightup(){
+		line lined = gameObject.GetComponent<line> ();
+		lined.setup (color (Name ("myTag", false)), tgt, atEnemys);
 	}
 
 	//====================================================================================
@@ -272,7 +277,7 @@ public class Soldier: MonoBehaviour
 	}
 
 	//====================================================================================
-	//避けるメソッド
+	//避けるメソッド  BOIDBOIDBOIDBOIDBOIDBOIDBOID
 	//====================================================================================
 	/// <summary>
 	/// Keeps the away.ベジェ曲線
@@ -448,7 +453,8 @@ public class Soldier: MonoBehaviour
 		}
 		if (tgt.layer == LayerMask.NameToLayer (Name ("myTag", true))) {
 			tgt.GetComponent<Soldier> ().atEnemys.Remove (gameObject);
-			tgt.GetComponent<LineRenderer > ().SetVertexCount (tgt.GetComponent<Soldier> ().atEnemys.Count + 2);
+
+			//tgt.GetComponent<LineRenderer > ().SetVertexCount (tgt.GetComponent<Soldier> ().atEnemys.Count + 2);
 		}
 //		try {
 //			tgt.GetComponent<LineRenderer > ().SetVertexCount (tgt.GetComponent<Soldier> ().atEnemys.Count + 2);

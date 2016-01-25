@@ -6,10 +6,21 @@ using System.Threading;
 
 public class line : MonoBehaviour {
 	private GameObject lineImage = (GameObject)Resources.Load("lineImage");
-	private List<GameObject> lineob = new List<GameObject> ();
+	public List<GameObject> lineob = new List<GameObject> ();
 	private Vector3 p1;
 	public bool mouseLine;
 
+	public bool enable{
+		set{
+			if (value == false) {
+				line script = gameObject.GetComponent<line> ();
+				lineob.ForEach (i => Destroy (i));
+				line.Destroy (script);
+			} else {
+
+			}
+		}
+	}
 	public Color color{
 		set{
 			for(int i = -1; i < lineob.Count;i++){
@@ -27,9 +38,7 @@ public class line : MonoBehaviour {
 	/// <param name="c">C.</param>
 	private void lineCons(int i,Color c){
 		p1 = transform.position;
-		Debug.Log (lineob.Count);
 		lineob.Add((GameObject)Instantiate (lineImage,new Vector3(p1.x,0.1f,p1.z),Quaternion.identity));
-		Debug.Log (lineob.Count);
 		lineob[i].GetComponent<SpriteRenderer> ().color = c;
 		lineob[i].transform.Rotate (90,0,0);
 
@@ -161,8 +170,7 @@ public class line : MonoBehaviour {
 		lineob[i].transform.position = new Vector3 ((p0.x+p1.x)/2,0.1f,(p0.z+p1.z)/2);
 		yield return null;
 	}
-
 	void OnDestroy(){
-		lineob.ForEach (i=>Destroy(i));
+
 	}
 }
