@@ -186,7 +186,15 @@ public class Soldier: MonoBehaviour
 		}
 		return s;
 	}
-
+	void OnTriggerStay(Collider col){
+		if (col.gameObject.layer != gameObject.layer || state != "move") {
+			return;
+		}
+		Vector3 diff =  gameObject.transform.position-col.gameObject.transform.position;
+		if(diff.magnitude < Random.Range(8,14)){
+			transform.position = transform.position + diff.normalized * transform.position.magnitude*0.005f;
+		}
+	}
 	//====================================================================================
 	//衝突時
 	//====================================================================================
@@ -343,8 +351,7 @@ public class Soldier: MonoBehaviour
 			goto through;
 		}
 		yield return new WaitForSeconds (1);
-		through:
-		;
+		through:;
 		source.clip = hit;
 		while (state == "fight") {
 			yield return new WaitForSeconds (3);
