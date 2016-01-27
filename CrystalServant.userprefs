@@ -1,11 +1,12 @@
 ﻿<Properties StartupItem="Assembly-CSharp.csproj">
   <MonoDevelop.Ide.Workspace ActiveConfiguration="Debug" PreferredExecutionTarget="Unity.Instance.Unity Editor" />
-  <MonoDevelop.Ide.Workbench ActiveDocument="Assets/Scripts/summonsServant.cs">
+  <MonoDevelop.Ide.Workbench ActiveDocument="Assets/Scripts/Soldier.cs">
     <Files>
-      <File FileName="Assets/Scripts/Instruction.cs" Line="169" Column="12" />
-      <File FileName="Assets/Scripts/line.cs" Line="16" Column="5" />
-      <File FileName="Assets/Scripts/Soldier.cs" Line="280" Column="41" />
-      <File FileName="Assets/Scripts/Empty.cs" Line="12" Column="31" />
+      <File FileName="Assets/Scripts/Boids.cs" Line="78" Column="1" />
+      <File FileName="Assets/Scripts/Soldier.cs" Line="67" Column="3" />
+      <File FileName="Assets/Scripts/Instruction.cs" Line="1" Column="1" />
+      <File FileName="Assets/Scripts/line.cs" Line="1" Column="1" />
+      <File FileName="Assets/Scripts/Empty.cs" Line="1" Column="1" />
       <File FileName="Assets/Scripts/summonsServant.cs" Line="1" Column="1" />
       <File FileName="Assets/Scripts/UIHP.cs" Line="1" Column="1" />
       <File FileName="Assets/Scripts/EnemyControl.cs" Line="1" Column="1" />
@@ -14,7 +15,9 @@
       <File FileName="Assets/Scripts/sin.cs" Line="1" Column="1" />
       <File FileName="Assets/Scripts/GameManager.cs" Line="1" Column="1" />
       <File FileName="Assets/Scripts/EyeCol.cs" Line="1" Column="1" />
-      <File FileName="Assets/Scripts/nextStage.cs" Line="16" Column="1" />
+      <File FileName="Assets/Scripts/nextStage.cs" Line="1" Column="1" />
+      <File FileName="../../../Desktop/Project保存場所/UnityBoidsSample/Assets/BoidsController.cs" Line="1" Column="1" />
+      <File FileName="Assets/Scripts/crystal.cs" Line="30" Column="31" />
     </Files>
   </MonoDevelop.Ide.Workbench>
   <MonoDevelop.Ide.DebuggingService.Breakpoints>

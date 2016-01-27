@@ -4,6 +4,7 @@ using System.Collections.Generic;
 
 public class Soldier: MonoBehaviour
 {
+	public static List<GameObject> soldiers = new List<GameObject>();
 	public GameObject tgt;
 	//攻撃先s
 	public int HP;
@@ -19,13 +20,13 @@ public class Soldier: MonoBehaviour
 
 	private AudioClip hit;
 	private AudioClip ready;
-	private AudioSource source; 
+	private AudioSource source;
 
 
 	void Start ()
 	{
-		
-		source = gameObject.GetComponent<AudioSource>();
+		soldiers.Add (gameObject);
+		source = gameObject.GetComponent<AudioSource> ();
 		tgt = GameObject.Find (Name ("tgtName", false));//移動先!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 		gameObject.name = (Name ("myName", false)); //名前に味方召喚数の変数を付随させる
 		state = "move";//初期状態を移動にする
@@ -49,7 +50,7 @@ public class Soldier: MonoBehaviour
 			} catch {
 				tgt = GameObject.Find (Name ("tgtName", false));
 				changeAttack (tgt);
-				}
+			}
 			break;
 		default :
 			break;
@@ -57,51 +58,13 @@ public class Soldier: MonoBehaviour
 		if (HP < 0) {
 			Death ();//HPがゼロになっていたら死亡
 		}
-
-		if (false) {//コルーチンにすべし
-			//gameObject.AddComponent<line> ();
-			line lined = gameObject.GetComponent<line> ();
-			lined.setup (color (Name ("myTag", false)), tgt, atEnemys);
-			//lightup = false;
-//			LineRenderer linerende = GetComponent<LineRenderer> ();//LineRendererコンポーネントを変数に
-//			linerende.SetPosition (0, transform.position);
-//			linerende.SetPosition (1, tgt.transform.position);
-//
-//			try {
-//				if (tgt.GetComponent<Light> ().enabled == false)
-//					tgt.GetComponent<Light> ().enabled = true;
-//				if (attackObj != tgt && tgt.GetComponent<Light> ().color != Color.yellow) {
-//					tgt.GetComponent<Light> ().color = Color.yellow;
-//				} else if (attackObj == tgt && tgt.GetComponent<Light> ().color == color (Name ("myTag", true)) && atEnemys.Count == 0) {
-//					tgt.GetComponent<Light> ().color = color (Name ("myTag", false));
-//				}
-//			} catch {
-//			}
-//			if (gameObject.GetComponent<Light> ().color != color (Name ("myTag", false)))
-//				gameObject.GetComponent<Light> ().color = color (Name ("myTag", false));
-//			for (int i = 0; i < atEnemys.Count; i++) {
-//				if (atEnemys [i].GetComponent<Light> ().enabled == false) {
-//					atEnemys [i].GetComponent<Light> ().enabled = true;
-//					atEnemys [i].GetComponent<Light> ().color = color (Name ("myTag", true));
-//					if (atEnemys [i].name == tgt.name) {
-//						atEnemys [i].GetComponent<Light> ().color = color (Name ("myTag", false));
-//					}
-//				}
-////				linerende.SetVertexCount (2 + ((i + 1) * 2));
-////				linerende.SetPosition (2 + ((i + 1) * 2 - 2), transform.position);
-////				linerende.SetPosition (2 + ((i + 1) * 2 - 1), atEnemys [i].transform.position);
-//				//i=1 4,2,3
-//				//i=2 6,4,5
-//				//i=3 8,6,7
-//			}
-		}
 	}
 
-	public void lightup(){
+	public void lightup ()
+	{
 		line lined = gameObject.GetComponent<line> ();
 		lined.setup (color (Name ("myTag", false)), tgt, atEnemys);
 	}
-
 	//====================================================================================
 	//移動
 	//====================================================================================
@@ -169,25 +132,25 @@ public class Soldier: MonoBehaviour
 		case"tgtName"://※※※※※※※※※※※進行状況によって対象を変化させる必要あり※※※※※※※※※※※※※※※※
 			if (!not) {
 				s = team == "Red" ? "BlueFirstCrystal" : "RedFirstCrystal";
-			}else {
+			} else {
 				s = team == "Red" ? "RedFirstCrystal" : "BlueFirstCrystal";
 			}
 			break;
 		case"myName":
 			if (transform.localScale == new Vector3 (6, 6, 6)) {
 				s = team + "Warrior" + teamCount;
-				hit = (AudioClip)Resources.Load("Sound/W_hit");
-				ready = (AudioClip)Resources.Load("Sound/W_ready");
+				hit = (AudioClip)Resources.Load ("Sound/W_hit");
+				ready = (AudioClip)Resources.Load ("Sound/W_ready");
 				source.clip = ready;
 				source.Play ();
 			} else if (transform.localScale == new Vector3 (6.05f, 6.05f, 6.05f)) {
 				s = team + "Witch" + teamCount;
-				hit = (AudioClip)Resources.Load("Sound/W_hit");
-				ready = (AudioClip)Resources.Load("Sound/Wi_ready");
+				hit = (AudioClip)Resources.Load ("Sound/W_hit");
+				ready = (AudioClip)Resources.Load ("Sound/Wi_ready");
 			} else if (transform.localScale == new Vector3 (6.1f, 6.1f, 6.1f)) {
 				s = team + "Guard" + teamCount;
-				hit = (AudioClip)Resources.Load("Sound/W_hit");
-				ready = (AudioClip)Resources.Load("Sound/W_ready");
+				hit = (AudioClip)Resources.Load ("Sound/W_hit");
+				ready = (AudioClip)Resources.Load ("Sound/W_ready");
 				source.clip = ready;
 				source.Play ();
 			}
@@ -229,18 +192,18 @@ public class Soldier: MonoBehaviour
 	//====================================================================================
 	void OnTriggerEnter (Collider col)
 	{
-		try{
+		try {
 			GameObject test = col.gameObject.transform.parent.gameObject;
-		}catch{
+		} catch {
 			return;
 		}
 		GameObject colOb = col.gameObject.transform.parent.gameObject;
 
 		
 		if (tgt.layer == LayerMask.NameToLayer (Name ("myTag", true)) && tgt != colOb || col.gameObject.layer != 8) {
-				//プレイヤーの指示による攻撃対象とは違うオブジェクトであればreturn
-				return;
-			}
+			//プレイヤーの指示による攻撃対象とは違うオブジェクトであればreturn
+			return;
+		}
 
 		if (colOb.layer == LayerMask.NameToLayer (Name ("myTag", true)) && state != "fight") {
 			//移動中にぶつかったら
@@ -251,7 +214,7 @@ public class Soldier: MonoBehaviour
 				tgt = colOb;//攻撃対象に選択
 				attackObj = tgt;//攻撃開始対象
 				state = "fight";//状態を攻撃中に変更
-				behindAlly.ForEach (i => i.GetComponent<Soldier> ().StartCoroutine( i.GetComponent<Soldier>().keepAway (gameObject,10)));
+				behindAlly.ForEach (i => i.GetComponent<Soldier> ().StartCoroutine (i.GetComponent<Soldier> ().keepAway (gameObject, 10)));
 				//自分の背後にいる味方をKeepAwaYさせる
 				behindAlly.Clear ();//背後のリストを真っ白にする
 				tag = Name ("myStopTag", false);//自分のタグを停止中にする
@@ -263,7 +226,7 @@ public class Soldier: MonoBehaviour
 				tgt = colOb;
 				attackObj = tgt;
 				state = "fight";
-				behindAlly.ForEach (i => i.GetComponent<Soldier> ().StartCoroutine( i.GetComponent<Soldier>().keepAway (gameObject,10)));
+				behindAlly.ForEach (i => i.GetComponent<Soldier> ().StartCoroutine (i.GetComponent<Soldier> ().keepAway (gameObject, 10)));
 				behindAlly.Clear ();
 				tag = Name ("myStopTag", false);
 				StartCoroutine (attack (30)); //攻撃
@@ -285,14 +248,13 @@ public class Soldier: MonoBehaviour
 	/// <returns>The away.</returns>
 	/// <param name="front">Front.</param>
 	/// <param name="speed">Speed.</param>
-	public IEnumerator keepAway (GameObject front,int speed)
+	public IEnumerator keepAway (GameObject front, int speed)
 	{
 
 		RaycastHit hit;
 
-		if(Physics.Raycast	(transform.position,dir?Vector3.right:Vector3.left,out hit, transform.localScale.x/2 + (dir?5:-5)))
-		{
-			if (Physics.Raycast (transform.position, dir?Vector3.left:Vector3.right, out hit, transform.localScale.x/2 + (dir?-5:5))) {
+		if (Physics.Raycast	(transform.position, dir ? Vector3.right : Vector3.left, out hit, transform.localScale.x / 2 + (dir ? 5 : -5))) {
+			if (Physics.Raycast (transform.position, dir ? Vector3.left : Vector3.right, out hit, transform.localScale.x / 2 + (dir ? -5 : 5))) {
 
 				tag = Name ("myStopTag", false);
 				yield break;
@@ -309,20 +271,20 @@ public class Soldier: MonoBehaviour
 		//====================================================================================
 		//避ける先
 		//====================================================================================
-			if (dir) {//右に避ける
-				if (frPos <= myPos) {//自分のほうが右にいる場合
-					AwayDis = myScale + frScale - (myPos - frPos - 2);
-				} else {
-					AwayDis = myScale + frScale + (frPos - myPos + 2);
-				}
-			} else {//左に避ける
-				if (frPos <= myPos) {//自分のほうが左にいる場合
-					AwayDis = -myScale + -frScale + (frPos - myPos - 3);
-				} else {
-					AwayDis = -myScale + -frScale + (myPos - frPos - 3);
-
-				}
+		if (dir) {//右に避ける
+			if (frPos <= myPos) {//自分のほうが右にいる場合
+				AwayDis = myScale + frScale - (myPos - frPos - 2);
+			} else {
+				AwayDis = myScale + frScale + (frPos - myPos + 2);
 			}
+		} else {//左に避ける
+			if (frPos <= myPos) {//自分のほうが左にいる場合
+				AwayDis = -myScale + -frScale + (frPos - myPos - 3);
+			} else {
+				AwayDis = -myScale + -frScale + (myPos - frPos - 3);
+
+			}
+		}
 		//____________________________________________________________________________________
 		//z軸とx軸の二点から角度を求める　Y/Z
 		//____________________________________________________________________________________
@@ -331,24 +293,23 @@ public class Soldier: MonoBehaviour
 		//____________________________________________________________________________________
 		//避ける
 		//____________________________________________________________________________________
-		for(float t = 0;t<1;t+=Time.deltaTime*0.3f){//速度に対応して変更する必要あり
-			if(transform.position.x>307||
-				transform.position.x < 207){
+		for (float t = 0; t < 1; t += Time.deltaTime * 0.3f) {//速度に対応して変更する必要あり
+			if (transform.position.x > 307 ||
+			   transform.position.x < 207) {
 				transform.LookAt (tgt.transform);
 
-				if(Physics.Raycast( transform.position,Vector3.forward,out hit, 10 ))
-				{
+				if (Physics.Raycast (transform.position, Vector3.forward, out hit, 10)) {
 					
-					tag = Name("myStopTag",false);
+					tag = Name ("myStopTag", false);
 					yield break;
 				}
 				break;
 			}//ベジェ曲線 一個前のバージョンはGithub参照
-			try{
-				transform.position = new Vector3((1-t)*(1-t)*p.x + 2*(1-t)*t*(frPos+(dir?+3:-3))+ t*t*(p.x+AwayDis)
-											,transform.position.y
-					,(1-t)*(1-t)*p.z + 2*(1-t)*t*(front.transform.position.z-3) + t*t*front.transform.position.z);
-			}catch{
+			try {
+				transform.position = new Vector3 ((1 - t) * (1 - t) * p.x + 2 * (1 - t) * t * (frPos + (dir ? +3 : -3)) + t * t * (p.x + AwayDis)
+											, transform.position.y
+					, (1 - t) * (1 - t) * p.z + 2 * (1 - t) * t * (front.transform.position.z - 3) + t * t * front.transform.position.z);
+			} catch {
 			}
 			yield return null;
 		}
@@ -357,7 +318,7 @@ public class Soldier: MonoBehaviour
 		//____________________________________________________________________________________
 		state = "move";
 		gameObject.tag = Name ("myTag", false);
-		changeAttack(GameObject.Find( Name ("tgtName", false)));
+		changeAttack (GameObject.Find (Name ("tgtName", false)));
 	}
 
 	public static Vector3 distance (Vector3 target, Vector3 me)
@@ -374,15 +335,16 @@ public class Soldier: MonoBehaviour
 	private IEnumerator attack (int power)
 	{
 		source.clip = ready;
-		try{
-			GameObject m = gameObject.transform.FindChild("Magic").gameObject;
-			m.GetComponent<SpriteRenderer>().enabled = true;
+		try {
+			GameObject m = gameObject.transform.FindChild ("Magic").gameObject;
+			m.GetComponent<SpriteRenderer> ().enabled = true;
 			source.Play ();
-		}catch{
+		} catch {
 			goto through;
 		}
 		yield return new WaitForSeconds (1);
-		through:;
+		through:
+		;
 		source.clip = hit;
 		while (state == "fight") {
 			yield return new WaitForSeconds (3);
@@ -412,19 +374,19 @@ public class Soldier: MonoBehaviour
 		tgt = obj;
 		if (atEnemys.Find (delegate(GameObject ob) {
 			return ob.name == tgt.name;
-		})){
+		})) {
 			attackObj = tgt;//Atenemyだけでなく、TriggerEnter中も探す必要あり
-		}else {
+		} else {
 			state = "move";
 			tag = Name ("myTag", false);
 			StopAllCoroutines ();
-			try{
-				GameObject m = gameObject.transform.FindChild("Magic").gameObject;
-				m.GetComponent<SpriteRenderer>().enabled = false;
-			}catch{
+			try {
+				GameObject m = gameObject.transform.FindChild ("Magic").gameObject;
+				m.GetComponent<SpriteRenderer> ().enabled = false;
+			} catch {
 
 			}
-			StartCoroutine(move (distance(tgt.transform.position,transform.position),true));
+			StartCoroutine (move (distance (tgt.transform.position, transform.position), true));
 		}
 	}
 
@@ -454,32 +416,26 @@ public class Soldier: MonoBehaviour
 		if (tgt.layer == LayerMask.NameToLayer (Name ("myTag", true))) {
 			tgt.GetComponent<Soldier> ().atEnemys.Remove (gameObject);
 
-			//tgt.GetComponent<LineRenderer > ().SetVertexCount (tgt.GetComponent<Soldier> ().atEnemys.Count + 2);
-		}
-//		try {
-//			tgt.GetComponent<LineRenderer > ().SetVertexCount (tgt.GetComponent<Soldier> ().atEnemys.Count + 2);
-//		} catch {
-//		}
-		Instruction.charaDestroy (gameObject);
-		foreach (GameObject enemy in atEnemys) {//自分を狙っている敵
-			try {
-				Soldier script = enemy.GetComponent<Soldier> ();//敵のスクリプトを入手
-				script.atEnemys.Remove (gameObject);
-				if (script.atEnemys.Count == 0) {//敵を狙っている味方がいなければ
-					script.tgt = GameObject.Find (Name("tgtName",true));//敵のターゲットを自陣に
-					script.changeAttack(script.tgt);
-				} else
-					script.tgt = script.atEnemys [0];
-			} catch {
+			Instruction.charaDestroy (gameObject);
+			foreach (GameObject enemy in atEnemys) {//自分を狙っている敵
+				try {
+					Soldier script = enemy.GetComponent<Soldier> ();//敵のスクリプトを入手
+					script.atEnemys.Remove (gameObject);
+					if (script.atEnemys.Count == 0) {//敵を狙っている味方がいなければ
+						script.tgt = GameObject.Find (Name ("tgtName", true));//敵のターゲットを自陣に
+						script.changeAttack (script.tgt);
+					} else
+						script.tgt = script.atEnemys [0];
+				} catch {
+				}
 			}
+			if (Instruction.saveChara == gameObject)
+				Instruction.saveChara = null;
+			UIHP.targets.Remove (gameObject.transform);
+			Destroy (GameObject.Find (gameObject.name + "hp(Clone)"));
+			GameManager.sp += 10;
+			Destroy (gameObject);
+
 		}
-		if (Instruction.saveChara == gameObject)
-			Instruction.saveChara = null;
-		UIHP.targets.Remove (gameObject.transform);
-		Destroy (GameObject.Find (gameObject.name + "hp(Clone)"));
-		GameManager.sp += 10;
-		Destroy (gameObject);
-
 	}
-
 }

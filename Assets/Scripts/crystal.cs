@@ -27,9 +27,7 @@ public class crystal : MonoBehaviour {
 	void OnTriggerEnter(Collider col){
 		if(col.gameObject.layer == 9){
 			nearEnemy.Add (col.gameObject);
-			if(nearEnemy.Count == 1){
 				StartCoroutine (attack());
-			}
 		}
 	}
 	public virtual IEnumerator attack(){
